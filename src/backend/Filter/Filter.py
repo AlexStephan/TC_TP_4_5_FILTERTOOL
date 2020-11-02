@@ -15,6 +15,9 @@ class FilterData(Enum):
     tolerance = "Tolerance"
     gain = "Gain"
 
+    Nmin = "Nmin"
+    Nmax = "Nmax"
+    Qmax = "Qmax"
 
 class FilterType(Enum):
     LP = "Low Pass"
