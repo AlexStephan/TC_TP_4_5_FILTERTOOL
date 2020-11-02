@@ -29,6 +29,7 @@ class FilterData(Enum):
     Nmin = "Nmin"
     Nmax = "Nmax"
     Qmax = "Qmax"
+    Denorm = "Denormalization"
 
 class FilterType(Enum):
     LP = "Low Pass"

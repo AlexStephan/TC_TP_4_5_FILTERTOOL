@@ -8,11 +8,13 @@ class LowPass(Filter):
         self.reqData = {FilterData.Aa: None, FilterData.faMin: None,
                         FilterData.Ap: None, FilterData.fpMin: None,
                         FilterData.gain: None,
-                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None}
+                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
+                        FilterData.Denorm: None}
         self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3,
                         FilterData.Ap: 5, FilterData.fpMin: 9e3,
                         FilterData.gain: 0,
-                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None}
+                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
+                        FilterData.Denorm: None}
 
     def validate(self) -> (bool, str):  # Returns true and "Ok" if everything is fine, false and "ErrMsg" if not
         valid = False
