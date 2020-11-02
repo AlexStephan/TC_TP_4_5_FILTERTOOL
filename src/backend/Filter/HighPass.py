@@ -2,15 +2,15 @@ from src.backend.Filter.Filter import *
 from src.backend.Filter.TemplateLimit import *
 
 
-class LowPass(Filter):
+class HighPass(Filter):
     def __init__(self):
-        self.type = FilterType.LP
+        self.type = FilterType.HP
         self.reqData = {FilterData.Aa: None, FilterData.faMin: None,
                         FilterData.Ap: None, FilterData.fpMin: None,
                         FilterData.gain: None,
                         FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None}
-        self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3,
-                        FilterData.Ap: 5, FilterData.fpMin: 9e3,
+        self.default = {FilterData.Aa: 30, FilterData.faMin: 9e3,
+                        FilterData.Ap: 5, FilterData.fpMin: 10e3,
                         FilterData.gain: 0,
                         FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None}
 
@@ -21,8 +21,8 @@ class LowPass(Filter):
             message = "Error: Enter positive values for Aa and Ap."
         elif self.reqData[FilterData.Aa] < self.reqData[FilterData.Ap]:
             message = "Error: Aa must be greater than Ap."
-        elif self.reqData[FilterData.faMin] < self.reqData[FilterData.fpMin]:
-            message = "Error: fa must be greater than fp."
+        elif self.reqData[FilterData.faMin] > self.reqData[FilterData.fpMin]:
+            message = "Error: fa must be lesser than fp."
         else:
             valid = True
         return valid, message
@@ -34,11 +34,11 @@ class LowPass(Filter):
         fpMin = self.reqData[FilterData.fpMin.value]
         faMin = self.reqData[FilterData.faMin.value]
 
-        denormLimit1 = Limit(Dot(0, 1e9), Dot(fpMin, 1e9), Dot(0, Ap), Dot(fpMin, Ap))
-        denormLimit2 = Limit(Dot(faMin, Aa), Dot(1e12, Aa), Dot(faMin, 0), Dot(1e12, 0))
+        denormLimit1 = Limit(Dot(0, Aa), Dot(faMin, Aa), Dot(0, 0), Dot(faMin, 0))
+        denormLimit2 = Limit(Dot(fpMin, 1e9), Dot(1e12, 1e9), Dot(fpMin, Ap), Dot(1e12, Ap))
         denormLimit = [denormLimit1, denormLimit2]
 
-        selectivity = fpMin / faMin  # K = fp/fa
+        selectivity = faMin / fpMin  # K = fa/fp
         normalizedF1 = 1 / (2 * pi)
         normalizedF2 = 1 / (2 * pi * selectivity)
 
