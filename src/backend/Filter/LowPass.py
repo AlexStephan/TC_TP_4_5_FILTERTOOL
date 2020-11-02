@@ -1,4 +1,5 @@
 from src.backend.Filter.Filter import *
+from src.backend.Filter.TemplateLimit import *
 
 
 class LowPass(Filter):
@@ -28,5 +29,21 @@ class LowPass(Filter):
 
     def get_template_limits(self):  # Create one set of squares for denormalized graph, and one set for
                                     # normalized graph
+        Ap = self.reqData[FilterData.Ap.value]
+        Aa = self.reqData[FilterData.Aa.value]
+        fpMin = self.reqData[FilterData.fpMin.value]
+        faMin = self.reqData[FilterData.faMin.value]
 
-        return
+        denormLimit1 = Limit(Dot(0, 1e9), Dot(fpMin, 1e9), Dot(0, Ap), Dot(fpMin, Ap))
+        denormLimit2 = Limit(Dot(faMin, Aa), Dot(1e12, Aa), Dot(faMin, 0), Dot(1e12, 0))
+        denormLimit = [denormLimit1, denormLimit2]
+
+        selectivity = fpMin / faMin  # K = fp/wa
+        normalizedF1 = 1 / (2 * pi)
+        normalizedF2 = 1 / (2 * pi * selectivity)
+
+        normLimit1 = Limit(Dot(0, 1e9), Dot(normalizedF1, 1e9), Dot(0, Ap), Dot(normalizedF1, Ap))
+        normLimit2 = Limit(Dot(normalizedF2, Aa), Dot(1e12, Aa), Dot(normalizedF2, 0), Dot(1e12, 0))
+        normLimit = [normLimit1, normLimit2]
+
+        return [denormLimit, normLimit]
