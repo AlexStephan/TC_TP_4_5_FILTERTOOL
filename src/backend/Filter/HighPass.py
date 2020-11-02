@@ -14,7 +14,7 @@ class HighPass(Filter):
                         FilterData.Ap: 5, FilterData.fpMin: 10e3,
                         FilterData.gain: 0,
                         FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
-                        FilterData.Denorm: None}
+                        FilterData.Denorm: 0}
 
     def validate(self) -> (bool, str):  # Returns true and "Ok" if everything is fine, false and "ErrMsg" if not
         valid = False

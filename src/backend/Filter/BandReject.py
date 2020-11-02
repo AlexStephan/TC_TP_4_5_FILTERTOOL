@@ -2,16 +2,16 @@ from src.backend.Filter.Filter import *
 from src.backend.Filter.TemplateLimit import *
 
 
-class LowPass(Filter):
+class BandReject(Filter):
     def __init__(self):
-        self.type = FilterType.LP
-        self.reqData = {FilterData.Aa: None, FilterData.faMin: None,
-                        FilterData.Ap: None, FilterData.fpMin: None,
+        self.type = FilterType.BR
+        self.reqData = {FilterData.Aa: None, FilterData.faMin: None, FilterData.faMax: None,
+                        FilterData.Ap: None, FilterData.fpMin: None, FilterData.fpMax: None,
                         FilterData.gain: None,
                         FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
                         FilterData.Denorm: None}
-        self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3,
-                        FilterData.Ap: 5, FilterData.fpMin: 9e3,
+        self.default = {FilterData.Aa: 30, FilterData.faMin: 11e3, FilterData.faMax: 19e3,
+                        FilterData.Ap: 5, FilterData.fpMin: 10e3, FilterData.fpMax: 20e3,
                         FilterData.gain: 0,
                         FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
                         FilterData.Denorm: 0}
@@ -23,8 +23,12 @@ class LowPass(Filter):
             message = "Error: Enter positive values for Aa and Ap."
         elif self.reqData[FilterData.Aa] < self.reqData[FilterData.Ap]:
             message = "Error: Aa must be greater than Ap."
-        elif self.reqData[FilterData.faMin] < self.reqData[FilterData.fpMin]:
-            message = "Error: fa must be greater than fp."
+        elif self.reqData[FilterData.fpMin] > self.reqData[FilterData.faMin]:
+            message = "Error: fp- must be less than fa-."
+        elif self.reqData[FilterData.faMin] > self.reqData[FilterData.faMax]:
+            message = "Error: fa- must be less than fa+."
+        elif self.reqData[FilterData.faMax] > self.reqData[FilterData.fpMax]:
+            message = "Error: fa+ must be less than fp+."
         else:
             valid = True
         return valid, message
@@ -34,13 +38,16 @@ class LowPass(Filter):
         Ap = self.reqData[FilterData.Ap.value]
         Aa = self.reqData[FilterData.Aa.value]
         fpMin = self.reqData[FilterData.fpMin.value]
+        fpMax = self.reqData[FilterData.fpMin.value]
         faMin = self.reqData[FilterData.faMin.value]
+        faMax = self.reqData[FilterData.faMin.value]
 
         denormLimit1 = Limit(Dot(0, 1e9), Dot(fpMin, 1e9), Dot(0, Ap), Dot(fpMin, Ap))
-        denormLimit2 = Limit(Dot(faMin, Aa), Dot(1e12, Aa), Dot(faMin, 0), Dot(1e12, 0))
-        denormLimit = [denormLimit1, denormLimit2]
+        denormLimit2 = Limit(Dot(faMin, Aa), Dot(faMax, Aa), Dot(faMin, 0), Dot(faMax, 0))
+        denormLimit3 = Limit(Dot(fpMax, 1e9), Dot(1e12, 1e9), Dot(fpMax, Ap), Dot(1e12, Ap))
+        denormLimit = [denormLimit1, denormLimit2, denormLimit3]
 
-        selectivity = fpMin / faMin  # K = fp/fa
+        selectivity = (faMax-faMin) / (fpMax-fpMin)  # K = deltafa/deltafp
         normalizedF1 = 1 / (2 * pi)
         normalizedF2 = 1 / (2 * pi * selectivity)
 
