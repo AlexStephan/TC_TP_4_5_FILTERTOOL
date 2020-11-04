@@ -3,13 +3,16 @@ from src.backend.Filter.TemplateLimit import *
 
 
 class BandReject(Filter):
-    def __init__(self):
+    def __init__(self, Aa: FilterData.Aa, faMin: FilterData.faMin, faMax: FilterData.faMax,
+                 Ap: FilterData.Ap, fpMin: FilterData.fpMin, fpMax: FilterData.fpMax,
+                 gain: FilterData.gain,
+                 Nmax: FilterData.Nmax, Nmin: FilterData.Nmin, Qmax: FilterData.Qmax, Denorm: FilterData.Denorm):
         self.type = FilterType.BR
-        self.reqData = {FilterData.Aa: None, FilterData.faMin: None, FilterData.faMax: None,
-                        FilterData.Ap: None, FilterData.fpMin: None, FilterData.fpMax: None,
-                        FilterData.gain: None,
-                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
-                        FilterData.Denorm: None}
+        self.reqData = {FilterData.Aa: Aa, FilterData.faMin: faMin, FilterData.faMax: faMax,
+                        FilterData.Ap: Ap, FilterData.fpMin: fpMin, FilterData.fpMax: fpMax,
+                        FilterData.gain: gain,
+                        FilterData.Nmax: Nmax, FilterData.Nmin: Nmin, FilterData.Qmax: Qmax,
+                        FilterData.Denorm: Denorm}
         self.default = {FilterData.Aa: 30, FilterData.faMin: 11e3, FilterData.faMax: 19e3,
                         FilterData.Ap: 5, FilterData.fpMin: 10e3, FilterData.fpMax: 20e3,
                         FilterData.gain: 0,
@@ -34,7 +37,7 @@ class BandReject(Filter):
         return valid, message
 
     def get_template_limits(self):  # Create one set of squares for denormalized graph, and one set for
-                                    # normalized graph
+        # normalized graph
         Ap = self.reqData[FilterData.Ap.value]
         Aa = self.reqData[FilterData.Aa.value]
         fpMin = self.reqData[FilterData.fpMin.value]
@@ -47,7 +50,7 @@ class BandReject(Filter):
         denormLimit3 = Limit(Dot(fpMax, 1e9), Dot(1e12, 1e9), Dot(fpMax, Ap), Dot(1e12, Ap))
         denormLimit = [denormLimit1, denormLimit2, denormLimit3]
 
-        selectivity = (faMax-faMin) / (fpMax-fpMin)  # K = deltafa/deltafp
+        selectivity = (faMax - faMin) / (fpMax - fpMin)  # K = deltafa/deltafp
         normalizedF1 = 1 / (2 * pi)
         normalizedF2 = 1 / (2 * pi * selectivity)
 

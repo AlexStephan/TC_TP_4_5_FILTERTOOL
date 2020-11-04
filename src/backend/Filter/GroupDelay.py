@@ -3,12 +3,12 @@ from src.backend.Filter.TemplateLimit import *
 
 
 class GroupDelay(Filter):
-    def __init__(self):
+    def __init__(self, ft: FilterData.ft, GD: FilterData.GD, tolerance: FilterData.tolerance, gain: FilterData.gain):
         self.type = FilterType.GD
-        self.reqData = {FilterData.ft: None,
-                        FilterData.GD: None,
-                        FilterData.tolerance: None,
-                        FilterData.gain: None}
+        self.reqData = {FilterData.ft: ft,
+                        FilterData.GD: GD,
+                        FilterData.tolerance: tolerance,
+                        FilterData.gain: gain}
         self.default = {FilterData.ft: 10e3,            #In Hz
                         FilterData.GD: 100,             #In useg
                         FilterData.tolerance: 5,        #In %
