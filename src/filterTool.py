@@ -30,8 +30,8 @@ from sympy.parsing.sympy_parser import parse_expr
 from sympy import I
 
 # My Own Modules
-
-#(empty, as my head)
+from src.backend.Stages.SimpleHs import SimpleHs
+from src.backend.Filter.Filter import FilterData
 
 class filterType(Enum):
     LP=0
@@ -59,7 +59,7 @@ class FilterTool(QWidget,Ui_Form):
         self.__showHideState_CreateNewStage()
 
     def __createFilter(self):
-        print("lol")
+        lol = SimpleHs([2+1j,2-1j],[1,4])
 
     def __setCallbacks(self):
         self.pushButton_CanceNewStage.clicked.connect(self.__cancelNewStage)
@@ -178,13 +178,21 @@ class FilterTool(QWidget,Ui_Form):
         self.horizontalLayout_Q.addWidget(self.toolbar_Q)
         self.axis_Q = self.figure_Q.add_subplot()
 
-        self.figure_Stages = Figure()
-        self.canvas_Stages = FigureCanvas(self.figure_Stages)
-        self.index_Stages = self.stackedWidget_Stages.addWidget(self.canvas_Stages)
-        self.stackedWidget_Stages.setCurrentIndex(self.index_Stages)
-        self.toolbar_Stages = NavigationToolbar(self.canvas_Stages,self)
-        self.horizontalLayout_Stages.addWidget(self.toolbar_Stages)
-        self.axis_Stages = self.figure_Stages.add_subplot()
+        self.figure_StagesGain = Figure()
+        self.canvas_StagesGain = FigureCanvas(self.figure_StagesGain)
+        self.index_StagesGain = self.stackedWidget_StagesGain.addWidget(self.canvas_StagesGain)
+        self.stackedWidget_StagesGain.setCurrentIndex(self.index_StagesGain)
+        self.toolbar_StagesGain = NavigationToolbar(self.canvas_StagesGain,self)
+        self.horizontalLayout_StagesGain.addWidget(self.toolbar_StagesGain)
+        self.axis_StagesGain = self.figure_StagesGain.add_subplot()
+
+        self.figure_StagesPhase = Figure()
+        self.canvas_StagesPhase = FigureCanvas(self.figure_StagesPhase)
+        self.index_StagesPhase = self.stackedWidget_StagesPhase.addWidget(self.canvas_StagesPhase)
+        self.stackedWidget_StagesPhase.setCurrentIndex(self.index_StagesPhase)
+        self.toolbar_StagesPhase = NavigationToolbar(self.canvas_StagesPhase,self)
+        self.horizontalLayout_StagesPhase.addWidget(self.toolbar_StagesPhase)
+        self.axis_StagesPhase = self.figure_StagesPhase.add_subplot()
 
     def __selectRealPole(self):
         self.__showHideState_1stOrderPoleReady()
