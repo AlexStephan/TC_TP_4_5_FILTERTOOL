@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QFileDialog
-from src.ui.filterToolGUI import Ui_Form
+from src.ui.filterToolGUI_v2 import Ui_Form
 
 # Matplotlib Modules
 from matplotlib.figure import Figure
