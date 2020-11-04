@@ -33,6 +33,13 @@ from sympy import I
 
 #(empty, as my head)
 
+class filterType(Enum):
+    LP=0
+    HP=1
+    BP=2
+    BS=3
+    GD=4
+
 class FilterTool(QWidget,Ui_Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,6 +73,9 @@ class FilterTool(QWidget,Ui_Form):
         self.pushButton_SelectRealZero.clicked.connect(self.__finishRealZero)
         self.pushButton_SelectRealZeros.clicked.connect(self.__finishRealZeros)
         self.pushButton_SelectComplexZeros.clicked.connect(self.__finishComplexZeros)
+
+        self.comboBox_filterType.currentIndexChanged.connect(self.__showAndHideParameters)
+        self.__showAndHideParameters()
 
     def __cancelNewStage(self):
         self.__showHideState_CreateNewStage()
@@ -246,6 +256,75 @@ class FilterTool(QWidget,Ui_Form):
         for i in range(length):
             self.__showOrHideSingle(self.itemList[i],arr[i])
 
+    def __showAndHideParameters(self):
+        filterT = self.comboBox_filterType.currentIndex()
+        if filterT is filterType.LP.value or filterT is filterType.HP.value:
+            self.label_5.show()
+            self.label_6.show()
+            self.label_7.show()
+            self.label_8.show()
+            self.doubleSpinBox_Aa.show()
+            self.doubleSpinBox_Ap.show()
+            self.doubleSpinBox_fa_minus.show()
+            self.doubleSpinBox_fp_minus.show()
+
+            self.label_9.hide()
+            self.label_10.hide()
+            self.doubleSpinBox_fa_plus.hide()
+            self.doubleSpinBox_fp_plus.hide()
+
+            self.label_47.hide()
+            self.label_49.hide()
+            self.label_51.hide()
+            self.doubleSpinBox_ft.hide()
+            self.doubleSpinBox_Tolerance.hide()
+            self.doubleSpinBox_GroupDelay.hide()
+        elif filterT is filterType.BP.value or filterT is filterType.BS.value:
+            self.label_5.show()
+            self.label_6.show()
+            self.label_7.show()
+            self.label_8.show()
+            self.doubleSpinBox_Aa.show()
+            self.doubleSpinBox_Ap.show()
+            self.doubleSpinBox_fa_minus.show()
+            self.doubleSpinBox_fp_minus.show()
+
+            self.label_9.show()
+            self.label_10.show()
+            self.doubleSpinBox_fa_plus.show()
+            self.doubleSpinBox_fp_plus.show()
+
+            self.label_47.hide()
+            self.label_49.hide()
+            self.label_51.hide()
+            self.label_47.hide()
+            self.label_49.hide()
+            self.label_51.hide()
+            self.doubleSpinBox_ft.hide()
+            self.doubleSpinBox_Tolerance.hide()
+            self.doubleSpinBox_GroupDelay.hide()
+        else:
+            self.label_5.hide()
+            self.label_6.hide()
+            self.label_7.hide()
+            self.label_8.hide()
+            self.doubleSpinBox_Aa.hide()
+            self.doubleSpinBox_Ap.hide()
+            self.doubleSpinBox_fa_minus.hide()
+            self.doubleSpinBox_fp_minus.hide()
+
+            self.label_9.hide()
+            self.label_10.hide()
+            self.doubleSpinBox_fa_plus.hide()
+            self.doubleSpinBox_fp_plus.hide()
+
+            self.label_47.show()
+            self.label_49.show()
+            self.label_51.show()
+            self.doubleSpinBox_ft.show()
+            self.doubleSpinBox_Tolerance.show()
+            self.doubleSpinBox_GroupDelay.show()
+
     def __showOrHideSingle(self, item, show):
         if show:
             item.show()
@@ -297,3 +376,10 @@ class FilterTool(QWidget,Ui_Form):
             self.comboBox_SelectComplexZeros,
             self.pushButton_SelectComplexZeros
         ]
+        self.errorBox = QtWidgets.QMessageBox()
+
+    def __error_message(self, description):
+        self.errorBox.setWindowTitle("Error")
+        self.errorBox.setIcon(self.errorBox.Information)
+        self.errorBox.setText(description)
+        self.errorBox.exec()
