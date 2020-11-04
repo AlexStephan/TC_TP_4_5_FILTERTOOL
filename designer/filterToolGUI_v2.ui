@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1360</width>
-    <height>1369</height>
+    <height>1379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,7 +119,7 @@
            </property>
            <item>
             <property name="text">
-             <string>Legendre</string>
+             <string>Butterworth</string>
             </property>
            </item>
            <item>
@@ -129,7 +129,7 @@
            </item>
            <item>
             <property name="text">
-             <string>Butterworth</string>
+             <string>Legendre</string>
             </property>
            </item>
           </widget>
@@ -2592,7 +2592,7 @@
               <x>0</x>
               <y>0</y>
               <width>196</width>
-              <height>521</height>
+              <height>526</height>
              </rect>
             </property>
            </widget>

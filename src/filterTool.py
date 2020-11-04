@@ -40,6 +40,11 @@ class filterType(Enum):
     BS=3
     GD=4
 
+class approxTypeALL(Enum):
+    Butterworth = 0
+    Gauss = 1
+    Legendre = 2
+
 class FilterTool(QWidget,Ui_Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -52,6 +57,9 @@ class FilterTool(QWidget,Ui_Form):
         self.__setCallbacks()
 
         self.__showHideState_CreateNewStage()
+
+    def __createFilter(self):
+        print("lol")
 
     def __setCallbacks(self):
         self.pushButton_CanceNewStage.clicked.connect(self.__cancelNewStage)
@@ -76,6 +84,8 @@ class FilterTool(QWidget,Ui_Form):
 
         self.comboBox_filterType.currentIndexChanged.connect(self.__showAndHideParameters)
         self.__showAndHideParameters()
+
+        self.pushButton_createFilter.clicked.connect(self.__createFilter)
 
     def __cancelNewStage(self):
         self.__showHideState_CreateNewStage()
