@@ -3,13 +3,15 @@ from src.backend.Filter.TemplateLimit import *
 
 
 class LowPass(Filter):
-    def __init__(self):
+    def __init__(self, Aa: FilterData.Aa, faMin: FilterData.faMin,
+                 Ap: FilterData.Ap, fpMin: FilterData.fpMin, gain: FilterData.gain,
+                 Nmax: FilterData.Nmax, Nmin: FilterData.Nmin, Qmax: FilterData.Qmax, Denorm: FilterData.Denorm):
         self.type = FilterType.LP
-        self.reqData = {FilterData.Aa: None, FilterData.faMin: None,
-                        FilterData.Ap: None, FilterData.fpMin: None,
-                        FilterData.gain: None,
-                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
-                        FilterData.Denorm: None}
+        self.reqData = {FilterData.Aa: Aa, FilterData.faMin: faMin,
+                        FilterData.Ap: Ap, FilterData.fpMin: fpMin,
+                        FilterData.gain: gain,
+                        FilterData.Nmax: Nmax, FilterData.Nmin: Nmin, FilterData.Qmax: Qmax,
+                        FilterData.Denorm: Denorm}
         self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3,
                         FilterData.Ap: 5, FilterData.fpMin: 9e3,
                         FilterData.gain: 0,

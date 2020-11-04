@@ -3,13 +3,16 @@ from src.backend.Filter.TemplateLimit import *
 
 
 class BandPass(Filter):
-    def __init__(self):
+    def __init__(self, Aa: FilterData.Aa, faMin: FilterData.faMin, faMax: FilterData.faMax,
+                 Ap: FilterData.Ap, fpMin: FilterData.fpMin, fpMax: FilterData.fpMax,
+                 gain: FilterData.gain,
+                 Nmax: FilterData.Nmax, Nmin: FilterData.Nmin, Qmax: FilterData.Qmax, Denorm: FilterData.Denorm):
         self.type = FilterType.BP
-        self.reqData = {FilterData.Aa: None, FilterData.faMin: None, FilterData.faMax: None,
-                        FilterData.Ap: None, FilterData.fpMin: None, FilterData.fpMax: None,
-                        FilterData.gain: None,
-                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
-                        FilterData.Denorm: None}
+        self.reqData = {FilterData.Aa: Aa, FilterData.faMin: faMin, FilterData.faMax: faMax,
+                        FilterData.Ap: Ap, FilterData.fpMin: fpMin, FilterData.fpMax: fpMax,
+                        FilterData.gain: gain,
+                        FilterData.Nmax: Nmax, FilterData.Nmin: Nmin, FilterData.Qmax: Qmax,
+                        FilterData.Denorm: Denorm}
         self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3, FilterData.faMax: 20e3,
                         FilterData.Ap: 5, FilterData.fpMin: 11e3, FilterData.fpMax: 19e3,
                         FilterData.gain: 0,
