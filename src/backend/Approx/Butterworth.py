@@ -258,6 +258,10 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    #TODO: MATI: FIJARTE SI ESTO ESTA BIEN ESCRITO
+    def get_ssTransferFunction(self):
+        return signal.TransferFunction(self.num,self.den)
+
     def check_Q(self) -> bool:
 
         Qmax = self.filter.reqData[FilterData.Qmax.value]
