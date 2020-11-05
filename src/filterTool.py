@@ -45,6 +45,8 @@ from src.backend.Approx.Butterworth import Butterworth
 
 DEBUG = True
 
+t_domain = np.linspace(0,0.001,10000)
+
 class filterType(Enum):
     LP=0
     HP=1
@@ -73,79 +75,88 @@ class FilterTool(QWidget,Ui_Form):
         self.__refreshFilterMakerGraphs()
 
     def __createFilter(self):
-        return
+        if self.checkBox_Test.isChecked() == False:
+            gain = self.doubleSpinBox_Gain.value()
+            Aa = self.doubleSpinBox_Aa.value()
+            Ap = self.doubleSpinBox_Ap.value()
+            fa_minus = self.doubleSpinBox_fa_minus.value()
+            fp_minus = self.doubleSpinBox_fp_minus.value()
+            fa_plus = self.doubleSpinBox_fa_plus.value()
+            fp_plus = self.doubleSpinBox_fp_plus.value()
+            ft = self.doubleSpinBox_ft.value()
+            tol = self.doubleSpinBox_Tolerance.value()
+            gDelay = self.doubleSpinBox_GroupDelay.value()
 
-        gain = self.doubleSpinBox_Gain.value()
-        Aa = self.doubleSpinBox_Aa.value()
-        Ap = self.doubleSpinBox_Ap.value()
-        fa_minus = self.doubleSpinBox_fa_minus.value()
-        fp_minus = self.doubleSpinBox_fp_minus.value()
-        fa_plus = self.doubleSpinBox_fa_plus.value()
-        fp_plus = self.doubleSpinBox_fp_plus.value()
-        ft = self.doubleSpinBox_ft.value()
-        tol = self.doubleSpinBox_Tolerance.value()
-        gDelay = self.doubleSpinBox_GroupDelay.value()
+            denorm = self.doubleSpinBox_denorm.value()
+            if self.checkBox_Nmin.isChecked():
+                Nmin = self.spinBox_Nmin.value()
+            else:
+                Nmin = None
+            if self.checkBox_Nmax.isChecked():
+                Nmax = self.spinBox_Nmax.value()
+            else:
+                Nmax = None
+            if self.checkBox_Qmax.isChecked():
+                Qmax = self.doubleSpinBox_Qmax.value()
+            else:
+                Qmax = None
 
-        denorm = self.doubleSpinBox_denorm.value()
-        if self.checkBox_Nmin.isChecked():
-            Nmin = self.spinBox_Nmin.value()
+            Name = self.lineEdit_name.text()
+
+            filtertype = self.comboBox_filterType.currentIndex()
+            if filtertype == filterType.LP.value:
+                name_filterType = "LowPass"
+                newFilter = LowPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
+            elif filtertype == filterType.HP.value:
+                name_filterType = "HighPass"
+                newFilter = HighPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
+            elif filtertype == filterType.BP.value:
+                name_filterType = "BandPass"
+                newFilter = BandPass(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
+            elif filtertype == filterType.BS.value:
+                name_filterType = "BandStop"
+                newFilter = BandReject(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
+            else:
+                name_filterType = "GroupDelay"
+                newFilter = GroupDelay(ft,gDelay,tol,gain)
+
+            valid,message = newFilter.validate()
+            if not valid:
+                self.__error_message(message)
+                return
+
+            approxtype = self.comboBox_approximation.currentIndex()
+            if approxtype == approxTypeALL.Gauss.value:
+                name_approxType = "Gauss"
+                print("lol")
+                return
+            elif approxtype == approxTypeALL.Butterworth.value:
+                name_approxType = "Butterworth"
+                newApprox = Butterworth(newFilter)
+            elif approxtype == approxTypeALL.Legendre.value:
+                name_approxType = "Legendre"
+                newApprox = Legendre(newFilter)
+            else:
+                self.__error_message("Invalid Approximation Type")
+                return
+
+            #TODO VERIFICAR Q LA APROX SEA VALIDA
+            w,mag,pha = newApprox.calculate()
+            newTransFunc = [w,mag,pha]
+            fullname = Name + " - " + name_filterType + " - " + name_approxType
+            self.myFilters.append([fullname,newApprox,newTransFunc,True])
+            self.comboBox_YourFilters.addItem(fullname)
+            self.comboBox_SelectYourFilter.addItem(fullname)
         else:
-            Nmin = None
-        if self.checkBox_Nmax.isChecked():
-            Nmax = self.spinBox_Nmax.value()
-        else:
-            Nmax = None
-        if self.checkBox_Qmax.isChecked():
-            Qmax = self.doubleSpinBox_Qmax.value()
-        else:
-            Qmax = None
+            newApprox = myFilterTest()
+            fullname = "TEST"
+            w,mag,pha = newApprox.calculate()
+            newTransFunc = [w,mag,pha]
+            self.myFilters.append([fullname,newApprox,newTransFunc,True])
+            self.comboBox_YourFilters.addItem(fullname)
+            self.comboBox_SelectYourFilter.addItem(fullname)
 
-        Name = self.lineEdit_name.text()
-
-        filtertype = self.comboBox_filterType.currentIndex()
-        if filtertype == filterType.LP.value:
-            name_filterType = "LowPass"
-            newFilter = LowPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
-        elif filtertype == filterType.HP.value:
-            name_filterType = "HighPass"
-            newFilter = HighPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
-        elif filtertype == filterType.BP.value:
-            name_filterType = "BandPass"
-            newFilter = BandPass(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
-        elif filtertype == filterType.BS.value:
-            name_filterType = "BandStop"
-            newFilter = BandReject(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
-        else:
-            name_filterType = "GroupDelay"
-            newFilter = GroupDelay(ft,gDelay,tol,gain)
-
-        valid,message = newFilter.validate()
-        if not valid:
-            self.__error_message(message)
-            return
-
-        approxtype = self.comboBox_approximation.currentIndex()
-        if approxtype == approxTypeALL.Gauss.value:
-            name_approxType = "Gauss"
-            print("lol")
-            return
-        elif approxtype == approxTypeALL.Butterworth.value:
-            name_approxType = "Butterworth"
-            newApprox = Butterworth(newFilter)
-        elif approxtype == approxTypeALL.Legendre.value:
-            name_approxType = "Legendre"
-            newApprox = Legendre(newFilter)
-        else:
-            self.__error_message("Invalid Approximation Type")
-            return
-
-        #TODO VERIFICAR Q LA APROX SEA VALIDA
-        w,mag,pha = newApprox.calculate()
-        newTransFunc = [w,mag,pha]
-        fullname = Name + " - " + name_filterType + " - " + name_approxType
-        self.myFilters.append([fullname,newApprox,newTransFunc])
-        self.comboBox_YourFilters.addItem(fullname)
-        self.comboBox_SelectYourFilter.addItem(fullname)
+        self.__refreshFilterMakerGraphs()
 
     def __setCallbacks(self):
         self.pushButton_CanceNewStage.clicked.connect(self.__cancelNewStage)
@@ -173,6 +184,9 @@ class FilterTool(QWidget,Ui_Form):
 
         self.pushButton_createFilter.clicked.connect(self.__createFilter)
 
+        self.comboBox_YourFilters.currentIndexChanged.connect(self.__indexChanged_yourFilters)
+        self.checkBox_VisibleFilter.clicked.connect(self.__clicked_visibleFilter)
+        self.__indexChanged_yourFilters()
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -182,6 +196,19 @@ class FilterTool(QWidget,Ui_Form):
 
     def __crateNewStage(self):
         self.__showHideState_SelectOrder()
+
+    def __indexChanged_yourFilters(self):
+        if self.comboBox_YourFilters.currentIndex() == 0:
+            self.checkBox_VisibleFilter.setDisabled(True)
+        else:
+            self.checkBox_VisibleFilter.setDisabled(False)
+            i = self.comboBox_YourFilters.currentIndex()-1
+            self.checkBox_VisibleFilter.setChecked(self.myFilters[i][3])
+
+    def __clicked_visibleFilter(self):
+        if self.comboBox_YourFilters.currentIndex() > 0:
+            i = self.comboBox_YourFilters.currentIndex()-1
+            self.myFilters[i][3] = self.checkBox_VisibleFilter.isChecked()
 
     def __clicked_1stOrderPole(self):
         self.__showHideState_SelectRealPole()
@@ -287,7 +314,8 @@ class FilterTool(QWidget,Ui_Form):
     def __refreshFilterMakerGraphs(self):
         self.__cleanFilterMakerGraphs()
         for i in self.myFilters:
-            return
+            if i[3]:
+                self.__addGraphicsForFilterMaker(i[0],i[1],i[2])
 
     def __addGraphicsForFilterMaker(self,name,filter,transfunc):
         self.axis_Magnitude.semilogx(transfunc[0]/(2*np.pi),transfunc[1],label=name)
@@ -314,6 +342,20 @@ class FilterTool(QWidget,Ui_Form):
         color = temp.get_facecolor()[0]
         if len(zReal) != 0:
             self.axis_ZerosAndPoles.scatter(zReal,zImag,marker="o",label=name+' - Zeros',color=color)
+        self.axis_ZerosAndPoles.legend()
+        self.canvas_ZerosAndPoles.draw()
+
+        Hs = filter.get_ssTransferFunction()
+        impulseResponse = ss.impulse(Hs)
+        stepResponse = ss.step(Hs)
+
+        self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
+        self.axis_ImpulseResponse.legend()
+        self.canvas_ImpulseResponse.draw()
+
+        self.axis_StepResponse.plot(stepResponse[0],stepResponse[1],label=name)
+        self.axis_StepResponse.legend()
+        self.canvas_StepResponse.draw()
 
     def __cleanFilterMakerGraphs(self):
         self.axis_Magnitude.clear()
@@ -570,15 +612,18 @@ class FilterTool(QWidget,Ui_Form):
 
     def __test(self):
         print("Test")
-        self.comboBox_YourFilters.addItem("LOL"+str(self.testvar1))
-        self.comboBox_SelectYourFilter.addItem("LOL"+str(self.testvar1))
-        self.testvar1+=1
+        #self.comboBox_YourFilters.addItem("LOL"+str(self.testvar1))
+        #self.comboBox_SelectYourFilter.addItem("LOL"+str(self.testvar1))
+        #self.testvar1+=1
+        #self.myFilters.append([str(self.testvar1),None,None,True])
+        mfl = myFilterTest()
 
     def __test2(self):
         print("Test2")
         if self.comboBox_YourFilters.count() >= 2 + 1:
             self.comboBox_YourFilters.removeItem(2)
             self.comboBox_SelectYourFilter.removeItem(2)
+            self.myFilters.pop(2)
         else:
             print("YOLO")
 
@@ -588,3 +633,39 @@ class FilterTool(QWidget,Ui_Form):
         else:
             self.pushButton_TEST.hide()
             self.pushButton_TEST_2.hide()
+            self.checkBox_Test.hide()
+            self.line_16.hide()
+
+class myFilterTest(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.z = [-15000j,15000j,-5000j,5000j,0]
+        self.p = [-200000,-150000+150000j,-150000-150000j,
+             -50000+200000j,-50000-200000j,
+             -20000, -15000 + 15000j, -15000 - 15000j,
+             -5000 + 20000j, -5000 - 20000j]
+        self.num=np.polynomial.polynomial.polyfromroots(self.z).tolist()
+        self.den = np.polynomial.polynomial.polyfromroots(self.p).tolist()
+        self.num.reverse()
+        self.den.reverse()
+        print(self.num)
+        print(self.den)
+        self.Hs=ss.TransferFunction(np.real(self.num),np.real(self.den))
+        print(self.Hs)
+        print(self.Hs.zeros)
+        print(self.Hs.poles)
+
+        self.k = 1
+        self.gain = 0
+    def calculate(self):
+        self.sys = ss.ZerosPolesGain(self.z,self.p,self.k)
+        self.w,self.mag,self.pha = ss.bode(self.sys)
+        for i in self.mag:
+            self.mag += self.gain
+        return self.w,self.mag,self.pha
+
+    def get_zpGk(self):
+        return self.z,self.p, self.k * np.power(10,self.gain/20)
+
+    def get_ssTransferFunction(self):
+        return self.Hs
