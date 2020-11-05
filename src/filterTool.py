@@ -1,7 +1,7 @@
 # Imports
 #
 
-from Lib.random import random
+from Lib.random import random, seed
 
 # Qt Modules
 from PyQt5.QtCore import Qt
@@ -65,6 +65,8 @@ class FilterTool(QWidget,Ui_Form):
         self.setupUi(self)
         self.setWindowTitle("TP GRUPAL 1 - TEORÍA DE CIRCUITOS")
         self.setWindowIcon(QtGui.QIcon('py.png'))
+
+        seed()
 
         self.__setConstants()
         self.__init_graphs()
@@ -149,7 +151,8 @@ class FilterTool(QWidget,Ui_Form):
             self.comboBox_SelectYourFilter.addItem(fullname)
         else:
             newApprox = myFilterTest()
-            fullname = "TEST"
+            fullname = "TEST" + str(self.testvar1)
+            self.testvar1 += 1
             w,mag,pha = newApprox.calculate()
             newTransFunc = [w,mag,pha]
             self.myFilters.append([fullname,newApprox,newTransFunc,True])
@@ -187,6 +190,7 @@ class FilterTool(QWidget,Ui_Form):
         self.comboBox_YourFilters.currentIndexChanged.connect(self.__indexChanged_yourFilters)
         self.checkBox_VisibleFilter.clicked.connect(self.__clicked_visibleFilter)
         self.__indexChanged_yourFilters()
+        self.pushButton_EraseFilter.clicked.connect(self.__clicked_EraseFilter)
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -209,6 +213,18 @@ class FilterTool(QWidget,Ui_Form):
         if self.comboBox_YourFilters.currentIndex() > 0:
             i = self.comboBox_YourFilters.currentIndex()-1
             self.myFilters[i][3] = self.checkBox_VisibleFilter.isChecked()
+            self.__refreshFilterMakerGraphs()
+
+    def __clicked_EraseFilter(self):
+        if self.comboBox_YourFilters.currentIndex() > 0:
+            i = self.comboBox_YourFilters.currentIndex()-1
+            self.myFilters.pop(i)
+            self.comboBox_YourFilters.removeItem(i+1)
+            self.comboBox_SelectYourFilter.removeItem(i+1)
+            self.__refreshFilterMakerGraphs()
+            self.comboBox_YourFilters.setCurrentIndex(0)
+            self.__indexChanged_yourFilters()
+            #self.comboBox_SelectYourFilter.setCurrentIndex(0)
 
     def __clicked_1stOrderPole(self):
         self.__showHideState_SelectRealPole()
@@ -639,29 +655,36 @@ class FilterTool(QWidget,Ui_Form):
 class myFilterTest(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.z = [-15000j,15000j,-5000j,5000j,0]
-        self.p = [-200000,-150000+150000j,-150000-150000j,
-             -50000+200000j,-50000-200000j,
-             -20000, -15000 + 15000j, -15000 - 15000j,
-             -5000 + 20000j, -5000 - 20000j]
-        self.num=np.polynomial.polynomial.polyfromroots(self.z).tolist()
+        #self.z = [-15000j,15000j,-5000j,5000j,0,-3000,6000]
+        #self.p = [-200000,-150000+150000j,-150000-150000j,
+        #    -50000+200000j,-50000-200000j,
+        #     -20000, -15000 + 15000j, -15000 - 15000j,
+        #     -5000 + 20000j, -5000 - 20000j]
+        r1 = random()
+        r2 = random()
+        r3 = random()
+        r4 = random()
+        r5 = random()
+        self.z = [0, -4000*r2, 5000j*r1, -5000j*r1]
+        self.p = [-4000+7000j*r3,-4000-7000j*r3,-6000*r4, -2000*r5]
+        self.num = np.polynomial.polynomial.polyfromroots(self.z).tolist()
         self.den = np.polynomial.polynomial.polyfromroots(self.p).tolist()
         self.num.reverse()
         self.den.reverse()
         print(self.num)
         print(self.den)
-        self.Hs=ss.TransferFunction(np.real(self.num),np.real(self.den))
+        self.k = 1
+        self.gain = 150
+
+        self.Hs=ss.TransferFunction(np.real(self.num)*10**(self.gain/20),np.real(self.den))
         print(self.Hs)
         print(self.Hs.zeros)
         print(self.Hs.poles)
 
-        self.k = 1
-        self.gain = 0
     def calculate(self):
         self.sys = ss.ZerosPolesGain(self.z,self.p,self.k)
-        self.w,self.mag,self.pha = ss.bode(self.sys)
-        for i in self.mag:
-            self.mag += self.gain
+        self.w,self.mag,self.pha = ss.bode(self.sys,np.logspace(0,9,10000)*(2*np.pi))
+        self.mag += self.gain
         return self.w,self.mag,self.pha
 
     def get_zpGk(self):
