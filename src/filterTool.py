@@ -43,6 +43,8 @@ from src.backend.Filter.GroupDelay import GroupDelay
 from src.backend.Approx.Legendre import Legendre
 from src.backend.Approx.Butterworth import Butterworth
 
+DEBUG = True
+
 class filterType(Enum):
     LP=0
     HP=1
@@ -65,8 +67,10 @@ class FilterTool(QWidget,Ui_Form):
         self.__setConstants()
         self.__init_graphs()
         self.__setCallbacks()
+        self.__manageDebug()
 
         self.__showHideState_CreateNewStage()
+        self.__refreshFilterMakerGraphs()
 
     def __createFilter(self):
         return
@@ -100,14 +104,19 @@ class FilterTool(QWidget,Ui_Form):
 
         filtertype = self.comboBox_filterType.currentIndex()
         if filtertype == filterType.LP.value:
+            name_filterType = "LowPass"
             newFilter = LowPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
         elif filtertype == filterType.HP.value:
+            name_filterType = "HighPass"
             newFilter = HighPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
         elif filtertype == filterType.BP.value:
+            name_filterType = "BandPass"
             newFilter = BandPass(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
         elif filtertype == filterType.BS.value:
+            name_filterType = "BandStop"
             newFilter = BandReject(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
         else:
+            name_filterType = "GroupDelay"
             newFilter = GroupDelay(ft,gDelay,tol,gain)
 
         valid,message = newFilter.validate()
@@ -117,19 +126,26 @@ class FilterTool(QWidget,Ui_Form):
 
         approxtype = self.comboBox_approximation.currentIndex()
         if approxtype == approxTypeALL.Gauss.value:
+            name_approxType = "Gauss"
             print("lol")
             return
         elif approxtype == approxTypeALL.Butterworth.value:
+            name_approxType = "Butterworth"
             newApprox = Butterworth(newFilter)
         elif approxtype == approxTypeALL.Legendre.value:
+            name_approxType = "Legendre"
             newApprox = Legendre(newFilter)
         else:
             self.__error_message("Invalid Approximation Type")
             return
 
         #TODO VERIFICAR Q LA APROX SEA VALIDA
-        newTransFunc = newApprox.calculate()
-        self.myFilters.append([Name,newApprox,newTransFunc])
+        w,mag,pha = newApprox.calculate()
+        newTransFunc = [w,mag,pha]
+        fullname = Name + " - " + name_filterType + " - " + name_approxType
+        self.myFilters.append([fullname,newApprox,newTransFunc])
+        self.comboBox_YourFilters.addItem(fullname)
+        self.comboBox_SelectYourFilter.addItem(fullname)
 
     def __setCallbacks(self):
         self.pushButton_CanceNewStage.clicked.connect(self.__cancelNewStage)
@@ -156,6 +172,10 @@ class FilterTool(QWidget,Ui_Form):
         self.__showAndHideParameters()
 
         self.pushButton_createFilter.clicked.connect(self.__createFilter)
+
+        #####################################################################
+        self.pushButton_TEST.clicked.connect(self.__test)
+        self.pushButton_TEST_2.clicked.connect(self.__test2)
 
     def __cancelNewStage(self):
         self.__showHideState_CreateNewStage()
@@ -263,6 +283,53 @@ class FilterTool(QWidget,Ui_Form):
         self.toolbar_StagesPhase = NavigationToolbar(self.canvas_StagesPhase,self)
         self.horizontalLayout_StagesPhase.addWidget(self.toolbar_StagesPhase)
         self.axis_StagesPhase = self.figure_StagesPhase.add_subplot()
+
+    def __refreshFilterMakerGraphs(self):
+        self.__cleanFilterMakerGraphs()
+        for i in self.myFilters:
+            return
+
+    def __addGraphicsForFilterMaker(self,name,filter,transfunc):
+        self.axis_Magnitude.semilogx(transfunc[0]/(2*np.pi),transfunc[1],label=name)
+        self.axis_Magnitude.legend()
+        self.canvas_Magnitude.draw()
+
+    def __cleanFilterMakerGraphs(self):
+        self.axis_Magnitude.clear()
+        self.axis_Magnitude.grid()
+        self.canvas_Magnitude.draw()
+
+        self.axis_Attenuation.clear()
+        self.axis_Attenuation.grid()
+        self.canvas_Attenuation.draw()
+
+        self.axis_NormalizedAttenuation.clear()
+        self.axis_NormalizedAttenuation.grid()
+        self.canvas_NormalizedAttenuation.draw()
+
+        self.axis_Phase.clear()
+        self.axis_Phase.grid()
+        self.canvas_Phase.draw()
+
+        self.axis_GroupDelay.clear()
+        self.axis_GroupDelay.grid()
+        self.canvas_GroupDelay.draw()
+
+        self.axis_ZerosAndPoles.clear()
+        self.axis_ZerosAndPoles.grid()
+        self.canvas_ZerosAndPoles.draw()
+
+        self.axis_ImpulseResponse.clear()
+        self.axis_ImpulseResponse.grid()
+        self.canvas_ImpulseResponse.draw()
+
+        self.axis_StepResponse.clear()
+        self.axis_StepResponse.grid()
+        self.canvas_StepResponse.draw()
+
+        self.axis_Q.clear()
+        self.axis_Q.grid()
+        self.canvas_Q.draw()
 
     def __selectRealPole(self):
         self.__showHideState_1stOrderPoleReady()
@@ -470,8 +537,33 @@ class FilterTool(QWidget,Ui_Form):
         self.currentFilter = None
         self.currentStage = None
 
+        ########################################################
+        self.testvar1 = 0
+        self.testvar2 = 0
+
     def __error_message(self, description):
         self.errorBox.setWindowTitle("Error")
         self.errorBox.setIcon(self.errorBox.Information)
         self.errorBox.setText(description)
         self.errorBox.exec()
+
+    def __test(self):
+        print("Test")
+        self.comboBox_YourFilters.addItem("LOL"+str(self.testvar1))
+        self.comboBox_SelectYourFilter.addItem("LOL"+str(self.testvar1))
+        self.testvar1+=1
+
+    def __test2(self):
+        print("Test2")
+        if self.comboBox_YourFilters.count() >= 2 + 1:
+            self.comboBox_YourFilters.removeItem(2)
+            self.comboBox_SelectYourFilter.removeItem(2)
+        else:
+            print("YOLO")
+
+    def __manageDebug(self):
+        if DEBUG:
+            print("DEBUG")
+        else:
+            self.pushButton_TEST.hide()
+            self.pushButton_TEST_2.hide()

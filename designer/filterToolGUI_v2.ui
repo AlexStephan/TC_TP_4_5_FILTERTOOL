@@ -651,7 +651,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_YourFilters1">
+          <widget class="QComboBox" name="comboBox_YourFilters">
            <property name="maximumSize">
             <size>
              <width>200</width>
@@ -730,6 +730,19 @@
            </property>
            <property name="text">
             <string>TEST</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_TEST_2">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>TEST 2</string>
            </property>
           </widget>
          </item>
