@@ -15,6 +15,7 @@ class Legendre(object):
         self.num = None
         self.den = None
         self.sos = None
+        self.epsilon2 = None
 
     def calc_Order(self):
         val, msg = self.filter.validate(self.filter)
@@ -24,6 +25,8 @@ class Legendre(object):
         fpMin = self.filter.reqData[FilterData.fpMin.value]
         fpMax = self.filter.reqData[FilterData.fpMax.value]
         Ap = self.filter.reqData[FilterData.Ap.value]
+        if Ap is 0:
+            Ap = 1e-9
 
         faMin = self.filter.reqData[FilterData.faMin.value]
         faMax = self.filter.reqData[FilterData.fpMax.value]
@@ -32,12 +35,12 @@ class Legendre(object):
         Nmin = self.filter.reqData[FilterData.Nmin.value]
         Nmax = self.filter.reqData[FilterData.Nmax.value]
 
-        epsilon2 = 10 ** (Ap / 10) - 1
+        self.epsilon2 = 10 ** (Ap / 10) - 1
         order = 1
 
         if self.type is "Low Pass":
             wan = faMin / fpMin
-            while special.eval_legendre(order, wan ** 2) < (10 ** (Aa / 10) - 1) / epsilon2:
+            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
                 order = order + 1
             if Nmin > order:
                 order = Nmin
@@ -49,7 +52,7 @@ class Legendre(object):
                 self.order = order
         elif self.type is "High Pass":
             wan = fpMin / faMin
-            while special.eval_legendre(order, wan ** 2) < (10 ** (Aa / 10) - 1) / epsilon2:
+            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
                 order = order + 1
             if Nmin > order:
                 order = Nmin
@@ -61,7 +64,7 @@ class Legendre(object):
                 self.order = order
         elif self.type is "Band Pass":
             wan = (faMax - faMin) / (fpMax - fpMin)
-            while special.eval_legendre(order, wan ** 2) < (10 ** (Aa / 10) - 1) / epsilon2:
+            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
                 order = order + 1
             if Nmin > order:
                 order = Nmin
@@ -73,7 +76,7 @@ class Legendre(object):
                 self.order = order
         elif self.type is "Band Reject":
             wan = (fpMax - fpMin) / (faMax - faMin)
-            while special.eval_legendre(order, wan ** 2) < (10 ** (Aa / 10) - 1) / epsilon2:
+            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
                 order = order + 1
             if Nmin > order:
                 order = Nmin
@@ -134,19 +137,76 @@ class Legendre(object):
     def get_Legendre_Poly(self, order):
         return special.legendre(order)
 
-    def even_L_Optimum(self, k):
+    def get_even_L_Optimum(self, n):
+        k = (n - 2) / 2
+        if k % 2 == 0:
+            a0 = 1 / (np.sqrt((k + 1) * (k + 2)))
+            coefs = []
+            coefs.append(a0)
+            i = 1
+            while i <= k:
+                if i % 2 == 0:
+                    coefs.append((2 * i + 1) * a0)
+
+                else:
+                    coefs.append(0)
+                i += 1
+
+            poly_sum = coefs[0] * self.get_Legendre_Poly(self, 0)
+            i = 1
+            while i <= k:
+                poly_sum = np.polyadd(poly_sum, coefs[i] * self.get_Legendre_Poly(self, i))
+                i += 1
+
+            dpoly = np.polymul(poly_sum, poly_sum)
+            dpoly = np.polymul(dpoly, np.poly1d([1, 1]))
+            poly = np.polyint(dpoly)
+            uplim = np.poly1d([2, 0, -1])
+            lowlim = -1
+            poly = np.polysub(np.polyval(poly, uplim), np.polyval(poly, lowlim))
+
+        else:
+            a1 = 3 / (np.sqrt((k + 1) * (k + 2)))
+            coefs = []
+            coefs.append(0)
+            coefs.append(a1)
+            i = 2
+            while i <= k:
+                if i % 2 == 0:
+                    coefs.append(0)
+                else:
+                    coefs.append((2 * i + 1) * a1 / 3)
+                i += 1
+
+            poly_sum = coefs[0] * self.get_Legendre_Poly(self, 0)
+            i = 1
+            while i <= k:
+                poly_sum = np.polyadd(poly_sum, coefs[i] * self.get_Legendre_Poly(self, i))
+                i += 1
+
+            dpoly = np.polymul(poly_sum, poly_sum)
+            dpoly = np.polymul(dpoly, np.poly1d([1, 1]))
+            poly = np.polyint(dpoly)
+            uplim = np.poly1d([2, 0, -1])
+            lowlim = -1
+            poly = np.polysub(np.polyval(poly, uplim), np.polyval(poly, lowlim))
+        return poly
+
+    def get_odd_L_Optimum(self, n):
+        k = (n - 1) / 2
         ao = 1 / (np.sqrt(2) * (k + 1))
         coefs = []
         coefs.append(ao)
         i = 1
         while i <= k:
             coefs.append((2 * i + 1) * ao)
-            i = i + 1
+            i += 1
 
         poly_sum = coefs[0] * self.get_Legendre_Poly(0)
         i = 1
         while i <= k:
             poly_sum = np.polyadd(poly_sum, coefs[i] * self.get_Legendre_Poly(i))
+            i += 1
 
         dpoly = np.polymul(poly_sum, poly_sum)
         poly = np.polyint(dpoly)
@@ -155,24 +215,21 @@ class Legendre(object):
         poly = np.polysub(np.polyval(poly, uplim), np.polyval(poly, lowlim))
         return poly
 
-    def odd_L_Optimum(self, k):
-        ao = 1 / (np.sqrt(2) * (k + 1))
-        coefs = []
-        coefs.append(ao)
-        i = 1
-        while i <= k:
-            coefs.append((2 * i + 1) * ao)
-            i = i + 1
+    def get_L_Poly(self, n):
+        if n % 2 == 0:
+            Ln = self.get_even_L_Optimum(self, n)
+        else:
+            Ln = self.get_odd_L_Optimum(self, n)
+        return Ln
 
-        poly_sum = coefs[0] * self.get_Legendre_Poly(0)
-        i = 1
-        while i <= k:
-            poly_sum = np.polyadd(poly_sum, coefs[i] * self.get_Legendre_Poly(i))
+    def get_L_Poly_Value(self, n, wan):
+        value = np.polyval(self.get_L_Poly(self, n), wan)
+        return value
 
-        dpoly = np.polymul(poly_sum, poly_sum)
-        poly = np.polyint(dpoly)
-        uplim = np.poly1d([2, 0, -1])
-        lowlim = -1
-        poly = np.polysub(np.polyval(poly, uplim), np.polyval(poly, lowlim))
-        return poly
+    def get_L_Attenuation(self, order):
+        Ln = self.get_L_Poly(self, order)
+        Aw = np.polyadd(np.poly1d([1]), self.epsilon2 * Ln)
+        return Aw
 
+    def get_L_zpk(self, order):
+        poles = np.roots(self.get_L_Attenuation(self, order))
