@@ -69,6 +69,8 @@ class FilterTool(QWidget,Ui_Form):
         self.__showHideState_CreateNewStage()
 
     def __createFilter(self):
+        return
+
         gain = self.doubleSpinBox_Gain.value()
         Aa = self.doubleSpinBox_Aa.value()
         Ap = self.doubleSpinBox_Ap.value()
@@ -125,6 +127,9 @@ class FilterTool(QWidget,Ui_Form):
             self.__error_message("Invalid Approximation Type")
             return
 
+        #TODO VERIFICAR Q LA APROX SEA VALIDA
+        newTransFunc = newApprox.calculate()
+        self.myFilters.append([Name,newApprox,newTransFunc])
 
     def __setCallbacks(self):
         self.pushButton_CanceNewStage.clicked.connect(self.__cancelNewStage)

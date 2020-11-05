@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1360</width>
-    <height>1379</height>
+    <height>1402</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -717,6 +717,19 @@
            </property>
            <property name="text">
             <string>Erase Filter</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_TEST">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>TEST</string>
            </property>
           </widget>
          </item>
@@ -2935,7 +2948,7 @@
               <x>0</x>
               <y>0</y>
               <width>196</width>
-              <height>408</height>
+              <height>419</height>
              </rect>
             </property>
            </widget>

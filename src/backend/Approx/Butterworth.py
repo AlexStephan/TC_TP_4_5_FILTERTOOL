@@ -15,6 +15,7 @@ class Butterworth(object):
         self.den = None
         self.sos = None
 
+    #calcula el orden
     def calc_Order(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
@@ -79,6 +80,7 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    #calc f0 desnormalizado
     def calc_fo(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
@@ -122,7 +124,7 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
-
+    #calc num y den
     def calc_NumDen(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
@@ -143,6 +145,7 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    #polos y ceros, y K. POLOS Y CEROS recorren circunferencia. ALEX: Casteo 2 decimales
     def calc_zpk(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
@@ -163,6 +166,7 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    #
     def get_zpk(self):
         return self.z, self.p, self.k
 
