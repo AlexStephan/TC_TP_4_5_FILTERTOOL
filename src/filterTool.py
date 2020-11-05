@@ -33,6 +33,16 @@ from sympy import I
 from src.backend.Stages.SimpleHs import SimpleHs
 from src.backend.Filter.Filter import FilterData
 
+from src.backend.Filter.LowPass import LowPass
+from src.backend.Filter.HighPass import HighPass
+from src.backend.Filter.BandPass import BandPass
+from src.backend.Filter.BandReject import BandReject
+from src.backend.Filter.GroupDelay import GroupDelay
+
+#from src.backend.Approx.Gauss import Gauss
+from src.backend.Approx.Legendre import Legendre
+from src.backend.Approx.Butterworth import Butterworth
+
 class filterType(Enum):
     LP=0
     HP=1
@@ -59,7 +69,62 @@ class FilterTool(QWidget,Ui_Form):
         self.__showHideState_CreateNewStage()
 
     def __createFilter(self):
-        lol = SimpleHs([2+1j,2-1j],[1,4])
+        gain = self.doubleSpinBox_Gain.value()
+        Aa = self.doubleSpinBox_Aa.value()
+        Ap = self.doubleSpinBox_Ap.value()
+        fa_minus = self.doubleSpinBox_fa_minus.value()
+        fp_minus = self.doubleSpinBox_fp_minus.value()
+        fa_plus = self.doubleSpinBox_fa_plus.value()
+        fp_plus = self.doubleSpinBox_fp_plus.value()
+        ft = self.doubleSpinBox_ft.value()
+        tol = self.doubleSpinBox_Tolerance.value()
+        gDelay = self.doubleSpinBox_GroupDelay.value()
+
+        denorm = self.doubleSpinBox_denorm.value()
+        if self.checkBox_Nmin.isChecked():
+            Nmin = self.spinBox_Nmin.value()
+        else:
+            Nmin = None
+        if self.checkBox_Nmax.isChecked():
+            Nmax = self.spinBox_Nmax.value()
+        else:
+            Nmax = None
+        if self.checkBox_Qmax.isChecked():
+            Qmax = self.doubleSpinBox_Qmax.value()
+        else:
+            Qmax = None
+
+        Name = self.lineEdit_name.text()
+
+        filtertype = self.comboBox_filterType.currentIndex()
+        if filtertype == filterType.LP.value:
+            newFilter = LowPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
+        elif filtertype == filterType.HP.value:
+            newFilter = HighPass(Aa,fa_minus,Ap,fp_minus,gain,Nmax,Nmin,Qmax,denorm)
+        elif filtertype == filterType.BP.value:
+            newFilter = BandPass(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
+        elif filtertype == filterType.BS.value:
+            newFilter = BandReject(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
+        else:
+            newFilter = GroupDelay(ft,gDelay,tol,gain)
+
+        valid,message = newFilter.validate()
+        if not valid:
+            self.__error_message(message)
+            return
+
+        approxtype = self.comboBox_approximation.currentIndex()
+        if approxtype == approxTypeALL.Gauss.value:
+            print("lol")
+            return
+        elif approxtype == approxTypeALL.Butterworth.value:
+            newApprox = Butterworth(newFilter)
+        elif approxtype == approxTypeALL.Legendre.value:
+            newApprox = Legendre(newFilter)
+        else:
+            self.__error_message("Invalid Approximation Type")
+            return
+
 
     def __setCallbacks(self):
         self.pushButton_CanceNewStage.clicked.connect(self.__cancelNewStage)
@@ -395,6 +460,10 @@ class FilterTool(QWidget,Ui_Form):
             self.pushButton_SelectComplexZeros
         ]
         self.errorBox = QtWidgets.QMessageBox()
+        self.myFilters = []
+        self.myStages = []
+        self.currentFilter = None
+        self.currentStage = None
 
     def __error_message(self, description):
         self.errorBox.setWindowTitle("Error")

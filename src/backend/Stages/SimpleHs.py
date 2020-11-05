@@ -26,6 +26,8 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import I
 
+w_domain = np.logspace(1,9,1000)*(2*np.pi)
+
 class SimpleHs(object):
     def __init__(self, zeros, poles, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,6 +73,11 @@ class SimpleHs(object):
         else:
             self.Q = None
             self.w0 = None
+        if self.validate() == True:
+            self.__calculateHs()
+        else:
+            self.Hs=None
+            self.bode=None
 
     def validate(self):
         if self.__order(self.numerator) > self.__order(self.denominator):
@@ -90,6 +97,23 @@ class SimpleHs(object):
 
     def updateGain(self,gain):
         self.K = np.power(10,gain/20)
+        self.__calculateHs()
 
     def __order(self, var):
         return len(var)-1
+
+    def __calculateHs(self):
+        scaled_num = []
+        for i in self.numerator:
+            scaled_num.append(i*self.K)
+        self.Hs = ss.TransferFunction(scaled_num,self.denominator)
+        self.bode = ss.bode(self.Hs,w_domain)
+
+    def getHs(self):
+        return self.bode[0]/(2*np.pi),self.bode[1],self.bode[2]
+
+    def isVisible(self):
+        return self.visible
+
+    def setVisible(self, visible):
+        self.visible = visible
