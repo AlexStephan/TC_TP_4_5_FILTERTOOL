@@ -191,6 +191,12 @@ class FilterTool(QWidget,Ui_Form):
         self.checkBox_VisibleFilter.clicked.connect(self.__clicked_visibleFilter)
         self.__indexChanged_yourFilters()
         self.pushButton_EraseFilter.clicked.connect(self.__clicked_EraseFilter)
+
+        #####################################################################
+
+        self.comboBox_SelectYourFilter.currentIndexChanged.connect(self.__indexChanged_SelectYourFilter)
+        self.__indexChanged_SelectYourFilter()
+
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -208,6 +214,43 @@ class FilterTool(QWidget,Ui_Form):
             self.checkBox_VisibleFilter.setDisabled(False)
             i = self.comboBox_YourFilters.currentIndex()-1
             self.checkBox_VisibleFilter.setChecked(self.myFilters[i][3])
+
+    def __indexChanged_SelectYourFilter(self):
+        if self.comboBox_SelectYourFilter.currentIndex() == 0:
+            self.checkBox_SelectedFilterVisible.setDisabled(True)
+        else:
+            self.checkBox_SelectedFilterVisible.setDisabled(False)
+            self.checkBox_SelectedFilterVisible.setChecked(True)
+            i = self.comboBox_YourFilters.currentIndex()-1
+            self.__getAndOrderPolesAndZeros(i)
+            #DO THINGS
+
+    def __getAndOrderPolesAndZeros(self,i):
+        z, p, Gk = self.myFilters[i][2].get_zpGk()
+        self.label_SelectedFilterK.setText(str(Gk))
+
+        self.ComplexPoles = []
+        self.RealPoles = []
+        self.ComplexZeros = []
+        self.RealZeros = []
+        for i in z:
+            if np.imag(i) == 0:
+                self.RealZeros.append([i,False])
+            else:
+                if i in self.ComplexZeros or np.conjugate(i) in self.ComplexZeros:
+                    print("Found z="+str(i))
+                else:
+                    self.ComplexZeros.append([i,False])
+
+        for i in p:
+            if np.imag(i) == 0:
+                self.RealPoles.append([i,False])
+            else:
+                if i in self.ComplexPoles or np.conjugate(i) in self.ComplexPoles:
+                    print("Found p="+str(i))
+                else:
+                    self.ComplexPoles.append([i,False])
+
 
     def __clicked_visibleFilter(self):
         if self.comboBox_YourFilters.currentIndex() > 0:
@@ -616,6 +659,10 @@ class FilterTool(QWidget,Ui_Form):
         self.currentFilter = None
         self.currentStage = None
 
+        self.ComplexPoles = []
+        self.RealPoles = []
+        self.ComplexZeros = []
+        self.RealZeros = []
         ########################################################
         self.testvar1 = 0
         self.testvar2 = 0
@@ -635,13 +682,15 @@ class FilterTool(QWidget,Ui_Form):
         mfl = myFilterTest()
 
     def __test2(self):
-        print("Test2")
-        if self.comboBox_YourFilters.count() >= 2 + 1:
-            self.comboBox_YourFilters.removeItem(2)
-            self.comboBox_SelectYourFilter.removeItem(2)
-            self.myFilters.pop(2)
-        else:
-            print("YOLO")
+        #print("Test2")
+        #if self.comboBox_YourFilters.count() >= 2 + 1:
+        #    self.comboBox_YourFilters.removeItem(2)
+        #    self.comboBox_SelectYourFilter.removeItem(2)
+        #    self.myFilters.pop(2)
+        #else:
+        #    print("YOLO")
+        x = [0,1,0,2,3,4,5]
+        print(str(0 in x))
 
     def __manageDebug(self):
         if DEBUG:
@@ -692,3 +741,6 @@ class myFilterTest(object):
 
     def get_ssTransferFunction(self):
         return self.Hs
+
+    def get_Gain(self):
+        return self.gain

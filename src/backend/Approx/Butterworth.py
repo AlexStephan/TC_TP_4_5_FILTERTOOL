@@ -174,6 +174,9 @@ class Butterworth(object):
         Gk = self.k * 10 ** (gain / 20)
         return self.z, self.p, Gk
 
+    def get_Gain(self):
+        return self.filter.reqData[FilterData.gain.value]
+
     def calc_sos(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
