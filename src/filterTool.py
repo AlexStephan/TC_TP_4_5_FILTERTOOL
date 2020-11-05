@@ -294,6 +294,27 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_Magnitude.legend()
         self.canvas_Magnitude.draw()
 
+        self.axis_Phase.semilogx(transfunc[0]/(2*np.pi),transfunc[2],label=name)
+        self.axis_Phase.legend()
+        self.canvas_Phase.draw()
+
+        z,p,gk=filter.get_zpGk()
+        zReal = []
+        zImag = []
+        for i in z:
+            zReal.append(np.real(i))
+            zImag.append(np.imag(i))
+        pReal = []
+        pImag = []
+        for i in p:
+            pReal.append(np.real(i))
+            pImag.append(np.imag(i))
+
+        temp = self.axis_ZerosAndPoles.scatter(pReal,pImag,marker="x",label=name+' - Poles')
+        color = temp.get_facecolor()[0]
+        if len(zReal) != 0:
+            self.axis_ZerosAndPoles.scatter(zReal,zImag,marker="o",label=name+' - Zeros',color=color)
+
     def __cleanFilterMakerGraphs(self):
         self.axis_Magnitude.clear()
         self.axis_Magnitude.grid()
