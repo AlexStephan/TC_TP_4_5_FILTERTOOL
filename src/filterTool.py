@@ -75,6 +75,7 @@ class FilterTool(QWidget,Ui_Form):
 
         self.__showHideState_CreateNewStage()
         self.__refreshFilterMakerGraphs()
+        self.__refreshStagesGraphs()
 
     def __createFilter(self):
         if self.checkBox_Test.isChecked() == False:
@@ -218,39 +219,75 @@ class FilterTool(QWidget,Ui_Form):
     def __indexChanged_SelectYourFilter(self):
         if self.comboBox_SelectYourFilter.currentIndex() == 0:
             self.checkBox_SelectedFilterVisible.setDisabled(True)
+            self.checkBox_SelectedFilterVisible.setChecked(False)
+            self.label_SelectedFilterGain.setText("")
+            self.label_SelectedFilterK.setText("")
         else:
             self.checkBox_SelectedFilterVisible.setDisabled(False)
             self.checkBox_SelectedFilterVisible.setChecked(True)
-            i = self.comboBox_YourFilters.currentIndex()-1
+            i = self.comboBox_SelectYourFilter.currentIndex()-1
             self.__getAndOrderPolesAndZeros(i)
+            self.label_SelectedFilterGain.setText(str(self.myFilters[i][1].get_Gain()))
+            self.__refreshStagesGraphs()
             #DO THINGS
 
     def __getAndOrderPolesAndZeros(self,i):
-        z, p, Gk = self.myFilters[i][2].get_zpGk()
+        z, p, Gk = self.myFilters[i][1].get_zpGk()
         self.label_SelectedFilterK.setText(str(Gk))
 
         self.ComplexPoles = []
         self.RealPoles = []
         self.ComplexZeros = []
         self.RealZeros = []
+        self.ComplexPolesVisibility = []
+        self.RealPolesVisibility = []
+        self.ComplexZerosVisibility = []
+        self.RealZerosVisibility = []
         for i in z:
             if np.imag(i) == 0:
-                self.RealZeros.append([i,False])
+                self.RealZeros.append(i)
+                self.RealZerosVisibility.append(False)
             else:
-                if i in self.ComplexZeros or np.conjugate(i) in self.ComplexZeros:
+                if (i in self.ComplexZeros) or (np.conjugate(i) in self.ComplexZeros):
                     print("Found z="+str(i))
                 else:
-                    self.ComplexZeros.append([i,False])
+                    self.ComplexZeros.append(i)
+                    self.ComplexZerosVisibility.append(False)
 
         for i in p:
             if np.imag(i) == 0:
-                self.RealPoles.append([i,False])
+                self.RealPoles.append(i)
+                self.RealPolesVisibility.append(False)
             else:
                 if i in self.ComplexPoles or np.conjugate(i) in self.ComplexPoles:
                     print("Found p="+str(i))
                 else:
-                    self.ComplexPoles.append([i,False])
+                    self.ComplexPoles.append(i)
+                    self.ComplexPolesVisibility.append(False)
 
+    def __refreshStagesGraphs(self):
+        self.__cleanStagesGraphs()
+        if self.checkBox_SelectedFilterVisible.isChecked() and self.comboBox_SelectYourFilter.currentIndex() > 0:
+            i = self.comboBox_SelectYourFilter.currentIndex() - 1
+            self.__addGraphicsForStages(self.myFilters[i][0]+" - Desired Filter",self.myFilters[i][2])
+
+    def __cleanStagesGraphs(self):
+        self.axis_StagesGain.clear()
+        self.axis_StagesGain.grid()
+        self.canvas_StagesGain.draw()
+
+        self.axis_StagesPhase.clear()
+        self.axis_StagesPhase.grid()
+        self.canvas_StagesPhase.draw()
+
+    def __addGraphicsForStages(self,name, transfunc):
+        self.axis_StagesGain.semilogx(transfunc[0]/(2*np.pi),transfunc[1],label=name)
+        self.axis_StagesGain.legend()
+        self.canvas_StagesGain.draw()
+
+        self.axis_StagesPhase.semilogx(transfunc[0]/(2*np.pi),transfunc[2],label=name)
+        self.axis_StagesPhase.legend()
+        self.canvas_StagesPhase.draw()
 
     def __clicked_visibleFilter(self):
         if self.comboBox_YourFilters.currentIndex() > 0:
@@ -663,6 +700,10 @@ class FilterTool(QWidget,Ui_Form):
         self.RealPoles = []
         self.ComplexZeros = []
         self.RealZeros = []
+        self.ComplexPolesVisibility = []
+        self.RealPolesVisibility = []
+        self.ComplexZerosVisibility = []
+        self.RealZerosVisibility = []
         ########################################################
         self.testvar1 = 0
         self.testvar2 = 0
@@ -714,6 +755,8 @@ class myFilterTest(object):
         r3 = random()
         r4 = random()
         r5 = random()
+        r6 = random()
+        r7 = random()
         self.z = [0, -4000*r2, 5000j*r1, -5000j*r1]
         self.p = [-4000+7000j*r3,-4000-7000j*r3,-6000*r4, -2000*r5]
         self.num = np.polynomial.polynomial.polyfromroots(self.z).tolist()
@@ -722,10 +765,10 @@ class myFilterTest(object):
         self.den.reverse()
         print(self.num)
         print(self.den)
-        self.k = 1
-        self.gain = 150
+        self.k = 1*r6
+        self.gain = 150*r7
 
-        self.Hs=ss.TransferFunction(np.real(self.num)*10**(self.gain/20),np.real(self.den))
+        self.Hs=ss.TransferFunction(np.real(self.num)*self.k*10**(self.gain/20),np.real(self.den))
         print(self.Hs)
         print(self.Hs.zeros)
         print(self.Hs.poles)
