@@ -15,6 +15,7 @@ class Legendre(object):
         self.num = None
         self.den = None
         self.sos = None
+        self.wan = None
         self.epsilon2 = None
 
     def calc_Order(self):
@@ -39,50 +40,42 @@ class Legendre(object):
         order = 1
 
         if self.type is "Low Pass":
-            wan = faMin / fpMin
-            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
+            self.wan = faMin / fpMin
+            while self.get_L_Poly_Value(self, order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
         elif self.type is "High Pass":
-            wan = fpMin / faMin
-            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
+            self.wan = fpMin / faMin
+            while self.get_L_Poly_Value(self, order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
         elif self.type is "Band Pass":
-            wan = (faMax - faMin) / (fpMax - fpMin)
-            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
+            self.wan = (faMax - faMin) / (fpMax - fpMin)
+            while self.get_L_Poly_Value(self, order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
         elif self.type is "Band Reject":
-            wan = (fpMax - fpMin) / (faMax - faMin)
-            while self.get_L_Poly_Value(self, order, wan) < (10 ** (Aa / 10) - 1) / epsilon2:
+            self.wan = (fpMax - fpMin) / (faMax - faMin)
+            while self.get_L_Poly_Value(self, order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
@@ -97,42 +90,57 @@ class Legendre(object):
 
         fpMin = self.filter.reqData[FilterData.fpMin.value]
         fpMax = self.filter.reqData[FilterData.fpMax.value]
-        Ap = self.filter.reqData[FilterData.Ap.value]
-
-        faMin = self.filter.reqData[FilterData.faMin.value]
-        faMax = self.filter.reqData[FilterData.fpMax.value]
-        Aa = self.filter.reqData[FilterData.Aa.value]
 
         Denorm = self.filter.reqData[FilterData.Denorm.value]
 
         if self.type is "Low Pass":
-            fo1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
-            fo2 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
-            self.fo = 10 ** (np.log10(fo1) * (1 - Denorm / 100) + np.log10(fo2) * Denorm / 100)
+            wo1 = self.get_L_wo(self)
+            wo2 = wo1 * self.wan / self.get_L_wa(self)
+            fod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100) / (2 * np.pi)
+            self.fo = fod * fpMin
         elif self.type is "High Pass":
-            fo1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
-            fo2 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
-            self.fo = 10 ** (np.log10(fo1) * (1 - Denorm / 100) + np.log10(fo2) * Denorm / 100)
+            wo1 = self.get_L_wo(self)
+            wo2 = wo1 * self.wan / self.get_L_wa(self)
+            fod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100) / (2 * np.pi)
+            self.fo = fpMin / fod
         elif self.type is "Band Pass":
-            fop1 = fpMin * (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa1 = faMin * (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fop2 = fpMax / (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa2 = faMax / (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
-            fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
-            self.fo = np.sqrt(fo1 * fo2)
+            Bw = 2 * np.pi * fpMax - fpMin
+            wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
+            wo1 = self.get_L_wo(self)
+            wo2 = wo1 * self.wan / self.get_L_wa(self)
+            wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
+            wo1 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) + wod * Bw) / 2
+            wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
+            self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
         elif self.type is "Band Reject":
-            fop1 = fpMin / (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa1 = faMin / (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fop2 = fpMax * (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa2 = faMax * (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
-            fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
-            self.fo = np.sqrt(fo1 * fo2)
+            Bw = 2 * np.pi * fpMax - fpMin
+            wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
+            wo1 = self.get_L_wo(self)
+            wo2 = wo1 * self.wan / self.get_L_wa(self)
+            wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
+            wo1 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) + Bw / wod) / 2
+            wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod ) / 2
+            self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
         else:
             message = "Error: Enter Filter Type."
             return message
 
+    def calc_Denormalization_zpk(self):
+        if self.type is "Low Pass":
+            z, p, k = self.get_L_zpk(self)
+            self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+        elif self.type is "High Pass":
+            z, p, k = self.get_L_zpk(self)
+            self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+        elif self.type is "Band Pass":
+            z, p, k = self.get_L_zpk(self)
+            self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+        elif self.type is "Band Reject":
+            z, p, k = self.get_L_zpk(self)
+            self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+
+    def get_zpk(self):
+        return self.z, self.p, self.k
 
     def get_Legendre_Poly(self, order):
         return special.legendre(order)
@@ -141,8 +149,7 @@ class Legendre(object):
         k = (n - 2) / 2
         if k % 2 == 0:
             a0 = 1 / (np.sqrt((k + 1) * (k + 2)))
-            coefs = []
-            coefs.append(a0)
+            coefs = [a0]
             i = 1
             while i <= k:
                 if i % 2 == 0:
@@ -167,9 +174,7 @@ class Legendre(object):
 
         else:
             a1 = 3 / (np.sqrt((k + 1) * (k + 2)))
-            coefs = []
-            coefs.append(0)
-            coefs.append(a1)
+            coefs = [0, a1]
             i = 2
             while i <= k:
                 if i % 2 == 0:
@@ -195,8 +200,7 @@ class Legendre(object):
     def get_odd_L_Optimum(self, n):
         k = (n - 1) / 2
         ao = 1 / (np.sqrt(2) * (k + 1))
-        coefs = []
-        coefs.append(ao)
+        coefs = [ao]
         i = 1
         while i <= k:
             coefs.append((2 * i + 1) * ao)
@@ -226,10 +230,40 @@ class Legendre(object):
         value = np.polyval(self.get_L_Poly(self, n), wan)
         return value
 
-    def get_L_Attenuation(self, order):
-        Ln = self.get_L_Poly(self, order)
-        Aw = np.polyadd(np.poly1d([1]), self.epsilon2 * Ln)
-        return Aw
+    def get_L_Attenuation(self):
+        Ln = self.get_L_Poly(self, self.order)
+        e2Ln = np.polymul(np.poly1d([self.epsilon2]), Ln)
+        A = np.polyadd(np.poly1d([1]), e2Ln)
+        return A
 
-    def get_L_zpk(self, order):
-        poles = np.roots(self.get_L_Attenuation(self, order))
+    def get_L_zpk(self):
+        z = []
+        r = 1j * np.roots(self.get_L_Attenuation(self))
+        p = []
+        for i in range(0, len(r)):
+            if r[i].real < 0:
+                p.append(r[i])
+        k = np.polyval(self.get_L_Attenuation(self), 0)
+        for pole in p:
+            k *= k * pole
+        return z, p, k
+
+    def get_L_TransFunc(self):
+        z, p, k = self.get_L_zpk()
+        return signal.lti(z, p, k)
+
+    def get_L_wo(self):
+        sys = self.get_L_TransFunc(self)
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
+        for i in range(0, len(mag)):
+            if mag[i] <= -3:
+                wo = w[i]
+                return wo
+
+    def get_L_wa(self):
+        sys = self.get_L_TransFunc(self)
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
+        for i in range(0, len(mag)):
+            if mag[i] <= -self.Aa:
+                wa = w[i]
+                return wa

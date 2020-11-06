@@ -297,3 +297,9 @@ class Butterworth(object):
 
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
+
+    def get_Attenuation(self):
+        A = self.mag
+        for i in range(0, len(A)):
+            A[i] = 1 / A[i]
+        return self.w_bode, A
