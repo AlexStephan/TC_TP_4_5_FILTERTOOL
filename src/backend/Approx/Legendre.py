@@ -142,6 +142,29 @@ class Legendre(object):
     def get_zpk(self):
         return self.z, self.p, self.k
 
+    def check_Q(self) -> bool:
+
+        Qmax = self.filter.reqData[FilterData.Qmax.value]
+
+        if self.order > 1 and Qmax is not None:
+            z, p, k = self.get_zpk(self)
+            q_arr = []
+            for pole in p:
+                q = abs(abs(pole) / (2 * pole.real))
+                q_arr.append(q)
+            q_sys = np.max(q_arr)
+            if q_sys > Qmax and self.order > 1:
+                self.order = self.order - 1
+                return False
+            else:
+                return True
+        else:
+            return True
+
+#############################
+#       Legendre Calc       #
+#############################
+
     def get_Legendre_Poly(self, order):
         return special.legendre(order)
 
