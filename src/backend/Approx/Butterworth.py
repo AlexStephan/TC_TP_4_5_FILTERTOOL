@@ -14,6 +14,13 @@ class Butterworth(object):
         self.num = None
         self.den = None
         self.sos = None
+        self.w_tf = None
+        self.h = None
+        self.w_bode = None
+        self.mag = None
+        self.pha = None
+        self.calculate(self)
+
 
     def calc_Order(self):
         val, msg = self.filter.validate(self.filter)
@@ -143,9 +150,6 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
-    def get_NumDen(self):
-        return self.num, self.den
-
     def calc_zpk(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
@@ -166,13 +170,6 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
-    def get_zpk(self):
-        return self.z, self.p, self.k
-
-    def get_zpGk(self):
-        gain = self.filter.reqData[FilterData.gain.value]
-        Gk = self.k * 10 ** (gain / 20)
-        return self.z, self.p, Gk
 
     def get_Gain(self):
         return self.filter.reqData[FilterData.gain.value]
@@ -197,43 +194,7 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
-    def get_TransFuncWithGain(self):                                        #return angular frequency and H(s)
-        val, msg = self.filter.validate(self.filter)
-        if val is False:
-            return msg
-
-        gain = self.filter.reqData[FilterData.gain.value]
-        z, p, k = self.get_zpk(self)
-
-        if self.type is "Low Pass":
-            sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            for i in range(len(mag)):
-                mag[i] = mag[i] + gain
-            return w, mag, pha
-        elif self.type is "High Pass":
-            sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            for i in range(len(mag)):
-                mag[i] = mag[i] + gain
-            return w, mag, pha
-        elif self.type is "Band Pass":
-            sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            for i in range(len(mag)):
-                mag[i] = mag[i] + gain
-            return w, mag, pha
-        elif self.type is "Band Reject":
-            sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            for i in range(len(mag)):
-                mag[i] = mag[i] + gain
-            return w, mag, pha
-        else:
-            message = "Error: Enter Filter Type."
-            return message
-
-    def get_TransFuncWithoutGain(self):  # return angular frequency and H(s)
+    def calc_TransFunc(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
             return msg
@@ -242,27 +203,43 @@ class Butterworth(object):
 
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            return w, mag, pha
+            self.w_tf, self.h = signal.TransferFunction(sys)
         elif self.type is "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            return w, mag, pha
+            self.w_tf, self.h = signal.TransferFunction(sys)
         elif self.type is "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            return w, mag, pha
+            self.w_tf, self.h = signal.TransferFunction(sys)
         elif self.type is "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
-            w, mag, pha = signal.bode(sys)
-            return w, mag, pha
+            self.w_tf, self.h = signal.TransferFunction(sys)
         else:
             message = "Error: Enter Filter Type."
             return message
 
-    #TODO: MATI: FIJARTE SI ESTO ESTA BIEN ESCRITO
-    def get_ssTransferFunction(self):
-        return signal.TransferFunction(self.num,self.den)
+
+    def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
+        val, msg = self.filter.validate(self.filter)
+        if val is False:
+            return msg
+
+        z, p, k = self.get_zpk(self)
+
+        if self.type is "Low Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        elif self.type is "High Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        elif self.type is "Band Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        elif self.type is "Band Reject":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        else:
+            message = "Error: Enter Filter Type."
+            return message
 
     def check_Q(self) -> bool:
 
@@ -290,4 +267,34 @@ class Butterworth(object):
         while self.check_Q(self) is False:
             self.calc_fo(self)
             self.calc_zpk(self)
-        return self.get_TransFuncWithGain(self)
+
+    def get_NumDen(self):
+        return self.num, self.den
+
+    def get_zpk(self):
+        return self.z, self.p, self.k
+
+    def get_zpGk(self):
+        gain = self.filter.reqData[FilterData.gain.value]
+        Gk = self.k * 10 ** (gain / 20)
+        return self.z, self.p, Gk
+
+    def get_TransFuncWithGain(self):
+        hg = self.h
+        gain = self.filter.reqData[FilterData.gain.value]
+        for i in hg:
+            i = i * 10 ** (gain / 20)
+        return self.w_tf, hg
+
+    def get_TransFuncWithoutGain(self):
+        return self.w_tf, self.h
+
+    def get_MagAndPhaseWithGain(self):
+        magg = self.mag
+        gain = self.filter.reqData[FilterData.gain.value]
+        for i in magg:
+            i = i * 10 ** (gain / 20)
+        return self.w_bode, magg, self.pha
+
+    def get_MagAndPhaseWithoutGain(self):
+        return self.w_bode, self.mag, self.pha
