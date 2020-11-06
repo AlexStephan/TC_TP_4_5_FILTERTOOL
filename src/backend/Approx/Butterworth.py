@@ -170,10 +170,6 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
-
-    def get_Gain(self):
-        return self.filter.reqData[FilterData.gain.value]
-
     def calc_sos(self):
         val, msg = self.filter.validate(self.filter)
         if val is False:
@@ -268,6 +264,9 @@ class Butterworth(object):
             self.calc_fo(self)
             self.calc_zpk(self)
 
+    def get_Gain(self):
+        return self.filter.reqData[FilterData.gain.value]
+
     def get_NumDen(self):
         return self.num, self.den
 
@@ -275,15 +274,15 @@ class Butterworth(object):
         return self.z, self.p, self.k
 
     def get_zpGk(self):
-        gain = self.filter.reqData[FilterData.gain.value]
+        gain = self.get_Gain(self)
         Gk = self.k * 10 ** (gain / 20)
         return self.z, self.p, Gk
 
     def get_TransFuncWithGain(self):
         hg = self.h
-        gain = self.filter.reqData[FilterData.gain.value]
-        for i in hg:
-            i = i * 10 ** (gain / 20)
+        gain = self.get_Gain(self)
+        for i in range(0, len(hg)):
+            hg[i] = hg[i] * 10 ** (gain / 20)
         return self.w_tf, hg
 
     def get_TransFuncWithoutGain(self):
@@ -291,9 +290,9 @@ class Butterworth(object):
 
     def get_MagAndPhaseWithGain(self):
         magg = self.mag
-        gain = self.filter.reqData[FilterData.gain.value]
-        for i in magg:
-            i = i * 10 ** (gain / 20)
+        gain = self.get_Gain(self)
+        for i in range(0, len(magg)):
+            magg[i] = magg[i] + gain
         return self.w_bode, magg, self.pha
 
     def get_MagAndPhaseWithoutGain(self):
