@@ -22,7 +22,7 @@ class BandPass(Filter):
     def validate(self) -> (bool, str):  # Returns true and "Ok" if everything is fine, false and "ErrMsg" if not
         valid = False
         message = "Ok"
-        if self.reqData[FilterData.Aa.value] < 0 or self.reqData[FilterData.Ap.value] < 0:
+        if self.reqData[FilterData.Aa] < 0 or self.reqData[FilterData.Ap] < 0:
             message = "Error: Enter positive values for Aa and Ap."
         elif self.reqData[FilterData.Aa] < self.reqData[FilterData.Ap]:
             message = "Error: Aa must be greater than Ap."
@@ -38,12 +38,12 @@ class BandPass(Filter):
 
     def get_template_limits(self):  # Create one set of squares for denormalized graph, and one set for
                                     # normalized graph
-        Ap = self.reqData[FilterData.Ap.value]
-        Aa = self.reqData[FilterData.Aa.value]
-        fpMin = self.reqData[FilterData.fpMin.value]
-        fpMax = self.reqData[FilterData.fpMin.value]
-        faMin = self.reqData[FilterData.faMin.value]
-        faMax = self.reqData[FilterData.faMin.value]
+        Ap = self.reqData[FilterData.Ap]
+        Aa = self.reqData[FilterData.Aa]
+        fpMin = self.reqData[FilterData.fpMin]
+        fpMax = self.reqData[FilterData.fpMin]
+        faMin = self.reqData[FilterData.faMin]
+        faMax = self.reqData[FilterData.faMin]
 
         denormLimit1 = Limit(Dot(0, Aa), Dot(faMin, Aa), Dot(0, 0), Dot(faMin, 0))
         denormLimit2 = Limit(Dot(fpMin, 1e9), Dot(fpMax, 1e9), Dot(fpMin, Ap), Dot(fpMax, Ap))

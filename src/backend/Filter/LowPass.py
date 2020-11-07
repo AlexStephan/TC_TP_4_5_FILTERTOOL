@@ -33,10 +33,10 @@ class LowPass(Filter):
 
     def get_template_limits(self):  # Create one set of squares for denormalized graph, and one set for
                                     # normalized graph
-        Ap = self.reqData[FilterData.Ap.value]
-        Aa = self.reqData[FilterData.Aa.value]
-        fpMin = self.reqData[FilterData.fpMin.value]
-        faMin = self.reqData[FilterData.faMin.value]
+        Ap = self.reqData[FilterData.Ap]
+        Aa = self.reqData[FilterData.Aa]
+        fpMin = self.reqData[FilterData.fpMin]
+        faMin = self.reqData[FilterData.faMin]
 
         denormLimit1 = Limit(Dot(0, 1e9), Dot(fpMin, 1e9), Dot(0, Ap), Dot(fpMin, Ap))
         denormLimit2 = Limit(Dot(faMin, Aa), Dot(1e12, Aa), Dot(faMin, 0), Dot(1e12, 0))

@@ -22,9 +22,9 @@ class GroupDelay(Filter):
     def validate(self) -> (bool, str):  # Returns true and "Ok" if everything is fine, false and "ErrMsg" if not
         valid = False
         message = "Ok"
-        if self.reqData[FilterData.tolerance.value] < 0 or self.reqData[FilterData.tolerance.value] > 100:
+        if self.reqData[FilterData.tolerance] < 0 or self.reqData[FilterData.tolerance] > 100:
             message = "Error: Tolerance must be between 0 and 100."
-        elif self.reqData[FilterData.GD.value] < 0:
+        elif self.reqData[FilterData.GD] < 0:
             message = "Error: Group Delay must be positive."
         else:
             valid = True
@@ -32,10 +32,11 @@ class GroupDelay(Filter):
 
     def get_template_limits(self):  # Create one set of squares for denormalized graph, and one set for
                                     # normalized graph
-        ft = self.reqData[FilterData.ft.value]
-        maxGD = self.reqData[FilterData.GD.value]*(1-tol)
-        GD = self.reqData[FilterData.GD.value]
-        tol = self.reqData[FilterData.tolerance.value]
+        ft = self.reqData[FilterData.ft]
+        tol = self.reqData[FilterData.tolerance]
+        maxGD = self.reqData[FilterData.GD]*(1-tol)
+        GD = self.reqData[FilterData.GD]
+
 
         denormLimit1 = Limit(Dot(0, maxGD), Dot(ft, maxGD), Dot(0, -1e9), Dot(ft, -1e9))
         denormLimit = [denormLimit1]
