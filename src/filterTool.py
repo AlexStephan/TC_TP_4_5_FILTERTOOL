@@ -233,10 +233,10 @@ class FilterTool(QWidget,Ui_Form):
         self.RealPoles = []
         self.ComplexZeros = []
         self.RealZeros = []
-        self.ComplexZerosAvailable = []
-        self.ComplexZerosAvailable = []
-        self.ComplexZerosAvailable = []
-        self.ComplexZerosAvailable = []
+        self.ComplexPolesUsed = []
+        self.RealPolesUsed = []
+        self.ComplexZerosUsed = []
+        self.RealZerosUsed = []
         self.__cleanThisGridLayout(self.gridLayout_ComplexPoles,self.ComplexPolesWidgets)
         self.__cleanThisGridLayout(self.gridLayout_RealPoles, self.RealPolesWidgets)
         self.__cleanThisGridLayout(self.gridLayout_ComplesZeros, self.ComplexZerosWidgets)
@@ -342,24 +342,24 @@ class FilterTool(QWidget,Ui_Form):
         for i in z:
             if np.imag(i) == 0:
                 self.RealZeros.append(i)
-                self.ComplexZerosAvailable.append(False)
+                self.RealZerosUsed.append(False)
             else:
                 if (i in self.ComplexZeros) or (np.conjugate(i) in self.ComplexZeros):
                     print("Found z="+str(i))
                 else:
                     self.ComplexZeros.append(i)
-                    self.ComplexZerosAvailable.append(False)
+                    self.ComplexZerosUsed.append(False)
 
         for i in p:
             if np.imag(i) == 0:
                 self.RealPoles.append(i)
-                self.ComplexZerosAvailable.append(False)
+                self.RealPolesUsed.append(False)
             else:
                 if i in self.ComplexPoles or np.conjugate(i) in self.ComplexPoles:
                     print("Found p="+str(i))
                 else:
                     self.ComplexPoles.append(i)
-                    self.ComplexZerosAvailable.append(False)
+                    self.ComplexPolesUsed.append(False)
 
     def __refreshStagesGraphs(self):
         self.__cleanStagesGraphs()
@@ -812,10 +812,10 @@ class FilterTool(QWidget,Ui_Form):
         self.RealPoles = []
         self.ComplexZeros = []
         self.RealZeros = []
-        self.ComplexZerosAvailable = []
-        self.ComplexZerosAvailable = []
-        self.ComplexZerosAvailable = []
-        self.ComplexZerosAvailable = []
+        self.ComplexPolesUsed = []
+        self.RealPolesUsed = []
+        self.ComplexZerosUsed = []
+        self.RealZerosUsed = []
         self.ComplexPolesWidgets = []
         self.RealPolesWidgets = []
         self.ComplexZerosWidgets = []
