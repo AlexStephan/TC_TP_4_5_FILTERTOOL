@@ -212,7 +212,7 @@ class FilterTool(QWidget,Ui_Form):
 
     def __indexChanged_SelectYourFilter(self):
         self.__cleanStagesWidgets()
-
+        self.sos = []
         if self.comboBox_SelectYourFilter.currentIndex() == 0:
             self.checkBox_SelectedFilterVisible.setDisabled(True)
             self.checkBox_SelectedFilterVisible.setChecked(False)
@@ -228,6 +228,11 @@ class FilterTool(QWidget,Ui_Form):
             self.__updateStagesAvailable()
             #DO THINGS
 
+    def __cleanThisComboBox(self,comboBox):
+        n = comboBox.count()
+        for i in range(n-1):
+            comboBox.removeItem(n+1)
+
     def __cleanStagesWidgets(self):
         self.ComplexPoles = []
         self.RealPoles = []
@@ -241,6 +246,15 @@ class FilterTool(QWidget,Ui_Form):
         self.__cleanThisGridLayout(self.gridLayout_RealPoles, self.RealPolesWidgets)
         self.__cleanThisGridLayout(self.gridLayout_ComplesZeros, self.ComplexZerosWidgets)
         self.__cleanThisGridLayout(self.gridLayout_RealZeros, self.RealZerosWidgets)
+        self.__cleanThisComboBox(self.comboBox_SelectComplexPoles)
+        self.__cleanThisComboBox(self.comboBox_SelectRealPole)
+        self.__cleanThisComboBox(self.comboBox_Select1stRealPole)
+        self.__cleanThisComboBox(self.comboBox_Select2ndRealPole)
+        self.__cleanThisComboBox(self.comboBox_SelectComplexZeros)
+        self.__cleanThisComboBox(self.comboBox_Select1stRealZero)
+        self.__cleanThisComboBox(self.comboBox_Select2ndRealZero)
+        self.__cleanThisComboBox(self.comboBox_SelectRealZero)
+
 
     def __cleanThisGridLayout(self,layout: QGridLayout,widgets):
         if DEBUG:
@@ -256,26 +270,29 @@ class FilterTool(QWidget,Ui_Form):
 
     def __updateStagesAvailable(self):
         for i in range(len(self.ComplexPoles)):
-            reZ = QLabel('{:.2f}'.format(np.real(self.ComplexPoles[i])))
+            reZ_ ='{:.2f}'.format(np.real(self.ComplexPoles[i]))
+            reZ = QLabel(reZ_)
             #reZ.setMaximumWidth(50)
             self.gridLayout_ComplexPoles.addWidget(reZ,i+1,0)
             self.ComplexPolesWidgets.append(reZ)
 
-            imZ = QLabel('{:.2f}'.format(np.imag(self.ComplexPoles[i])))
+            imZ_ = '{:.2f}'.format(np.imag(self.ComplexPoles[i]))
+            imZ = QLabel(imZ_)
             #imZ.setMaximumWidth(50)
             self.gridLayout_ComplexPoles.addWidget(imZ,i+1,1)
             self.ComplexPolesWidgets.append(imZ)
 
-            foZ = QLabel('{:.2f}'.format(np.absolute(self.ComplexPoles[i])/(2*np.pi)))
+            foZ_ = '{:.2f}'.format(np.absolute(self.ComplexPoles[i])/(2*np.pi))
+            foZ = QLabel(foZ_)
             #foZ.setMaximumWidth(50)
             self.gridLayout_ComplexPoles.addWidget(foZ,i+1,2)
             self.ComplexPolesWidgets.append(foZ)
 
             if np.real(self.ComplexPoles[i]) == 0:
-                Q = "inf"
+                QZ_ = "inf"
             else:
-                Q = '{:.2f}'.format(np.abs(self.ComplexPoles[i])/(2*np.abs(np.real(self.ComplexPoles[i]))))
-            QZ = QLabel(Q)
+                QZ_ = '{:.2f}'.format(np.abs(self.ComplexPoles[i])/(2*np.abs(np.real(self.ComplexPoles[i]))))
+            QZ = QLabel(QZ_)
             self.gridLayout_ComplexPoles.addWidget(QZ,i+1,3)
             self.ComplexPolesWidgets.append(QZ)
 
@@ -286,13 +303,17 @@ class FilterTool(QWidget,Ui_Form):
             self.gridLayout_ComplexPoles.addWidget(visible,i+1,4)
             self.ComplexPolesWidgets.append(visible)
 
+            self.comboBox_SelectComplexPoles.addItem('Z={0}+-{1}i - f0={2} - Q={3}'.format(reZ_,imZ_,foZ_,QZ_))
+
         for i in range(len(self.RealPoles)):
-            reZ = QLabel('{:.2f}'.format(np.real(self.RealPoles[i])))
+            reZ_ = '{:.2f}'.format(np.real(self.RealPoles[i]))
+            reZ = QLabel(reZ_)
             #reZ.setMaximumWidth(50)
             self.gridLayout_RealPoles.addWidget(reZ,i+1,0)
             self.RealPolesWidgets.append(reZ)
 
-            foZ = QLabel('{:.2f}'.format(np.absolute(self.RealPoles[i])/(2*np.pi)))
+            foZ_ ='{:.2f}'.format(np.absolute(self.RealPoles[i])/(2*np.pi))
+            foZ = QLabel(foZ_)
             #foZ.setMaximumWidth(50)
             self.gridLayout_RealPoles.addWidget(foZ,i+1,1)
             self.RealPolesWidgets.append(foZ)
@@ -304,13 +325,19 @@ class FilterTool(QWidget,Ui_Form):
             self.gridLayout_RealPoles.addWidget(visible,i+1,2)
             self.RealPolesWidgets.append(visible)
 
+            self.comboBox_SelectRealPole.addItem('Z={0} - f0={1}'.format(reZ_, foZ_))
+            self.comboBox_Select1stRealPole.addItem('Z={0} - f0={1}'.format(reZ_, foZ_))
+            self.comboBox_Select2ndRealPole.addItem('Z={0} - f0={1}'.format(reZ_, foZ_))
+
         for i in range(len(self.ComplexZeros)):
-            reZ = QLabel('{:.2f}'.format(np.real(self.ComplexZeros[i])))
+            reZ_ = '{:.2f}'.format(np.real(self.ComplexZeros[i]))
+            reZ = QLabel(reZ_)
             #reZ.setMaximumWidth(50)
             self.gridLayout_ComplesZeros.addWidget(reZ,i+1,0)
             self.ComplexZerosWidgets.append(reZ)
 
-            imZ = QLabel('{:.2f}'.format(np.imag(self.ComplexZeros[i])))
+            imZ_ = '{:.2f}'.format(np.imag(self.ComplexZeros[i]))
+            imZ = QLabel(imZ_)
             #imZ.setMaximumWidth(50)
             self.gridLayout_ComplesZeros.addWidget(imZ,i+1,1)
             self.ComplexZerosWidgets.append(imZ)
@@ -322,8 +349,11 @@ class FilterTool(QWidget,Ui_Form):
             self.gridLayout_ComplesZeros.addWidget(visible,i+1,2)
             self.ComplexZerosWidgets.append(visible)
 
+            self.comboBox_SelectComplexZeros.addItem('Z={0}+-{1}i'.format(reZ_, imZ_))
+
         for i in range(len(self.RealZeros)):
-            reZ = QLabel('{:.2f}'.format(np.real(self.RealZeros[i])))
+            reZ_ = '{:.2f}'.format(np.real(self.RealZeros[i]))
+            reZ = QLabel(reZ_)
             #reZ.setMaximumWidth(50)
             self.gridLayout_RealZeros.addWidget(reZ,i+1,0)
             self.RealZerosWidgets.append(reZ)
@@ -335,6 +365,9 @@ class FilterTool(QWidget,Ui_Form):
             self.gridLayout_RealZeros.addWidget(visible,i+1,1)
             self.RealZerosWidgets.append(visible)
 
+            self.comboBox_SelectRealZero.addItem('Z={0}'.format(reZ_))
+            self.comboBox_Select1stRealZero.addItem('Z={0}'.format(reZ_))
+            self.comboBox_Select2ndRealZero.addItem('Z={0}'.format(reZ_))
 
     def __getAndOrderPolesAndZeros(self,i):
         z, p, Gk = self.myFilters[i][1].get_zpGk()
@@ -580,64 +613,190 @@ class FilterTool(QWidget,Ui_Form):
 
     def __cancelNewStage(self):
         self.__showHideState_CreateNewStage()
-        self.tempPolos = []
-        self.tempZeros = []
+        #self.tempPolos = []
+        #self.tempZeros = []
+        self.polosAreComplex = False
+        self.polosIndex = []
+        self.cerosRequired = False
+        self.cerosAreComples = False
+        self.cerosIndex = []
 
     def __crateNewStage(self):
         self.__showHideState_SelectOrder()
 
     def __clicked_1stOrderPole(self):
         self.__showHideState_SelectRealPole()
+        self.polosAreComplex = False
 
     def __clicked_secondOrderPoles(self):
         self.__showHideState_SelectTypeOfPoles()
 
     def __clicked_complexPoles(self):
         self.__showHideState_SelectComplexPoles()
+        self.polosAreComplex = True
 
     def __clicked_realPoles(self):
         self.__showHideState_SelectRealPoles()
+        self.polosAreComplex = False
 
     ###
 
     def __selectRealPole(self):
-        self.__showHideState_1stOrderPoleReady()
+        i = self.comboBox_SelectRealPole.currentIndex()
+        if i != 0 and not ("USED" in self.comboBox_SelectRealPole.itemText(i)):
+            self.polosIndex.append(i)
+            self.__showHideState_1stOrderPoleReady()
+        else:
+            self.__error_message("INVALID POLE SELECTED")
+            self.__cancelNewStage()
 
     def __selectRealPoles(self):
-        self.__showHideState_2ndOrderPolesReady()
+        i1 = self.comboBox_Select1stRealPole.currentIndex()
+        i2 = self.comboBox_Select2ndRealPole.currentIndex()
+        if i1 != 0 and i2 != 0 and i1 != i2 and not (
+                "USED" in self.comboBox_Select1stRealPole.itemText(i1)) and not (
+                "USED" in self.comboBox_Select2ndRealPole.itemText(i2)):
+            self.polosIndex.append(i1)
+            self.polosIndex.append(i2)
+            self.__showHideState_2ndOrderPolesReady()
+        else:
+            self.__error_message("INVALID POLES SELECTED")
+            self.__cancelNewStage()
 
     def __selectComplexPoles(self):
-        self.__showHideState_2ndOrderPolesReady()
+        i = self.comboBox_SelectComplexPoles.currentIndex()
+        if i!= 0 and not ("USED" in self.comboBox_SelectComplexPoles.itemText(i)):
+            self.polosIndex.append(i)
+            self.__showHideState_2ndOrderPolesReady()
+        else:
+            self.__error_message("INVALID POLES SELECTED")
+            self.__cancelNewStage()
 
     def __finish1stOrderPole(self):
-        self.__showHideState_CreateNewStage()
+        self.__createSOS()
+        self.__cancelNewStage()
 
     def __clicked_addZero(self):
         self.__showHideState_SelectRealZero()
+        self.cerosRequired = True
+        self.cerosAreComples = False
 
     def __finish2ndOrderPole(self):
-        self.__showHideState_CreateNewStage()
+        self.__createSOS()
+        self.__cancelNewStage()
 
     def __clicked_add1Zero(self):
         self.__showHideState_SelectRealZero()
+        self.cerosRequired = True
+        self.cerosAreComples = False
 
     def __clicked_add2Zeros(self):
         self.__showHideState_SelectTypeOfZeros()
 
     def __clicked_complexZeros(self):
         self.__showHideState_SelectComplexZeros()
+        self.cerosRequired = True
+        self.cerosAreComples = True
 
     def __clicked_realZeros(self):
         self.__showHideState_SelectRealZeros()
+        self.cerosRequired = True
+        self.cerosAreComples = False
 
     def __finishRealZero(self):
-        self.__showHideState_CreateNewStage()
+        i = self.comboBox_SelectRealZero.currentIndex()
+        if i != 0 and not ("USED" in self.comboBox_SelectRealZero.itemText(i)):
+            self.cerosIndex.append(i)
+            self.__createSOS()
+            self.__cancelNewStage()
+        else:
+            self.__error_message("INVALID ZERO SELECTED")
+            self.__cancelNewStage()
 
     def __finishRealZeros(self):
-        self.__showHideState_CreateNewStage()
+        i1 = self.comboBox_Select1stRealZero.currentIndex()
+        i2 = self.comboBox_Select2ndRealZero.currentIndex()
+        if i1 != 0 and i2 != 0 and i1 != i2 and not (
+                "USED" in self.comboBox_Select1stRealZero.itemText(i1)) and not (
+                "USED" in self.comboBox_Select2ndRealZero.itemText(i2)):
+            self.cerosIndex.append(i1)
+            self.cerosIndex.append(i2)
+            self.__createSOS()
+            self.__cancelNewStage()
+        else:
+            self.__error_message("INVALID ZEROS SELECTED")
+            self.__cancelNewStage()
 
     def __finishComplexZeros(self):
-        self.__showHideState_CreateNewStage()
+        i = self.comboBox_SelectComplexZeros.currentIndex()
+        if i != 0 and not ("USED" in self.comboBox_SelectComplexZeros.itemText(i)):
+            self.cerosIndex.append(i)
+            self.__createSOS()
+            self.__cancelNewStage()
+        else:
+            self.__error_message("INVALID ZEROS SELECTED")
+            self.__cancelNewStage()
+    #
+
+    def __createSOS(self): #OJO!!! INDEX SUMADOS MAS 1
+        if DEBUG:
+            print(self.polosIndex)
+            print(self.polosAreComplex)
+            print(self.cerosIndex)
+            print(self.cerosAreComples)
+            print(self.cerosRequired)
+
+        if self.polosAreComplex:
+            polosArray = self.ComplexPoles
+            polosUsedArray = self.ComplexPolesUsed
+            polosWidgetArray = self.ComplexPolesWidgets
+            polesWidgetConstant = 5
+            polesComboBoxes = [self.comboBox_SelectComplexPoles]
+        else:
+            polosArray = self.RealPoles
+            polosUsedArray = self.RealPolesUsed
+            polosWidgetArray = self.RealPolesWidgets
+            polesWidgetConstant = 3
+            polesComboBoxes = [self.comboBox_SelectRealPole,
+                               self.comboBox_Select1stRealPole,
+                               self.comboBox_Select2ndRealPole]
+        if self.cerosAreComples:
+            cerosArray = self.ComplexZeros
+            cerosUsedArray = self.ComplexZerosUsed
+            cerosWidgetArray = self.ComplexZerosWidgets
+            cerosWidgetConstant = 3
+            cerosComboBoxes = [self.comboBox_SelectComplexZeros]
+        else:
+            cerosArray = self.RealZeros
+            cerosUsedArray = self.RealZerosUsed
+            cerosWidgetArray = self.RealZerosWidgets
+            cerosWidgetConstant = 2
+            cerosComboBoxes = [self.comboBox_SelectRealZero,
+                               self.comboBox_Select1stRealZero,
+                               self.comboBox_Select2ndRealZero]
+
+        sosPolos = []
+        for i in self.polosIndex:
+            polosUsedArray[i-1] = True
+            polosWidgetArray[polesWidgetConstant*i-1].setChecked(True)
+            for combo in polesComboBoxes:
+                text = combo.itemText(i)
+                combo.setItemText(i,'USED - '+text)
+            sosPolos.append(polosArray[i-1])
+        sosCeros = []
+        if self.cerosRequired:
+            for i in self.cerosIndex:
+                cerosUsedArray[i-1] = True
+                cerosWidgetArray[cerosWidgetConstant*i-1].setChecked(True)
+                for combo in cerosComboBoxes:
+                    text = combo.itemText(i)
+                    combo.setItemText(i,'USED - '+text)
+                sosCeros.append(cerosArray[i-1])
+
+        newSos = SimpleHs(sosCeros,sosPolos)
+        self.sos.append([newSos,True])
+        #TODO UPDATE SOS GRAPH
+
 
     #####################################################################33
 
@@ -808,6 +967,7 @@ class FilterTool(QWidget,Ui_Form):
         self.currentFilter = None
         self.currentStage = None
 
+        # PREVIOS A COMENZAR ETAPAS
         self.ComplexPoles = []
         self.RealPoles = []
         self.ComplexZeros = []
@@ -821,8 +981,17 @@ class FilterTool(QWidget,Ui_Form):
         self.ComplexZerosWidgets = []
         self.RealZerosWidgets = []
 
-        self.tempPolos = []
-        self.tempZeros = []
+        #self.tempPolos = []
+        #self.tempZeros = []
+        # USADOS PARA LA CREACION DE NUEVAS ETAPAS
+        self.polosAreComplex = False
+        self.polosIndex = []
+        self.cerosRequired = False
+        self.cerosAreComples = False
+        self.cerosIndex = []
+
+        #ULTIMA ETAPA: SOS y FOS
+        self.sos = []
         ########################################################
         self.testvar1 = 0
         self.testvar2 = 0
@@ -841,11 +1010,11 @@ class FilterTool(QWidget,Ui_Form):
         #self.myFilters.append([str(self.testvar1),None,None,True])
         #mfl = myFilterTest()
 
-        for y in reversed(range(self.gridLayout_TEST.rowCount()-1)):
-            for x in reversed(range(self.gridLayout_TEST.columnCount()-1)):
-                temp = self.gridLayout_TEST.itemAt(x + 3*y)
-                self.gridLayout_TEST.removeItem(temp)
-                del temp
+        #for y in reversed(range(self.gridLayout_TEST.rowCount()-1)):
+        #    for x in reversed(range(self.gridLayout_TEST.columnCount()-1)):
+        #        temp = self.gridLayout_TEST.itemAt(x + 3*y)
+        #        self.gridLayout_TEST.removeItem(temp)
+        #        del temp
 
     def __test2(self):
         #print("Test2")
