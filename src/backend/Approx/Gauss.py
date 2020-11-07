@@ -26,7 +26,7 @@ class Gauss(object):
         self.calculate()
 
     def calc_Order(self):
-        if self.type is "Group Delay":
+        if self.type == "Group Delay":
             self.gdo = self.filter.reqData[FilterData.GD]
             ft = self.filter.reqData[FilterData.ft]
             tol = self.filter.reqData[FilterData.tolerance] / 100

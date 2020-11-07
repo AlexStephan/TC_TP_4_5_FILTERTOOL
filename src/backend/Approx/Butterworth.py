@@ -43,17 +43,17 @@ class Butterworth(object):
 
         if self.type == "Low Pass":
             order, wo = signal.buttord(2 * np.pi * fpMin, 2 * np.pi * faMin, Ap, Aa, analog=True)
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
         elif self.type == "High Pass":
             order, wo = signal.buttord(2 * np.pi * fpMin, 2 * np.pi * faMin, Ap, Aa, analog=True)
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
@@ -61,9 +61,9 @@ class Butterworth(object):
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
@@ -71,9 +71,9 @@ class Butterworth(object):
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order

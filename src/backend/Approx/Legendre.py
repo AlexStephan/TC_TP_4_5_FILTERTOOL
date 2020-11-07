@@ -35,7 +35,7 @@ class Legendre(object):
         fpMin = self.filter.reqData[FilterData.fpMin]
         fpMax = self.filter.reqData[FilterData.fpMax]
         Ap = self.filter.reqData[FilterData.Ap]
-        if Ap is 0:
+        if Ap == 0:
             Ap = 1e-9
 
         faMin = self.filter.reqData[FilterData.faMin]
@@ -48,7 +48,7 @@ class Legendre(object):
         self.epsilon2 = 10 ** (Ap / 10) - 1
         order = 1
 
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             self.wan = faMin / fpMin
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
@@ -58,7 +58,7 @@ class Legendre(object):
                 self.order = Nmax
             else:
                 self.order = order
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             self.wan = fpMin / faMin
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
@@ -68,7 +68,7 @@ class Legendre(object):
                 self.order = Nmax
             else:
                 self.order = order
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             self.wan = (faMax - faMin) / (fpMax - fpMin)
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
@@ -78,7 +78,7 @@ class Legendre(object):
                 self.order = Nmax
             else:
                 self.order = order
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             self.wan = (fpMax - fpMin) / (faMax - faMin)
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
@@ -102,17 +102,17 @@ class Legendre(object):
 
         Denorm = self.filter.reqData[FilterData.Denorm]
 
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
             fod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100) / (2 * np.pi)
             self.fo = fod * fpMin
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
             fod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100) / (2 * np.pi)
             self.fo = fpMin / fod
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             Bw = 2 * np.pi * fpMax - fpMin
             wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
             wo1 = self.get_L_wo()
@@ -121,7 +121,7 @@ class Legendre(object):
             wo1 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) + wod * Bw) / 2
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             Bw = 2 * np.pi * fpMax - fpMin
             wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
             wo1 = self.get_L_wo()
@@ -135,16 +135,16 @@ class Legendre(object):
             return message
 
     def calc_Denormalization_zpk(self):
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             z, p, k = self.get_L_zpk()
             self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             z, p, k = self.get_L_zpk()
             self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             z, p, k = self.get_L_zpk()
             self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             z, p, k = self.get_L_zpk()
             self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=self.fo / (2 * np.pi))
 
@@ -173,16 +173,16 @@ class Legendre(object):
         if val is False:
             return msg
         z, p, k = self.get_zpk()
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
         else:
@@ -194,16 +194,16 @@ class Legendre(object):
         if val is False:
             return msg
         z, p, k = self.get_zpk()
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
         else:
