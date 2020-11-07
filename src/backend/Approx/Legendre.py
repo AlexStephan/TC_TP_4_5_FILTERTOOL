@@ -52,7 +52,7 @@ class Legendre(object):
             self.wan = faMin / fpMin
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
             elif Nmax < order:
                 self.order = Nmax
@@ -62,7 +62,7 @@ class Legendre(object):
             self.wan = fpMin / faMin
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
             elif Nmax < order:
                 self.order = Nmax
@@ -72,7 +72,7 @@ class Legendre(object):
             self.wan = (faMax - faMin) / (fpMax - fpMin)
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
             elif Nmax < order:
                 self.order = Nmax
@@ -82,7 +82,7 @@ class Legendre(object):
             self.wan = (fpMax - fpMin) / (faMax - faMin)
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
             elif Nmax < order:
                 self.order = Nmax

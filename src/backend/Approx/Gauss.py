@@ -42,9 +42,9 @@ class Gauss(object):
                     if w[i] >= wtn and gd[i] >= 1 - tol:
                         good_enough = True
                         break
-            if Nmin > order:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmin
             else:
                 self.order = order
