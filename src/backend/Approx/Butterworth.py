@@ -5,7 +5,7 @@ import numpy as np
 class Butterworth(object):
     def __init__(self, filter: Filter):
         self.filter = filter
-        self.type = self.filter.get_type(self.filter)
+        self.type = self.filter.get_type()
         self.order = None
         self.fo = None
         self.z = None

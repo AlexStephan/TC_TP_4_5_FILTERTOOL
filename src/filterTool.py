@@ -42,6 +42,7 @@ from src.backend.Filter.GroupDelay import GroupDelay
 #from src.backend.Approx.Gauss import Gauss
 from src.backend.Approx.Legendre import Legendre
 from src.backend.Approx.Butterworth import Butterworth
+from src.backend.Approx.Gauss import Gauss
 
 DEBUG = True
 
@@ -121,7 +122,7 @@ class FilterTool(QWidget,Ui_Form):
                 newFilter = BandReject(Aa,fa_minus,fa_plus,Ap,fp_minus,fp_plus,gain,Nmax,Nmin,Qmax,denorm)
             else:
                 name_filterType = "GroupDelay"
-                newFilter = GroupDelay(ft,gDelay,tol,gain)
+                newFilter = GroupDelay(ft,gDelay,tol,gain,Nmax,Nmin,Qmax,denorm)
 
             valid,message = newFilter.validate()
             if not valid:
@@ -131,8 +132,7 @@ class FilterTool(QWidget,Ui_Form):
             approxtype = self.comboBox_approximation.currentIndex()
             if approxtype == approxTypeALL.Gauss.value:
                 name_approxType = "Gauss"
-                print("lol")
-                return
+                newApprox = Gauss(newFilter)
             elif approxtype == approxTypeALL.Butterworth.value:
                 name_approxType = "Butterworth"
                 newApprox = Butterworth(newFilter)
@@ -144,8 +144,9 @@ class FilterTool(QWidget,Ui_Form):
                 return
 
             #TODO VERIFICAR Q LA APROX SEA VALIDA
-            w,mag,pha = newApprox.calculate()
-            newTransFunc = [w,mag,pha]
+
+            #w,mag,pha = newApprox.calculate()
+            newTransFunc = newApprox.get_MagAndPhaseWithGain()
             fullname = Name + " - " + name_filterType + " - " + name_approxType
             self.myFilters.append([fullname,newApprox,newTransFunc,True])
             self.comboBox_YourFilters.addItem(fullname)
@@ -212,6 +213,7 @@ class FilterTool(QWidget,Ui_Form):
 
     def __indexChanged_SelectYourFilter(self):
         self.__cleanStagesWidgets()
+        self.__cancelNewStage()
         self.sos = []
         if self.comboBox_SelectYourFilter.currentIndex() == 0:
             self.checkBox_SelectedFilterVisible.setDisabled(True)
@@ -230,8 +232,8 @@ class FilterTool(QWidget,Ui_Form):
 
     def __cleanThisComboBox(self,comboBox):
         n = comboBox.count()
-        for i in range(n-1):
-            comboBox.removeItem(n+1)
+        for i in reversed(range(n-1)):
+            comboBox.removeItem(i+1)
 
     def __cleanStagesWidgets(self):
         self.ComplexPoles = []
@@ -254,7 +256,6 @@ class FilterTool(QWidget,Ui_Form):
         self.__cleanThisComboBox(self.comboBox_Select1stRealZero)
         self.__cleanThisComboBox(self.comboBox_Select2ndRealZero)
         self.__cleanThisComboBox(self.comboBox_SelectRealZero)
-
 
     def __cleanThisGridLayout(self,layout: QGridLayout,widgets):
         if DEBUG:
@@ -399,6 +400,9 @@ class FilterTool(QWidget,Ui_Form):
         if self.checkBox_SelectedFilterVisible.isChecked() and self.comboBox_SelectYourFilter.currentIndex() > 0:
             i = self.comboBox_SelectYourFilter.currentIndex() - 1
             self.__addGraphicsForStages(self.myFilters[i][0]+" - Desired Filter",self.myFilters[i][2])
+        for i in range(len(self.sos)):
+            if self.sos[i][1]:
+                self.__addGraphicsForStages('STAGE {0}'.format(i+1),self.sos[i][0].getHs())
 
     def __cleanStagesGraphs(self):
         self.axis_StagesGain.clear()
@@ -558,17 +562,17 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_ZerosAndPoles.legend()
         self.canvas_ZerosAndPoles.draw()
 
-        Hs = filter.get_ssTransferFunction()
-        impulseResponse = ss.impulse(Hs)
-        stepResponse = ss.step(Hs)
+        #Hs = filter.get_ssTransferFunction()
+        #impulseResponse = ss.impulse(Hs)
+        #stepResponse = ss.step(Hs)
 
-        self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
-        self.axis_ImpulseResponse.legend()
-        self.canvas_ImpulseResponse.draw()
+        #self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
+        #self.axis_ImpulseResponse.legend()
+        #self.canvas_ImpulseResponse.draw()
 
-        self.axis_StepResponse.plot(stepResponse[0],stepResponse[1],label=name)
-        self.axis_StepResponse.legend()
-        self.canvas_StepResponse.draw()
+        #self.axis_StepResponse.plot(stepResponse[0],stepResponse[1],label=name)
+        #self.axis_StepResponse.legend()
+        #self.canvas_StepResponse.draw()
 
     def __cleanFilterMakerGraphs(self):
         self.axis_Magnitude.clear()
@@ -783,6 +787,8 @@ class FilterTool(QWidget,Ui_Form):
                 text = combo.itemText(i)
                 combo.setItemText(i,'USED - '+text)
             sosPolos.append(polosArray[i-1])
+            if self.polosAreComplex:
+                sosPolos.append(np.conjugate(polosArray[i-1]))
         sosCeros = []
         if self.cerosRequired:
             for i in self.cerosIndex:
@@ -792,11 +798,17 @@ class FilterTool(QWidget,Ui_Form):
                     text = combo.itemText(i)
                     combo.setItemText(i,'USED - '+text)
                 sosCeros.append(cerosArray[i-1])
+                if self.cerosAreComples:
+                    sosCeros.append(np.conjugate(cerosArray[i-1]))
 
         newSos = SimpleHs(sosCeros,sosPolos)
-        self.sos.append([newSos,True])
-        #TODO UPDATE SOS GRAPH
-
+        self.sos.append([newSos,True,
+                         [self.polosIndex,
+                          self.polosAreComplex,
+                          self.cerosIndex,
+                          self.cerosAreComples,
+                          self.cerosRequired]])
+        self.__refreshStagesGraphs()
 
     #####################################################################33
 

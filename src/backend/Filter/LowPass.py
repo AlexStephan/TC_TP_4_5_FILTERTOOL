@@ -21,7 +21,7 @@ class LowPass(Filter):
     def validate(self) -> (bool, str):  # Returns true and "Ok" if everything is fine, false and "ErrMsg" if not
         valid = False
         message = "Ok"
-        if self.reqData[FilterData.Aa.value] < 0 or self.reqData[FilterData.Ap.value] < 0:
+        if self.reqData[FilterData.Aa] < 0 or self.reqData[FilterData.Ap] < 0:
             message = "Error: Enter positive values for Aa and Ap."
         elif self.reqData[FilterData.Aa] < self.reqData[FilterData.Ap]:
             message = "Error: Aa must be greater than Ap."
