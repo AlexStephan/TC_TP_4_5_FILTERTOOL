@@ -6,7 +6,7 @@ import numpy as np
 class Gauss(object):
     def __init__(self, filter: Filter):
         self.filter = filter
-        self.type = self.filter.get_type(self.filter)
+        self.type = self.filter.get_type()
         self.order = None
         self.gdo = None
         self.z = None
@@ -23,21 +23,21 @@ class Gauss(object):
         self.h = None
         self.wgd = None
         self.GroupDelay = None
-        self.calculate(self)
+        self.calculate()
 
     def calc_Order(self):
         if self.type is "Group Delay":
-            self.gdo = self.filter.reqData[FilterData.GD.value]
-            ft = self.filter.reqData[FilterData.ft.value]
-            tol = self.filter.reqData[FilterData.tolerance.value] / 100
-            Nmin = self.filter.reqData[FilterData.Nmin.value]
-            Nmax = self.filter.reqData[FilterData.Nmax.value]
+            self.gdo = self.filter.reqData[FilterData.GD]
+            ft = self.filter.reqData[FilterData.ft]
+            tol = self.filter.reqData[FilterData.tolerance] / 100
+            Nmin = self.filter.reqData[FilterData.Nmin]
+            Nmax = self.filter.reqData[FilterData.Nmax]
             wtn = 2 * np.pi * ft * self.gdo
             order = 0
             good_enough = False
             while good_enough is False:
                 order += 1
-                w, gd = self.get_UnNormalized_Group_Delay(self, order)
+                w, gd = self.get_UnNormalized_Group_Delay(order)
                 for i in range(0, len(w)):
                     if w[i] >= wtn and gd[i] >= 1 - tol:
                         good_enough = True
@@ -50,8 +50,8 @@ class Gauss(object):
                 self.order = order
 
     def get_Normalized_zpk(self):
-        z, p, k = self.get_Gauss_Exp_zpk(self, self.order)
-        w, gd = self.get_UnNormalized_Group_Delay(self, self.order)
+        z, p, k = self.get_Gauss_Exp_zpk(self.order)
+        w, gd = self.get_UnNormalized_Group_Delay(self.order)
         k = 1
         for i in range(0, len(p)):
             p[i] *= gd[0] / 100
@@ -59,13 +59,13 @@ class Gauss(object):
         return z, p, k
 
     def denormalize(self):
-        z, p, k = self.get_Normalized_zpk(self)
+        z, p, k = self.get_Normalized_zpk()
         self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=1 / self.gdo)
 
     def check_Q(self) -> bool:
-        Qmax = self.filter.reqData[FilterData.Qmax.value]
+        Qmax = self.filter.reqData[FilterData.Qmax]
         if self.order > 1 and Qmax is not None:
-            z, p, k = self.get_zpk(self)
+            z, p, k = self.get_zpk()
             q_arr = []
             for pole in p:
                 q = abs(abs(pole) / (2 * pole.real))
@@ -80,13 +80,13 @@ class Gauss(object):
             return True
 
     def get_Gain(self):
-        return self.filter.reqData[FilterData.gain.value]
+        return self.filter.reqData[FilterData.gain]
 
     def calc_TransFunc(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
-        z, p, k = self.get_zpk(self)
+        z, p, k = self.get_zpk()
         if self.type is "Group Delay":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
@@ -95,10 +95,10 @@ class Gauss(object):
             return message
 
     def calc_MagAndPhase(self):  # return angular frequency, Mag and Phase
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
-        z, p, k = self.get_zpk(self)
+        z, p, k = self.get_zpk()
         if self.type is "Group Delay":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
@@ -113,7 +113,7 @@ class Gauss(object):
         self.A = A
 
     def calc_Group_Delay(self):
-        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        w, mag, pha = self.get_MagAndPhaseWithoutGain()
         gd = - np.diff(pha) / np.diff(w)
         gd = gd.tolist()
         gd.append(gd[len(gd) - 1])
@@ -122,13 +122,13 @@ class Gauss(object):
         self.wgd = w
 
     def calculate(self):
-        self.calc_Order(self)
-        self.denormalize(self)
-        while self.check_Q(self) is False:
-            self.denormalize(self)
-        self.calc_TransFunc(self)
-        self.calc_MagAndPhase(self)
-        self.calc_Group_Delay(self)
+        self.calc_Order()
+        self.denormalize()
+        while self.check_Q() is False:
+            self.denormalize()
+        self.calc_TransFunc()
+        self.calc_MagAndPhase()
+        self.calc_Group_Delay()
 
     #####################
     #       ALEX        #
@@ -145,7 +145,7 @@ class Gauss(object):
 
     def get_TransFuncWithGain(self):
         hg = self.h
-        gain = self.get_Gain(self)
+        gain = self.get_Gain()
         for i in range(0, len(hg)):
             hg[i] = hg[i] * 10 ** (gain / 20)
         return self.w_tf, hg
@@ -155,7 +155,7 @@ class Gauss(object):
 
     def get_MagAndPhaseWithGain(self):
         magg = self.mag
-        gain = self.get_Gain(self)
+        gain = self.get_Gain()
         for i in range(0, len(magg)):
             magg[i] = magg[i] + gain
         return self.w_bode, magg, self.pha
@@ -167,7 +167,7 @@ class Gauss(object):
         return self.z, self.p, self.k
 
     def get_zpGk(self):
-        Gk = self.k * 10 ** (self.get_Gain(self) / 20)
+        Gk = self.k * 10 ** (self.get_Gain() / 20)
         return self.z, self.p, Gk
 
     #########################
@@ -184,22 +184,22 @@ class Gauss(object):
 
     def get_Gauss_Exp_zpk(self, n):
         z = []
-        r = 1j * np.roots(self.get_Gauss_Exp_Poly(self, n))
+        r = 1j * np.roots(self.get_Gauss_Exp_Poly(n))
         p = []
         for i in range(0, len(r)):
             if r[i].real < 0:
                 p.append(r[i])
-        k = np.polyval(self.get_Gauss_Exp_Poly(self, n), 0)
+        k = np.polyval(self.get_Gauss_Exp_Poly(n), 0)
         for pole in p:
             k *= pole
         return z, p, k
 
     def get_Gauss_Exp_System(self, n):
-        z, p, k = self.get_Gauss_Exp_zpk(self, n)
+        z, p, k = self.get_Gauss_Exp_zpk(n)
         return signal.lti(z, p, k)
 
     def get_Normalized_Group_Delay(self, n):
-        w, mag, phase = signal.bode(self.get_Gauss_Exp_System(self, n), w=np.logspace(-3, 3, num=10000) , n=10000)
+        w, mag, phase = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000) , n=10000)
         gd = - np.diff(phase) / np.diff(w)
         gdn = gd / gd[0]
         w = w.tolist()
@@ -208,7 +208,7 @@ class Gauss(object):
         return w, gdn
 
     def get_UnNormalized_Group_Delay(self, n):
-        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(self, n), w=np.logspace(-3, 3, num=10000), n=10000)
+        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000), n=10000)
         gd = - np.diff(pha) / np.diff(w)
         w = w.tolist()
         gd = gd.tolist()
