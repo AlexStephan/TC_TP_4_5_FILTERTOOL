@@ -192,18 +192,16 @@ class Butterworth(object):
         z, p, k = self.get_zpk()
         if self.type == "Low Pass":
             sys = signal.lti(z, p, k)
-            w_tf, h = sys.freqresp()
-            self.w_tf = w_tf
-            self.h = h
+            self.w_tf, self.h = sys.freqresp()
         elif self.type == "High Pass":
-            sys = signal.ZerosPolesGain(z, p, k)
-            self.w_tf, self.h = signal.TransferFunction(sys)
+            sys = signal.lti(z, p, k)
+            self.w_tf, self.h = sys.freqresp()
         elif self.type == "Band Pass":
-            sys = signal.ZerosPolesGain(z, p, k)
-            self.w_tf, self.h = signal.TransferFunction(sys)
+            sys = signal.lti(z, p, k)
+            self.w_tf, self.h = sys.freqresp()
         elif self.type == "Band Reject":
-            sys = signal.ZerosPolesGain(z, p, k)
-            self.w_tf, self.h = signal.TransferFunction(sys)
+            sys = signal.lti(z, p, k)
+            self.w_tf, self.h = sys.freqresp()
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -266,7 +264,7 @@ class Butterworth(object):
 
     def calc_Group_Delay(self):
         w, mag, pha = self.get_MagAndPhaseWithoutGain()
-        gd = - np.diff(pha) / np.diff(w)
+        gd = np.divide(- np.diff(pha), np.diff(w))
         gd = gd.tolist()
         gd.append(gd[len(gd) - 1])
         self.GroupDelay = gd

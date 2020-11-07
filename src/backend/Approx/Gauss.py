@@ -88,8 +88,8 @@ class Gauss(object):
             return msg
         z, p, k = self.get_zpk()
         if self.type is "Group Delay":
-            sys = signal.ZerosPolesGain(z, p, k)
-            self.w_tf, self.h = signal.TransferFunction(sys)
+            sys = signal.lti(z, p, k)
+            self.w_tf, self.h = sys.freqresp()
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -199,9 +199,9 @@ class Gauss(object):
         return signal.lti(z, p, k)
 
     def get_Normalized_Group_Delay(self, n):
-        w, mag, phase = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000) , n=10000)
-        gd = - np.diff(phase) / np.diff(w)
-        gdn = gd / gd[0]
+        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000) , n=10000)
+        gd = np.divide(- np.diff(pha), np.diff(w))
+        gdn = np.divide(gd, gd[0])
         w = w.tolist()
         gdn = gdn.tolist()
         gdn.append(gdn[len(gd) - 1])
@@ -209,7 +209,7 @@ class Gauss(object):
 
     def get_UnNormalized_Group_Delay(self, n):
         w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000), n=10000)
-        gd = - np.diff(pha) / np.diff(w)
+        gd = np.divide(- np.diff(pha), np.diff(w))
         w = w.tolist()
         gd = gd.tolist()
         gd.append(gd[len(gd) - 1])
