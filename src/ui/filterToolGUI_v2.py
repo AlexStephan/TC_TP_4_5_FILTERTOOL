@@ -273,6 +273,9 @@ class Ui_Form(object):
         self.line_16.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_16.setObjectName("line_16")
         self.verticalLayout_2.addWidget(self.line_16)
+        self.gridLayout_TEST = QtWidgets.QGridLayout()
+        self.gridLayout_TEST.setObjectName("gridLayout_TEST")
+        self.verticalLayout_2.addLayout(self.gridLayout_TEST)
         self.horizontalLayout_21 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_21.setObjectName("horizontalLayout_21")
         self.pushButton_TEST = QtWidgets.QPushButton(self.tab_FilterMaker)
@@ -1220,7 +1223,7 @@ class Ui_Form(object):
         self.verticalLayout.addWidget(self.tabWidget_main)
 
         self.retranslateUi(Form)
-        self.tabWidget_main.setCurrentIndex(0)
+        self.tabWidget_main.setCurrentIndex(1)
         self.tabWidget_FilterMakerGraphs.setCurrentIndex(0)
         self.stackedWidget_Q.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)

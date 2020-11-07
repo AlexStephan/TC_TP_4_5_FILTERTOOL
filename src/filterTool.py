@@ -7,7 +7,7 @@ from Lib.random import random, seed
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog,QWidget, QGridLayout,QPushButton, QApplication, QLabel, QCheckBox
 from src.ui.filterToolGUI_v2 import Ui_Form
 
 # Matplotlib Modules
@@ -202,12 +202,6 @@ class FilterTool(QWidget,Ui_Form):
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
 
-    def __cancelNewStage(self):
-        self.__showHideState_CreateNewStage()
-
-    def __crateNewStage(self):
-        self.__showHideState_SelectOrder()
-
     def __indexChanged_yourFilters(self):
         if self.comboBox_YourFilters.currentIndex() == 0:
             self.checkBox_VisibleFilter.setDisabled(True)
@@ -217,6 +211,8 @@ class FilterTool(QWidget,Ui_Form):
             self.checkBox_VisibleFilter.setChecked(self.myFilters[i][3])
 
     def __indexChanged_SelectYourFilter(self):
+        self.__cleanStagesWidgets()
+
         if self.comboBox_SelectYourFilter.currentIndex() == 0:
             self.checkBox_SelectedFilterVisible.setDisabled(True)
             self.checkBox_SelectedFilterVisible.setChecked(False)
@@ -229,41 +225,141 @@ class FilterTool(QWidget,Ui_Form):
             self.__getAndOrderPolesAndZeros(i)
             self.label_SelectedFilterGain.setText(str(self.myFilters[i][1].get_Gain()))
             self.__refreshStagesGraphs()
+            self.__updateStagesAvailable()
             #DO THINGS
 
-    def __getAndOrderPolesAndZeros(self,i):
-        z, p, Gk = self.myFilters[i][1].get_zpGk()
-        self.label_SelectedFilterK.setText(str(Gk))
-
+    def __cleanStagesWidgets(self):
         self.ComplexPoles = []
         self.RealPoles = []
         self.ComplexZeros = []
         self.RealZeros = []
-        self.ComplexPolesVisibility = []
-        self.RealPolesVisibility = []
-        self.ComplexZerosVisibility = []
-        self.RealZerosVisibility = []
+        self.ComplexZerosAvailable = []
+        self.ComplexZerosAvailable = []
+        self.ComplexZerosAvailable = []
+        self.ComplexZerosAvailable = []
+        self.__cleanThisGridLayout(self.gridLayout_ComplexPoles,self.ComplexPolesWidgets)
+        self.__cleanThisGridLayout(self.gridLayout_RealPoles, self.RealPolesWidgets)
+        self.__cleanThisGridLayout(self.gridLayout_ComplesZeros, self.ComplexZerosWidgets)
+        self.__cleanThisGridLayout(self.gridLayout_RealZeros, self.RealZerosWidgets)
+
+    def __cleanThisGridLayout(self,layout: QGridLayout,widgets):
+        if DEBUG:
+            print(layout.columnCount())
+            print(layout.rowCount())
+        #x = layout.columnCount()
+        #y = layout.rowCount()
+        for i in widgets:
+            layout.removeWidget(i)
+            i.deleteLater()
+            del i
+        widgets.clear()
+
+    def __updateStagesAvailable(self):
+        for i in range(len(self.ComplexPoles)):
+            reZ = QLabel('{:.2f}'.format(np.real(self.ComplexPoles[i])))
+            #reZ.setMaximumWidth(50)
+            self.gridLayout_ComplexPoles.addWidget(reZ,i+1,0)
+            self.ComplexPolesWidgets.append(reZ)
+
+            imZ = QLabel('{:.2f}'.format(np.imag(self.ComplexPoles[i])))
+            #imZ.setMaximumWidth(50)
+            self.gridLayout_ComplexPoles.addWidget(imZ,i+1,1)
+            self.ComplexPolesWidgets.append(imZ)
+
+            foZ = QLabel('{:.2f}'.format(np.absolute(self.ComplexPoles[i])/(2*np.pi)))
+            #foZ.setMaximumWidth(50)
+            self.gridLayout_ComplexPoles.addWidget(foZ,i+1,2)
+            self.ComplexPolesWidgets.append(foZ)
+
+            if np.real(self.ComplexPoles[i]) == 0:
+                Q = "inf"
+            else:
+                Q = '{:.2f}'.format(np.abs(self.ComplexPoles[i])/(2*np.abs(np.real(self.ComplexPoles[i]))))
+            QZ = QLabel(Q)
+            self.gridLayout_ComplexPoles.addWidget(QZ,i+1,3)
+            self.ComplexPolesWidgets.append(QZ)
+
+            visible = QCheckBox()
+            visible.setMaximumWidth(16)
+            visible.setChecked(False)
+            visible.setDisabled(True)
+            self.gridLayout_ComplexPoles.addWidget(visible,i+1,4)
+            self.ComplexPolesWidgets.append(visible)
+
+        for i in range(len(self.RealPoles)):
+            reZ = QLabel('{:.2f}'.format(np.real(self.RealPoles[i])))
+            #reZ.setMaximumWidth(50)
+            self.gridLayout_RealPoles.addWidget(reZ,i+1,0)
+            self.RealPolesWidgets.append(reZ)
+
+            foZ = QLabel('{:.2f}'.format(np.absolute(self.RealPoles[i])/(2*np.pi)))
+            #foZ.setMaximumWidth(50)
+            self.gridLayout_RealPoles.addWidget(foZ,i+1,1)
+            self.RealPolesWidgets.append(foZ)
+
+            visible = QCheckBox()
+            visible.setMaximumWidth(16)
+            visible.setChecked(False)
+            visible.setDisabled(True)
+            self.gridLayout_RealPoles.addWidget(visible,i+1,2)
+            self.RealPolesWidgets.append(visible)
+
+        for i in range(len(self.ComplexZeros)):
+            reZ = QLabel('{:.2f}'.format(np.real(self.ComplexZeros[i])))
+            #reZ.setMaximumWidth(50)
+            self.gridLayout_ComplesZeros.addWidget(reZ,i+1,0)
+            self.ComplexZerosWidgets.append(reZ)
+
+            imZ = QLabel('{:.2f}'.format(np.imag(self.ComplexZeros[i])))
+            #imZ.setMaximumWidth(50)
+            self.gridLayout_ComplesZeros.addWidget(imZ,i+1,1)
+            self.ComplexZerosWidgets.append(imZ)
+
+            visible = QCheckBox()
+            visible.setMaximumWidth(16)
+            visible.setChecked(False)
+            visible.setDisabled(True)
+            self.gridLayout_ComplesZeros.addWidget(visible,i+1,2)
+            self.ComplexZerosWidgets.append(visible)
+
+        for i in range(len(self.RealZeros)):
+            reZ = QLabel('{:.2f}'.format(np.real(self.RealZeros[i])))
+            #reZ.setMaximumWidth(50)
+            self.gridLayout_RealZeros.addWidget(reZ,i+1,0)
+            self.RealZerosWidgets.append(reZ)
+
+            visible = QCheckBox()
+            visible.setMaximumWidth(16)
+            visible.setChecked(False)
+            visible.setDisabled(True)
+            self.gridLayout_RealZeros.addWidget(visible,i+1,1)
+            self.RealZerosWidgets.append(visible)
+
+
+    def __getAndOrderPolesAndZeros(self,i):
+        z, p, Gk = self.myFilters[i][1].get_zpGk()
+        self.label_SelectedFilterK.setText(str(Gk))
         for i in z:
             if np.imag(i) == 0:
                 self.RealZeros.append(i)
-                self.RealZerosVisibility.append(False)
+                self.ComplexZerosAvailable.append(False)
             else:
                 if (i in self.ComplexZeros) or (np.conjugate(i) in self.ComplexZeros):
                     print("Found z="+str(i))
                 else:
                     self.ComplexZeros.append(i)
-                    self.ComplexZerosVisibility.append(False)
+                    self.ComplexZerosAvailable.append(False)
 
         for i in p:
             if np.imag(i) == 0:
                 self.RealPoles.append(i)
-                self.RealPolesVisibility.append(False)
+                self.ComplexZerosAvailable.append(False)
             else:
                 if i in self.ComplexPoles or np.conjugate(i) in self.ComplexPoles:
                     print("Found p="+str(i))
                 else:
                     self.ComplexPoles.append(i)
-                    self.ComplexPolesVisibility.append(False)
+                    self.ComplexZerosAvailable.append(False)
 
     def __refreshStagesGraphs(self):
         self.__cleanStagesGraphs()
@@ -305,18 +401,6 @@ class FilterTool(QWidget,Ui_Form):
             self.comboBox_YourFilters.setCurrentIndex(0)
             self.__indexChanged_yourFilters()
             #self.comboBox_SelectYourFilter.setCurrentIndex(0)
-
-    def __clicked_1stOrderPole(self):
-        self.__showHideState_SelectRealPole()
-
-    def __clicked_secondOrderPoles(self):
-        self.__showHideState_SelectTypeOfPoles()
-
-    def __clicked_complexPoles(self):
-        self.__showHideState_SelectComplexPoles()
-
-    def __clicked_realPoles(self):
-        self.__showHideState_SelectRealPoles()
 
     def __init_graphs(self):
         self.figure_Magnitude = Figure()
@@ -490,6 +574,32 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_Q.grid()
         self.canvas_Q.draw()
 
+    ##################################################################################
+    # CREACION DE STAGES
+    ##################################################################################
+
+    def __cancelNewStage(self):
+        self.__showHideState_CreateNewStage()
+        self.tempPolos = []
+        self.tempZeros = []
+
+    def __crateNewStage(self):
+        self.__showHideState_SelectOrder()
+
+    def __clicked_1stOrderPole(self):
+        self.__showHideState_SelectRealPole()
+
+    def __clicked_secondOrderPoles(self):
+        self.__showHideState_SelectTypeOfPoles()
+
+    def __clicked_complexPoles(self):
+        self.__showHideState_SelectComplexPoles()
+
+    def __clicked_realPoles(self):
+        self.__showHideState_SelectRealPoles()
+
+    ###
+
     def __selectRealPole(self):
         self.__showHideState_1stOrderPoleReady()
 
@@ -528,6 +638,8 @@ class FilterTool(QWidget,Ui_Form):
 
     def __finishComplexZeros(self):
         self.__showHideState_CreateNewStage()
+
+    #####################################################################33
 
     def __showHideState_CreateNewStage(self):
         self.__showAndHideButtons([1, 0,0,0, 0,0,0, 0,0, 0,0,0, 0,0, 0,0,0, 0,0,0,0, 0,0,0, 0,0, 0,0,0, 0,0])
@@ -700,10 +812,17 @@ class FilterTool(QWidget,Ui_Form):
         self.RealPoles = []
         self.ComplexZeros = []
         self.RealZeros = []
-        self.ComplexPolesVisibility = []
-        self.RealPolesVisibility = []
-        self.ComplexZerosVisibility = []
-        self.RealZerosVisibility = []
+        self.ComplexZerosAvailable = []
+        self.ComplexZerosAvailable = []
+        self.ComplexZerosAvailable = []
+        self.ComplexZerosAvailable = []
+        self.ComplexPolesWidgets = []
+        self.RealPolesWidgets = []
+        self.ComplexZerosWidgets = []
+        self.RealZerosWidgets = []
+
+        self.tempPolos = []
+        self.tempZeros = []
         ########################################################
         self.testvar1 = 0
         self.testvar2 = 0
@@ -720,7 +839,13 @@ class FilterTool(QWidget,Ui_Form):
         #self.comboBox_SelectYourFilter.addItem("LOL"+str(self.testvar1))
         #self.testvar1+=1
         #self.myFilters.append([str(self.testvar1),None,None,True])
-        mfl = myFilterTest()
+        #mfl = myFilterTest()
+
+        for y in reversed(range(self.gridLayout_TEST.rowCount()-1)):
+            for x in reversed(range(self.gridLayout_TEST.columnCount()-1)):
+                temp = self.gridLayout_TEST.itemAt(x + 3*y)
+                self.gridLayout_TEST.removeItem(temp)
+                del temp
 
     def __test2(self):
         #print("Test2")
@@ -730,8 +855,19 @@ class FilterTool(QWidget,Ui_Form):
         #    self.myFilters.pop(2)
         #else:
         #    print("YOLO")
-        x = [0,1,0,2,3,4,5]
-        print(str(0 in x))
+
+        #x = [0,1,0,2,3,4,5]
+        #print(str(0 in x))
+
+        for x in range(3):
+            for y in range(3):
+                button = QPushButton(str(str(3*x+y)))
+                button.setMaximumWidth(30)
+                self.gridLayout_TEST.addWidget(button, x, y)
+
+        print("TEST2")
+        print(str(sp.oo))
+        print(self.gridLayout_ComplexPoles.rowCount())
 
     def __manageDebug(self):
         if DEBUG:

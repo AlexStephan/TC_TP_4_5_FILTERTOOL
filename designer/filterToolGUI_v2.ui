@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget_main">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_FilterMaker">
       <attribute name="title">
@@ -732,6 +732,9 @@
             <enum>Qt::Horizontal</enum>
            </property>
           </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_TEST"/>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_21">
