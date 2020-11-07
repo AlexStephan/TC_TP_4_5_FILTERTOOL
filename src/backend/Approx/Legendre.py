@@ -55,7 +55,7 @@ class Legendre(object):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
@@ -65,7 +65,7 @@ class Legendre(object):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
@@ -75,7 +75,7 @@ class Legendre(object):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
@@ -85,7 +85,7 @@ class Legendre(object):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax < order:
+            elif Nmax is not None and Nmax < order:
                 self.order = Nmax
             else:
                 self.order = order
