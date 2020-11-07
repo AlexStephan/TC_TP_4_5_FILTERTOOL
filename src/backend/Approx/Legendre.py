@@ -143,9 +143,7 @@ class Legendre(object):
         return self.z, self.p, self.k
 
     def check_Q(self) -> bool:
-
         Qmax = self.filter.reqData[FilterData.Qmax.value]
-
         if self.order > 1 and Qmax is not None:
             z, p, k = self.get_zpk(self)
             q_arr = []
@@ -253,7 +251,7 @@ class Legendre(object):
         value = np.polyval(self.get_L_Poly(self, n), wan)
         return value
 
-    def get_L_Attenuation(self):
+    def get_L_Filter_Poly(self):
         Ln = self.get_L_Poly(self, self.order)
         e2Ln = np.polymul(np.poly1d([self.epsilon2]), Ln)
         A = np.polyadd(np.poly1d([1]), e2Ln)
@@ -261,22 +259,22 @@ class Legendre(object):
 
     def get_L_zpk(self):
         z = []
-        r = 1j * np.roots(self.get_L_Attenuation(self))
+        r = 1j * np.roots(self.get_L_Filter_Poly(self))
         p = []
         for i in range(0, len(r)):
             if r[i].real < 0:
                 p.append(r[i])
-        k = np.polyval(self.get_L_Attenuation(self), 0)
+        k = np.polyval(self.get_L_Filter_Poly(self), 0)
         for pole in p:
-            k *= k * pole
+            k *= pole
         return z, p, k
 
-    def get_L_TransFunc(self):
-        z, p, k = self.get_L_zpk()
+    def get_L_System(self):
+        z, p, k = self.get_L_zpk(self)
         return signal.lti(z, p, k)
 
     def get_L_wo(self):
-        sys = self.get_L_TransFunc(self)
+        sys = self.get_L_System(self)
         w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
         for i in range(0, len(mag)):
             if mag[i] <= -3:
@@ -284,7 +282,7 @@ class Legendre(object):
                 return wo
 
     def get_L_wa(self):
-        sys = self.get_L_TransFunc(self)
+        sys = self.get_L_System(self)
         w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
         for i in range(0, len(mag)):
             if mag[i] <= -self.Aa:

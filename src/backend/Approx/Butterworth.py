@@ -238,9 +238,7 @@ class Butterworth(object):
             return message
 
     def check_Q(self) -> bool:
-
         Qmax = self.filter.reqData[FilterData.Qmax.value]
-
         if self.order > 1 and Qmax is not None:
             z, p, k = self.get_zpk(self)
             q_arr = []
