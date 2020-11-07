@@ -29,7 +29,7 @@ class Gauss(object):
         if self.type is "Group Delay":
             self.gdo = self.filter.reqData[FilterData.GD.value]
             ft = self.filter.reqData[FilterData.ft.value]
-            tol = self.filter.reqData[FilterData.tolerance.value]
+            tol = self.filter.reqData[FilterData.tolerance.value] / 100
             Nmin = self.filter.reqData[FilterData.Nmin.value]
             Nmax = self.filter.reqData[FilterData.Nmax.value]
             wtn = 2 * np.pi * ft * self.gdo
