@@ -18,6 +18,7 @@ class Gauss(object):
         self.w_bode = None
         self.mag = None
         self.pha = None
+        self.A = None
         self.w_tf = None
         self.h = None
         self.wgd = None
@@ -131,6 +132,15 @@ class Gauss(object):
 
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
+
+    def calc_Attenuation(self):
+        A = self.mag
+        for i in range(0, len(A)):
+            A[i] = 1 / A[i]
+        self.A = A
+
+    def get_Attenuation(self):
+        return self.w_bode, self.A
 
     def calc_Group_Delay(self):
         w, mag, pha = self.get_MagAndPhaseWithoutGain(self)

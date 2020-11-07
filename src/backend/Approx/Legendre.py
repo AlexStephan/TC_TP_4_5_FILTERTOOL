@@ -20,8 +20,11 @@ class Legendre(object):
         self.w_bode = None
         self.mag = None
         self.pha = None
+        self.A = None
         self.w_tf = None
         self.h = None
+        self.wgd = None
+        self.GroupDelay = None
         self.calculate(self)
 
     def calc_Order(self):
@@ -234,11 +237,26 @@ class Legendre(object):
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
 
-    def get_Attenuation(self):
+    def calc_Attenuation(self):
         A = self.mag
         for i in range(0, len(A)):
             A[i] = 1 / A[i]
-        return self.w_bode, A
+        self.A = A
+
+    def get_Attenuation(self):
+        return self.w_bode, self.A
+
+    def calc_Group_Delay(self):
+        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        gd = - np.diff(pha) / np.diff(w)
+        gd = gd.tolist()
+        gd.append(gd[len(gd) - 1])
+        self.GroupDelay = gd
+        w = w.tolist()
+        self.wgd = w
+
+    def get_Group_Delay(self):
+        return self.wgd, self.GroupDelay
 
     def calculate(self):
         self.calc_Order(self)
@@ -249,6 +267,7 @@ class Legendre(object):
             self.calc_Denormalization_zpk(self)
         self.calc_TransFunc(self)
         self.calc_MagAndPhase(self)
+        self.calc_Group_Delay(self)
 
     #############################
     #       Legendre Calc       #
