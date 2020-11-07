@@ -51,7 +51,7 @@ class Filter(object):
         self.default = []  # Default values are given at assignment of filter type
 
     def get_type(self):
-        return self.type
+        return self.type.value
 
     def get_reqData(self):
         return self.reqData

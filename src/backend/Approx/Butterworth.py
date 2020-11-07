@@ -41,7 +41,7 @@ class Butterworth(object):
         Nmin = self.filter.reqData[FilterData.Nmin]
         Nmax = self.filter.reqData[FilterData.Nmax]
 
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             order, wo = signal.buttord(2 * np.pi * fpMin, 2 * np.pi * faMin, Ap, Aa, analog=True)
             if Nmin > order:
                 self.order = Nmin
