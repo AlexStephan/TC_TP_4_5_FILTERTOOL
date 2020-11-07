@@ -111,7 +111,7 @@ class Butterworth(object):
             foa2 = faMax / (10 ** (Aa / 10) - 1) ** (1 / self.order)
             fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
             fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
-            self.fo = np.sqrt(fo1 * fo2)
+            self.fo = [fo1, fo2]
         elif self.type == "Band Reject":
             fop1 = fpMin / (10 ** (Ap / 10) - 1) ** (1 / self.order)
             foa1 = faMin / (10 ** (Aa / 10) - 1) ** (1 / self.order)
@@ -119,7 +119,7 @@ class Butterworth(object):
             foa2 = faMax * (10 ** (Aa / 10) - 1) ** (1 / self.order)
             fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
             fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
-            self.fo = np.sqrt(fo1 * fo2)
+            self.fo = [fo1, fo2]
         else:
             message = "Error: Enter Filter Type."
             return message
