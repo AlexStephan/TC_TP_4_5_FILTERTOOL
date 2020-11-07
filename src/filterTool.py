@@ -562,6 +562,11 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_ZerosAndPoles.legend()
         self.canvas_ZerosAndPoles.draw()
 
+        w,delay = filter.get_Group_Delay()
+        self.axis_GroupDelay.semilogx(np.divide(w,2*np.pi),delay,label=name)
+        self.axis_GroupDelay.legend()
+        self.canvas_GroupDelay.draw()
+
         #Hs = filter.get_ssTransferFunction()
         #impulseResponse = ss.impulse(Hs)
         #stepResponse = ss.step(Hs)

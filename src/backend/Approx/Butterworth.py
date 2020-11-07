@@ -35,7 +35,7 @@ class Butterworth(object):
         Ap = self.filter.reqData[FilterData.Ap]
 
         faMin = self.filter.reqData[FilterData.faMin]
-        faMax = self.filter.reqData[FilterData.fpMax]
+        faMax = self.filter.reqData[FilterData.faMax]
         Aa = self.filter.reqData[FilterData.Aa]
 
         Nmin = self.filter.reqData[FilterData.Nmin]
@@ -58,8 +58,8 @@ class Butterworth(object):
             else:
                 self.order = order
         elif self.type == "Band Pass":
-            order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
-                                            [2 * np.pi * faMin, 2 * np.pi * faMax],
+            order, wo = signal.buttord([float(2 * np.pi * fpMin), float(2 * np.pi * fpMax)],
+                                            [float(2 * np.pi * faMin),float(2 * np.pi * faMax)],
                                             Ap, Aa, analog=True)
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
