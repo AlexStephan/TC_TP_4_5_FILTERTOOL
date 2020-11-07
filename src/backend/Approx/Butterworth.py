@@ -191,8 +191,8 @@ class Butterworth(object):
             return msg
         z, p, k = self.get_zpk()
         if self.type == "Low Pass":
-            sys = signal.ZerosPolesGain(z, p, k)
-            w_tf, h = signal.TransferFunction(sys)
+            sys = signal.lti(z, p, k)
+            w_tf, h = sys.freqresp()
             self.w_tf = w_tf
             self.h = h
         elif self.type == "High Pass":
