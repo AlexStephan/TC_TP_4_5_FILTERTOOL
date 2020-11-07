@@ -194,9 +194,7 @@ class Butterworth(object):
         val, msg = self.filter.validate(self.filter)
         if val is False:
             return msg
-
         z, p, k = self.get_zpk(self)
-
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
@@ -218,9 +216,7 @@ class Butterworth(object):
         val, msg = self.filter.validate(self.filter)
         if val is False:
             return msg
-
         z, p, k = self.get_zpk(self)
-
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)

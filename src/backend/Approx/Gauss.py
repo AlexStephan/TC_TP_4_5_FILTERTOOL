@@ -15,12 +15,13 @@ class Gauss(object):
         self.num = None
         self.den = None
         self.sos = None
+        self.calculate(self)
 
     def calc_Order(self):
         if self.type is "Group Delay":
             self.gdo = self.filter.reqData[FilterData.GD.value]
             ft = self.filter.reqData[FilterData.ft.value]
-            tol = self.filter.get_reqData[FilterData.tolerance.value]
+            tol = self.filter.reqData[FilterData.tolerance.value]
             Nmin = self.filter.reqData[FilterData.Nmin.value]
             Nmax = self.filter.reqData[FilterData.Nmax.value]
             wtn = 2 * np.pi * ft * self.gdo
@@ -45,7 +46,7 @@ class Gauss(object):
         w, gd = self.get_Group_Delay(self, self.order)
         k = 1
         for i in range(0, len(p)):
-            p[i] *= gd[0]
+            p[i] *= gd[0] / 100
             k *= p[i]
         return z, p, k
 
@@ -55,6 +56,10 @@ class Gauss(object):
 
     def get_zpk(self):
         return self.z, self.p, self.k
+
+    def get_zpGk(self):
+        Gk = self.k * 10 ** (self.get_Gain(self) / 20)
+        return self.z, self.p, Gk
 
     def check_Q(self) -> bool:
         Qmax = self.filter.reqData[FilterData.Qmax.value]
@@ -72,6 +77,53 @@ class Gauss(object):
                 return True
         else:
             return True
+
+    def get_Gain(self):
+        return self.filter.reqData[FilterData.gain.value]
+
+    def calc_TransFunc(self):
+        val, msg = self.filter.validate(self.filter)
+        if val is False:
+            return msg
+        z, p, k = self.get_zpk(self)
+        if self.type is "Group Delay":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_tf, self.h = signal.TransferFunction(sys)
+        else:
+            message = "Error: Enter Filter Type."
+            return message
+
+    def calc_MagAndPhase(self):  # return angular frequency, Mag and Phase
+        val, msg = self.filter.validate(self.filter)
+        if val is False:
+            return msg
+        z, p, k = self.get_zpk(self)
+        if self.type is "Group Delay":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        else:
+            message = "Error: Enter Filter Type."
+            return message
+
+    def get_TransFuncWithGain(self):
+        hg = self.h
+        gain = self.get_Gain(self)
+        for i in range(0, len(hg)):
+            hg[i] = hg[i] * 10 ** (gain / 20)
+        return self.w_tf, hg
+
+    def get_TransFuncWithoutGain(self):
+        return self.w_tf, self.h
+
+    def get_MagAndPhaseWithGain(self):
+        magg = self.mag
+        gain = self.get_Gain(self)
+        for i in range(0, len(magg)):
+            magg[i] = magg[i] + gain
+        return self.w_bode, magg, self.pha
+
+    def get_MagAndPhaseWithoutGain(self):
+        return self.w_bode, self.mag, self.pha
 
     def calculate(self):
         self.calc_Order(self)

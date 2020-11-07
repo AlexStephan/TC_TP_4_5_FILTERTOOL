@@ -17,6 +17,12 @@ class Legendre(object):
         self.sos = None
         self.wan = None
         self.epsilon2 = None
+        self.w_bode = None
+        self.mag = None
+        self.pha = None
+        self.w_tf = None
+        self.h = None
+        self.calculate(self)
 
     def calc_Order(self):
         val, msg = self.filter.validate(self.filter)
@@ -142,6 +148,10 @@ class Legendre(object):
     def get_zpk(self):
         return self.z, self.p, self.k
 
+    def get_zpGk(self):
+        Gk = self.k * 10 ** (self.get_Gain(self) / 20)
+        return self.z, self.p, Gk
+
     def check_Q(self) -> bool:
         Qmax = self.filter.reqData[FilterData.Qmax.value]
         if self.order > 1 and Qmax is not None:
@@ -159,9 +169,88 @@ class Legendre(object):
         else:
             return True
 
-#############################
-#       Legendre Calc       #
-#############################
+    def get_Gain(self):
+        return self.filter.reqData[FilterData.gain.value]
+
+    def calc_TransFunc(self):
+        val, msg = self.filter.validate(self.filter)
+        if val is False:
+            return msg
+        z, p, k = self.get_zpk(self)
+        if self.type is "Low Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_tf, self.h = signal.TransferFunction(sys)
+        elif self.type is "High Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_tf, self.h = signal.TransferFunction(sys)
+        elif self.type is "Band Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_tf, self.h = signal.TransferFunction(sys)
+        elif self.type is "Band Reject":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_tf, self.h = signal.TransferFunction(sys)
+        else:
+            message = "Error: Enter Filter Type."
+            return message
+
+    def calc_MagAndPhase(self):                                     # return angular frequency, Mag and Phase
+        val, msg = self.filter.validate(self.filter)
+        if val is False:
+            return msg
+        z, p, k = self.get_zpk(self)
+        if self.type is "Low Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        elif self.type is "High Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        elif self.type is "Band Pass":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        elif self.type is "Band Reject":
+            sys = signal.ZerosPolesGain(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys)
+        else:
+            message = "Error: Enter Filter Type."
+            return message
+
+    def get_TransFuncWithGain(self):
+        hg = self.h
+        gain = self.get_Gain(self)
+        for i in range(0, len(hg)):
+            hg[i] = hg[i] * 10 ** (gain / 20)
+        return self.w_tf, hg
+
+    def get_TransFuncWithoutGain(self):
+        return self.w_tf, self.h
+
+    def get_MagAndPhaseWithGain(self):
+        magg = self.mag
+        gain = self.get_Gain(self)
+        for i in range(0, len(magg)):
+            magg[i] = magg[i] + gain
+        return self.w_bode, magg, self.pha
+
+    def get_MagAndPhaseWithoutGain(self):
+        return self.w_bode, self.mag, self.pha
+
+    def get_Attenuation(self):
+        A = self.mag
+        for i in range(0, len(A)):
+            A[i] = 1 / A[i]
+        return self.w_bode, A
+
+    def calculate(self):
+        self.calc_Order(self)
+        self.calc_fo(self)
+        self.calc_Denormalization_zpk(self)
+        while self.check_Q(self) is False:
+            self.calc_fo(self)
+            self.calc_Denormalization_zpk(self)
+
+    #############################
+    #       Legendre Calc       #
+    #############################
 
     def get_Legendre_Poly(self, order):
         return special.legendre(order)
