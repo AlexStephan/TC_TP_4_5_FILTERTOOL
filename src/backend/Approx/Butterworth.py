@@ -264,8 +264,27 @@ class Butterworth(object):
         self.calc_MagAndPhase(self)
         self.calc_Group_Delay(self)
 
+    def calc_Attenuation(self):
+        A = self.mag
+        for i in range(0, len(A)):
+            A[i] = 1 / A[i]
+        self.A = A
+
+    def calc_Group_Delay(self):
+        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        gd = - np.diff(pha) / np.diff(w)
+        gd = gd.tolist()
+        gd.append(gd[len(gd) - 1])
+        self.GroupDelay = gd
+        w = w.tolist()
+        self.wgd = w
+
     def get_Gain(self):
         return self.filter.reqData[FilterData.gain.value]
+
+    #####################
+    #       ALEX        #
+    #####################
 
     def get_NumDen(self):
         return self.num, self.den
@@ -298,23 +317,17 @@ class Butterworth(object):
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
 
-    def calc_Attenuation(self):
-        A = self.mag
-        for i in range(0, len(A)):
-            A[i] = 1 / A[i]
-        self.A = A
-
     def get_Attenuation(self):
         return self.w_bode, self.A
 
-    def calc_Group_Delay(self):
-        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
-        gd = - np.diff(pha) / np.diff(w)
-        gd = gd.tolist()
-        gd.append(gd[len(gd) - 1])
-        self.GroupDelay = gd
-        w = w.tolist()
-        self.wgd = w
+    def get_Norm_Attenuation(self):
+        num, den = signal.normalize(self.num, self.den)
+        sys = signal.lti(num, den)
+        w, mag, pha = signal.bode(sys)
+        return w, self.A
 
     def get_Group_Delay(self):
         return self.wgd, self.GroupDelay
+
+    def get_Order(self):
+        return self.order

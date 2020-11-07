@@ -62,13 +62,6 @@ class Gauss(object):
         z, p, k = self.get_Normalized_zpk(self)
         self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=1 / self.gdo)
 
-    def get_zpk(self):
-        return self.z, self.p, self.k
-
-    def get_zpGk(self):
-        Gk = self.k * 10 ** (self.get_Gain(self) / 20)
-        return self.z, self.p, Gk
-
     def check_Q(self) -> bool:
         Qmax = self.filter.reqData[FilterData.Qmax.value]
         if self.order > 1 and Qmax is not None:
@@ -113,6 +106,43 @@ class Gauss(object):
             message = "Error: Enter Filter Type."
             return message
 
+    def calc_Attenuation(self):
+        A = self.mag
+        for i in range(0, len(A)):
+            A[i] = 1 / A[i]
+        self.A = A
+
+    def calc_Group_Delay(self):
+        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        gd = - np.diff(pha) / np.diff(w)
+        gd = gd.tolist()
+        gd.append(gd[len(gd) - 1])
+        self.GroupDelay = gd
+        w = w.tolist()
+        self.wgd = w
+
+    def calculate(self):
+        self.calc_Order(self)
+        self.denormalize(self)
+        while self.check_Q(self) is False:
+            self.denormalize(self)
+        self.calc_TransFunc(self)
+        self.calc_MagAndPhase(self)
+        self.calc_Group_Delay(self)
+
+    #####################
+    #       ALEX        #
+    #####################
+
+    def get_Attenuation(self):
+        return self.w_bode, self.A
+
+    def get_Group_Delay(self):
+        return self.wgd, self.GroupDelay
+
+    def get_Order(self):
+        return self.order
+
     def get_TransFuncWithGain(self):
         hg = self.h
         gain = self.get_Gain(self)
@@ -133,35 +163,12 @@ class Gauss(object):
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
 
-    def calc_Attenuation(self):
-        A = self.mag
-        for i in range(0, len(A)):
-            A[i] = 1 / A[i]
-        self.A = A
+    def get_zpk(self):
+        return self.z, self.p, self.k
 
-    def get_Attenuation(self):
-        return self.w_bode, self.A
-
-    def calc_Group_Delay(self):
-        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
-        gd = - np.diff(pha) / np.diff(w)
-        gd = gd.tolist()
-        gd.append(gd[len(gd) - 1])
-        self.GroupDelay = gd
-        w = w.tolist()
-        self.wgd = w
-
-    def get_Group_Delay(self):
-        return self.wgd, self.GroupDelay
-
-    def calculate(self):
-        self.calc_Order(self)
-        self.denormalize(self)
-        while self.check_Q(self) is False:
-            self.denormalize(self)
-        self.calc_TransFunc(self)
-        self.calc_MagAndPhase(self)
-        self.calc_Group_Delay(self)
+    def get_zpGk(self):
+        Gk = self.k * 10 ** (self.get_Gain(self) / 20)
+        return self.z, self.p, Gk
 
     #########################
     #       Gauss Calc      #
