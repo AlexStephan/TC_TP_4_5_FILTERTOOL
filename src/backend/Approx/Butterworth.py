@@ -19,6 +19,9 @@ class Butterworth(object):
         self.w_bode = None
         self.mag = None
         self.pha = None
+        self.A = None
+        self.wgd = None
+        self.GroupDelay = None
         self.calculate(self)
 
 
@@ -194,9 +197,7 @@ class Butterworth(object):
         val, msg = self.filter.validate(self.filter)
         if val is False:
             return msg
-
         z, p, k = self.get_zpk(self)
-
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
@@ -218,9 +219,7 @@ class Butterworth(object):
         val, msg = self.filter.validate(self.filter)
         if val is False:
             return msg
-
         z, p, k = self.get_zpk(self)
-
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
@@ -238,9 +237,7 @@ class Butterworth(object):
             return message
 
     def check_Q(self) -> bool:
-
         Qmax = self.filter.reqData[FilterData.Qmax.value]
-
         if self.order > 1 and Qmax is not None:
             z, p, k = self.get_zpk(self)
             q_arr = []
@@ -263,6 +260,9 @@ class Butterworth(object):
         while self.check_Q(self) is False:
             self.calc_fo(self)
             self.calc_zpk(self)
+        self.calc_TransFunc(self)
+        self.calc_MagAndPhase(self)
+        self.calc_Group_Delay(self)
 
     def get_Gain(self):
         return self.filter.reqData[FilterData.gain.value]
@@ -298,8 +298,23 @@ class Butterworth(object):
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
 
-    def get_Attenuation(self):
+    def calc_Attenuation(self):
         A = self.mag
         for i in range(0, len(A)):
             A[i] = 1 / A[i]
-        return self.w_bode, A
+        self.A = A
+
+    def get_Attenuation(self):
+        return self.w_bode, self.A
+
+    def calc_Group_Delay(self):
+        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        gd = - np.diff(pha) / np.diff(w)
+        gd = gd.tolist()
+        gd.append(gd[len(gd) - 1])
+        self.GroupDelay = gd
+        w = w.tolist()
+        self.wgd = w
+
+    def get_Group_Delay(self):
+        return self.wgd, self.GroupDelay
