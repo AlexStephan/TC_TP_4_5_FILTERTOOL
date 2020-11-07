@@ -136,10 +136,10 @@ class Butterworth(object):
             self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
                                                btype='highpass', analog=True, output='ba')
         elif self.type == "Band Pass":
-            self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.num, self.den = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
                                                btype='bandpass', analog=True, output='ba')
         elif self.type == "Band Reject":
-            self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.num, self.den = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
                                                btype='bandstop', analog=True, output='ba')
         else:
             message = "Error: Enter Filter Type."
@@ -176,10 +176,10 @@ class Butterworth(object):
             self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
                                      btype='highpass', analog=True, output='sos')
         elif self.type == "Band Pass":
-            self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.sos = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
                                      btype='bandpass', analog=True, output='sos')
         elif self.type == "Band Stop":
-            self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.sos = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
                                      btype='bandstop', analog=True, output='sos')
         else:
             message = "Error: Enter Filter Type."

@@ -9,6 +9,7 @@ class Legendre(object):
         self.type = self.filter.get_type()
         self.order = None
         self.fo = None
+        self.Bw = None
         self.z = None
         self.p = None
         self.k = None
@@ -113,7 +114,7 @@ class Legendre(object):
             fod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100) / (2 * np.pi)
             self.fo = fpMin / fod
         elif self.type == "Band Pass":
-            Bw = 2 * np.pi * fpMax - fpMin
+            Bw = 2 * np.pi * (fpMax - fpMin)
             wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
@@ -121,15 +122,17 @@ class Legendre(object):
             wo1 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) + wod * Bw) / 2
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
+            self.Bw = abs(wo1 - wo2) / (2 * np.pi)
         elif self.type == "Band Reject":
-            Bw = 2 * np.pi * fpMax - fpMin
+            Bw = 2 * np.pi * (fpMax - fpMin)
             wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
             wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
             wo1 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) + Bw / wod) / 2
-            wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod ) / 2
+            wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
             self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
+            self.Bw = abs(wo1 - wo2) / (2 * np.pi)
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -137,16 +140,16 @@ class Legendre(object):
     def calc_Denormalization_zpk(self):
         if self.type == "Low Pass":
             z, p, k = self.get_L_zpk()
-            self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+            self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
         elif self.type == "High Pass":
             z, p, k = self.get_L_zpk()
-            self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+            self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=2 * np.pi * self.fo)
         elif self.type == "Band Pass":
             z, p, k = self.get_L_zpk()
-            self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+            self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
         elif self.type == "Band Reject":
             z, p, k = self.get_L_zpk()
-            self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=self.fo / (2 * np.pi))
+            self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
 
     def check_Q(self) -> bool:
         Qmax = self.filter.reqData[FilterData.Qmax.value]
