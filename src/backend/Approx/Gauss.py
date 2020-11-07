@@ -114,7 +114,7 @@ class Gauss(object):
 
     def calc_Group_Delay(self):
         w, mag, pha = self.get_MagAndPhaseWithoutGain()
-        gd = - np.diff(pha) / np.diff(w)
+        gd = np.divide(- np.diff(pha), np.diff(w))
         gd = gd.tolist()
         gd.append(gd[len(gd) - 1])
         self.GroupDelay = gd
