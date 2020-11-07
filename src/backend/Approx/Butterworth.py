@@ -156,10 +156,10 @@ class Butterworth(object):
             self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
                                                    btype='highpass', analog=True, output='zpk')
         elif self.type == "Band Pass":
-            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.z, self.p, self.k = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
                                                    btype='bandpass', analog=True, output='zpk')
         elif self.type == "Band Reject":
-            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.z, self.p, self.k = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
                                                    btype='bandstop', analog=True, output='zpk')
         else:
             message = "Error: Enter Filter Type."

@@ -194,6 +194,8 @@ class FilterTool(QWidget,Ui_Form):
         self.__indexChanged_yourFilters()
         self.pushButton_EraseFilter.clicked.connect(self.__clicked_EraseFilter)
 
+        self.checkBox_SelectedFilterVisible.clicked.connect(self.__refreshStagesGraphs)
+
         #####################################################################
 
         self.comboBox_SelectYourFilter.currentIndexChanged.connect(self.__indexChanged_SelectYourFilter)
@@ -1109,3 +1111,6 @@ class myFilterTest(object):
 
     def get_Gain(self):
         return self.gain
+
+    def get_Group_Delay(self):
+        return [1,1000],[0,10]
