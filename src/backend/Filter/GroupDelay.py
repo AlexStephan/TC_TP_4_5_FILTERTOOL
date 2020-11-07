@@ -3,16 +3,21 @@ from src.backend.Filter.TemplateLimit import *
 
 
 class GroupDelay(Filter):
-    def __init__(self, ft: FilterData.ft, GD: FilterData.GD, tolerance: FilterData.tolerance, gain: FilterData.gain):
+    def __init__(self, ft: FilterData.ft, GD: FilterData.GD, tolerance: FilterData.tolerance, gain: FilterData.gain,
+                 Nmax: FilterData.Nmax, Nmin: FilterData.Nmin, Qmax: FilterData.Qmax, Denorm: FilterData.Denorm):
         self.type = FilterType.GD
         self.reqData = {FilterData.ft: ft,
                         FilterData.GD: GD,
                         FilterData.tolerance: tolerance,
-                        FilterData.gain: gain}
+                        FilterData.gain: gain,
+                        FilterData.Nmax: Nmax, FilterData.Nmin: Nmin, FilterData.Qmax: Qmax,
+                        FilterData.Denorm: Denorm}
         self.default = {FilterData.ft: 10e3,            #In Hz
                         FilterData.GD: 100,             #In useg
                         FilterData.tolerance: 5,        #In %
-                        FilterData.gain: 0}             #In dB
+                        FilterData.gain: 0,
+                        FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
+                        FilterData.Denorm: 0}
 
     def validate(self) -> (bool, str):  # Returns true and "Ok" if everything is fine, false and "ErrMsg" if not
         valid = False
