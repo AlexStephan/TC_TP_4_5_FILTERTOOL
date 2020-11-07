@@ -152,7 +152,7 @@ class Legendre(object):
             self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
 
     def check_Q(self) -> bool:
-        Qmax = self.filter.reqData[FilterData.Qmax.value]
+        Qmax = self.filter.reqData[FilterData.Qmax]
         if self.order > 1 and Qmax is not None:
             z, p, k = self.get_zpk()
             q_arr = []
