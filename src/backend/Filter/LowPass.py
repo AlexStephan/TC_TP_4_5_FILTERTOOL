@@ -7,13 +7,13 @@ class LowPass(Filter):
                  Ap: FilterData.Ap, fpMin: FilterData.fpMin, gain: FilterData.gain,
                  Nmax: FilterData.Nmax, Nmin: FilterData.Nmin, Qmax: FilterData.Qmax, Denorm: FilterData.Denorm):
         self.type = FilterType.LP
-        self.reqData = {FilterData.Aa: Aa, FilterData.faMin: faMin,
-                        FilterData.Ap: Ap, FilterData.fpMin: fpMin,
+        self.reqData = {FilterData.Aa: Aa, FilterData.faMin: faMin, FilterData.faMax: None,
+                        FilterData.Ap: Ap, FilterData.fpMin: fpMin, FilterData.fpMax: None,
                         FilterData.gain: gain,
                         FilterData.Nmax: Nmax, FilterData.Nmin: Nmin, FilterData.Qmax: Qmax,
                         FilterData.Denorm: Denorm}
-        self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3,
-                        FilterData.Ap: 5, FilterData.fpMin: 9e3,
+        self.default = {FilterData.Aa: 30, FilterData.faMin: 10e3, FilterData.faMax: None,
+                        FilterData.Ap: 5, FilterData.fpMin: 9e3, FilterData.fpMax: None,
                         FilterData.gain: 0,
                         FilterData.Nmax: None, FilterData.Nmin: None, FilterData.Qmax: None,
                         FilterData.Denorm: 0}
