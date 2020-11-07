@@ -99,7 +99,7 @@ class Gauss(object):
         if val is False:
             return msg
         z, p, k = self.get_zpk()
-        if self.type is "Group Delay":
+        if self.type == "Group Delay":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
         else:
