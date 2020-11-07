@@ -22,42 +22,38 @@ class Butterworth(object):
         self.A = None
         self.wgd = None
         self.GroupDelay = None
-        self.calculate(self)
+        self.calculate()
 
 
     def calc_Order(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
 
-        fpMin = self.filter.reqData[FilterData.fpMin.value]
-        fpMax = self.filter.reqData[FilterData.fpMax.value]
-        Ap = self.filter.reqData[FilterData.Ap.value]
+        fpMin = self.filter.reqData[FilterData.fpMin]
+        fpMax = self.filter.reqData[FilterData.fpMax]
+        Ap = self.filter.reqData[FilterData.Ap]
 
-        faMin = self.filter.reqData[FilterData.faMin.value]
-        faMax = self.filter.reqData[FilterData.fpMax.value]
-        Aa = self.filter.reqData[FilterData.Aa.value]
+        faMin = self.filter.reqData[FilterData.faMin]
+        faMax = self.filter.reqData[FilterData.fpMax]
+        Aa = self.filter.reqData[FilterData.Aa]
 
-        Nmin = self.filter.reqData[FilterData.Nmin.value]
-        Nmax = self.filter.reqData[FilterData.Nmax.value]
+        Nmin = self.filter.reqData[FilterData.Nmin]
+        Nmax = self.filter.reqData[FilterData.Nmax]
 
         if self.type is "Low Pass":
             order, wo = signal.buttord(2 * np.pi * fpMin, 2 * np.pi * faMin, Ap, Aa, analog=True)
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
         elif self.type is "High Pass":
             order, wo = signal.buttord(2 * np.pi * fpMin, 2 * np.pi * faMin, Ap, Aa, analog=True)
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
@@ -66,10 +62,8 @@ class Butterworth(object):
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
@@ -78,10 +72,8 @@ class Butterworth(object):
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
             if Nmin > order:
-                order = Nmin
                 self.order = Nmin
             elif Nmax < order:
-                order = Nmax
                 self.order = Nmax
             else:
                 self.order = order
@@ -90,19 +82,19 @@ class Butterworth(object):
             return message
 
     def calc_fo(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
 
-        fpMin = self.filter.reqData[FilterData.fpMin.value]
-        fpMax = self.filter.reqData[FilterData.fpMax.value]
-        Ap = self.filter.reqData[FilterData.Ap.value]
+        fpMin = self.filter.reqData[FilterData.fpMin]
+        fpMax = self.filter.reqData[FilterData.fpMax]
+        Ap = self.filter.reqData[FilterData.Ap]
 
-        faMin = self.filter.reqData[FilterData.faMin.value]
-        faMax = self.filter.reqData[FilterData.fpMax.value]
-        Aa = self.filter.reqData[FilterData.Aa.value]
+        faMin = self.filter.reqData[FilterData.faMin]
+        faMax = self.filter.reqData[FilterData.fpMax]
+        Aa = self.filter.reqData[FilterData.Aa]
 
-        Denorm = self.filter.reqData[FilterData.Denorm.value]
+        Denorm = self.filter.reqData[FilterData.Denorm]
 
         if self.type is "Low Pass":
             fo1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -134,7 +126,7 @@ class Butterworth(object):
 
 
     def calc_NumDen(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
         if self.type is "Low Pass":
@@ -154,7 +146,7 @@ class Butterworth(object):
             return message
 
     def calc_zpk(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
         if self.type is "Low Pass":
@@ -174,7 +166,7 @@ class Butterworth(object):
             return message
 
     def calc_sos(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
         if self.type is "Low Pass":
@@ -194,10 +186,10 @@ class Butterworth(object):
             return message
 
     def calc_TransFunc(self):
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
-        z, p, k = self.get_zpk(self)
+        z, p, k = self.get_zpk()
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
@@ -216,10 +208,10 @@ class Butterworth(object):
 
 
     def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
-        val, msg = self.filter.validate(self.filter)
+        val, msg = self.filter.validate()
         if val is False:
             return msg
-        z, p, k = self.get_zpk(self)
+        z, p, k = self.get_zpk()
         if self.type is "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
@@ -237,9 +229,9 @@ class Butterworth(object):
             return message
 
     def check_Q(self) -> bool:
-        Qmax = self.filter.reqData[FilterData.Qmax.value]
+        Qmax = self.filter.reqData[FilterData.Qmax]
         if self.order > 1 and Qmax is not None:
-            z, p, k = self.get_zpk(self)
+            z, p, k = self.get_zpk()
             q_arr = []
             for pole in p:
                 q = abs(abs(pole) / (2 * pole.real))
@@ -254,15 +246,15 @@ class Butterworth(object):
             return True
 
     def calculate(self):
-        self.calc_Order(self)
-        self.calc_fo(self)
-        self.calc_zpk(self)
-        while self.check_Q(self) is False:
-            self.calc_fo(self)
-            self.calc_zpk(self)
-        self.calc_TransFunc(self)
-        self.calc_MagAndPhase(self)
-        self.calc_Group_Delay(self)
+        self.calc_Order()
+        self.calc_fo()
+        self.calc_zpk()
+        while self.check_Q() is False:
+            self.calc_fo()
+            self.calc_zpk()
+        self.calc_TransFunc()
+        self.calc_MagAndPhase()
+        self.calc_Group_Delay()
 
     def calc_Attenuation(self):
         A = self.mag
@@ -271,7 +263,7 @@ class Butterworth(object):
         self.A = A
 
     def calc_Group_Delay(self):
-        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        w, mag, pha = self.get_MagAndPhaseWithoutGain()
         gd = - np.diff(pha) / np.diff(w)
         gd = gd.tolist()
         gd.append(gd[len(gd) - 1])
@@ -280,7 +272,7 @@ class Butterworth(object):
         self.wgd = w
 
     def get_Gain(self):
-        return self.filter.reqData[FilterData.gain.value]
+        return self.filter.reqData[FilterData.gain]
 
     #####################
     #       ALEX        #
@@ -293,13 +285,13 @@ class Butterworth(object):
         return self.z, self.p, self.k
 
     def get_zpGk(self):
-        gain = self.get_Gain(self)
+        gain = self.get_Gain()
         Gk = self.k * 10 ** (gain / 20)
         return self.z, self.p, Gk
 
     def get_TransFuncWithGain(self):
         hg = self.h
-        gain = self.get_Gain(self)
+        gain = self.get_Gain()
         for i in range(0, len(hg)):
             hg[i] = hg[i] * 10 ** (gain / 20)
         return self.w_tf, hg
@@ -309,7 +301,7 @@ class Butterworth(object):
 
     def get_MagAndPhaseWithGain(self):
         magg = self.mag
-        gain = self.get_Gain(self)
+        gain = self.get_Gain()
         for i in range(0, len(magg)):
             magg[i] = magg[i] + gain
         return self.w_bode, magg, self.pha
