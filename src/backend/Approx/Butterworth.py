@@ -49,7 +49,7 @@ class Butterworth(object):
                 self.order = Nmax
             else:
                 self.order = order
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             order, wo = signal.buttord(2 * np.pi * fpMin, 2 * np.pi * faMin, Ap, Aa, analog=True)
             if Nmin > order:
                 self.order = Nmin
@@ -57,7 +57,7 @@ class Butterworth(object):
                 self.order = Nmax
             else:
                 self.order = order
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
@@ -67,7 +67,7 @@ class Butterworth(object):
                 self.order = Nmax
             else:
                 self.order = order
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
@@ -96,15 +96,15 @@ class Butterworth(object):
 
         Denorm = self.filter.reqData[FilterData.Denorm]
 
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             fo1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
             fo2 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             self.fo = 10 ** (np.log10(fo1) * (1 - Denorm / 100) + np.log10(fo2) * Denorm / 100)
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             fo1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
             fo2 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             self.fo = 10 ** (np.log10(fo1) * (1 - Denorm / 100) + np.log10(fo2) * Denorm / 100)
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             fop1 = fpMin * (10 ** (Ap / 10) - 1) ** (1 / self.order)
             foa1 = faMin * (10 ** (Aa / 10) - 1) ** (1 / self.order)
             fop2 = fpMax / (10 ** (Ap / 10) - 1) ** (1 / self.order)
@@ -112,7 +112,7 @@ class Butterworth(object):
             fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
             fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
             self.fo = np.sqrt(fo1 * fo2)
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             fop1 = fpMin / (10 ** (Ap / 10) - 1) ** (1 / self.order)
             foa1 = faMin / (10 ** (Aa / 10) - 1) ** (1 / self.order)
             fop2 = fpMax * (10 ** (Ap / 10) - 1) ** (1 / self.order)
@@ -129,16 +129,16 @@ class Butterworth(object):
         val, msg = self.filter.validate()
         if val is False:
             return msg
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
                                                btype='lowpass', analog=True, output='ba')
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
                                                btype='highpass', analog=True, output='ba')
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
                                                btype='bandpass', analog=True, output='ba')
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
                                                btype='bandstop', analog=True, output='ba')
         else:
@@ -149,16 +149,16 @@ class Butterworth(object):
         val, msg = self.filter.validate()
         if val is False:
             return msg
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
                                                    btype='lowpass', analog=True, output='zpk')
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
                                                    btype='highpass', analog=True, output='zpk')
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
                                                    btype='bandpass', analog=True, output='zpk')
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
                                                    btype='bandstop', analog=True, output='zpk')
         else:
@@ -169,16 +169,16 @@ class Butterworth(object):
         val, msg = self.filter.validate()
         if val is False:
             return msg
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
                                      btype='lowpass', analog=True, output='sos')
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
                                      btype='highpass', analog=True, output='sos')
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
                                      btype='bandpass', analog=True, output='sos')
-        elif self.type is "Band Stop":
+        elif self.type == "Band Stop":
             self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
                                      btype='bandstop', analog=True, output='sos')
         else:
@@ -190,16 +190,16 @@ class Butterworth(object):
         if val is False:
             return msg
         z, p, k = self.get_zpk()
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_tf, self.h = signal.TransferFunction(sys)
         else:
@@ -212,16 +212,16 @@ class Butterworth(object):
         if val is False:
             return msg
         z, p, k = self.get_zpk()
-        if self.type is "Low Pass":
+        if self.type == "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
-        elif self.type is "High Pass":
+        elif self.type == "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
-        elif self.type is "Band Pass":
+        elif self.type == "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
-        elif self.type is "Band Reject":
+        elif self.type == "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
             self.w_bode, self.mag, self.pha = signal.bode(sys)
         else:
