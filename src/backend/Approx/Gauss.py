@@ -15,6 +15,13 @@ class Gauss(object):
         self.num = None
         self.den = None
         self.sos = None
+        self.w_bode = None
+        self.mag = None
+        self.pha = None
+        self.w_tf = None
+        self.h = None
+        self.wgd = None
+        self.GroupDelay = None
         self.calculate(self)
 
     def calc_Order(self):
@@ -29,7 +36,7 @@ class Gauss(object):
             good_enough = False
             while good_enough is False:
                 order += 1
-                w, gd = self.get_Group_Delay(self, order)
+                w, gd = self.get_UnNormalized_Group_Delay(self, order)
                 for i in range(0, len(w)):
                     if w[i] >= wtn and gd[i] >= 1 - tol:
                         good_enough = True
@@ -43,7 +50,7 @@ class Gauss(object):
 
     def get_Normalized_zpk(self):
         z, p, k = self.get_Gauss_Exp_zpk(self, self.order)
-        w, gd = self.get_Group_Delay(self, self.order)
+        w, gd = self.get_UnNormalized_Group_Delay(self, self.order)
         k = 1
         for i in range(0, len(p)):
             p[i] *= gd[0] / 100
@@ -125,13 +132,26 @@ class Gauss(object):
     def get_MagAndPhaseWithoutGain(self):
         return self.w_bode, self.mag, self.pha
 
+    def calc_Group_Delay(self):
+        w, mag, pha = self.get_MagAndPhaseWithoutGain(self)
+        gd = - np.diff(pha) / np.diff(w)
+        gd = gd.tolist()
+        gd.append(gd[len(gd) - 1])
+        self.GroupDelay = gd
+        w = w.tolist()
+        self.wgd = w
+
+    def get_Group_Delay(self):
+        return self.wgd, self.GroupDelay
+
     def calculate(self):
         self.calc_Order(self)
         self.denormalize(self)
         while self.check_Q(self) is False:
             self.denormalize(self)
-
-
+        self.calc_TransFunc(self)
+        self.calc_MagAndPhase(self)
+        self.calc_Group_Delay(self)
 
     #########################
     #       Gauss Calc      #
@@ -170,7 +190,7 @@ class Gauss(object):
         gdn.append(gdn[len(gd) - 1])
         return w, gdn
 
-    def get_Group_Delay(self, n):
+    def get_UnNormalized_Group_Delay(self, n):
         w, mag, pha = signal.bode(self.get_Gauss_Exp_System(self, n), w=np.logspace(-3, 3, num=10000), n=10000)
         gd = - np.diff(pha) / np.diff(w)
         w = w.tolist()

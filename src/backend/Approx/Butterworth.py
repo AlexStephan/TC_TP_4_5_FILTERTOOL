@@ -257,6 +257,8 @@ class Butterworth(object):
         while self.check_Q(self) is False:
             self.calc_fo(self)
             self.calc_zpk(self)
+        self.calc_TransFunc(self)
+        self.calc_MagAndPhase(self)
 
     def get_Gain(self):
         return self.filter.reqData[FilterData.gain.value]
