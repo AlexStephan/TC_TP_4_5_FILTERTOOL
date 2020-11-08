@@ -38,7 +38,7 @@ class Gauss(object):
             while good_enough is False:
                 order += 1
                 w, gd = self.get_UnNormalized_Group_Delay(order)
-                for i in range(0, len(w)):
+                for i in range(len(w)):
                     if w[i] >= wtn and gd[i] >= 1 - tol:
                         good_enough = True
                         break
@@ -53,7 +53,7 @@ class Gauss(object):
         z, p, k = self.get_Gauss_Exp_zpk(self.order)
         w, gd = self.get_UnNormalized_Group_Delay(self.order)
         k = 1
-        for i in range(0, len(p)):
+        for i in range(len(p)):
             p[i] *= gd[0]
             k *= p[i]
         return z, p, k
@@ -199,16 +199,17 @@ class Gauss(object):
         return signal.lti(z, p, k)
 
     def get_Normalized_Group_Delay(self, n):
-        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000) , n=10000)
-        gd = np.divide(- np.diff(pha), np.diff(w))
+        w, mag, pha = signal.bode(get_Gauss_Exp_System(n), w=np.logspace(-3, 6, num=10000), n=10000)
+        gd = - np.diff(pha) / np.diff(w)
+        wn = np.multiply(w, gd[0])
         gdn = np.divide(gd, gd[0])
-        w = w.tolist()
+        wn = wn.tolist()
         gdn = gdn.tolist()
         gdn.append(gdn[len(gd) - 1])
-        return w, gdn
+        return wn, gdn
 
     def get_UnNormalized_Group_Delay(self, n):
-        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 3, num=10000), n=10000)
+        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 6, num=10000), n=10000)
         gd = np.divide(- np.diff(pha), np.diff(w))
         w = w.tolist()
         gd = gd.tolist()
