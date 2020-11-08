@@ -1209,7 +1209,7 @@ class FilterTool(QWidget,Ui_Form):
         #print(b)
         #print(test)
 
-        plt.text(r'\mu')
+        #plt.text(r'\mu')
 
     def __test2(self):
         #print("Test2")
