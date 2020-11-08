@@ -248,9 +248,11 @@ class Butterworth(object):
     def calculate(self):
         self.calc_Order()
         self.calc_fo()
+        self.calc_NumDen(self)
         self.calc_zpk()
         while self.check_Q() is False:
             self.calc_fo()
+            self.calc_NumDen(self)
             self.calc_zpk()
         self.calc_TransFunc()
         self.calc_MagAndPhase()
