@@ -37,7 +37,7 @@ class Gauss(object):
             good_enough = False
             while good_enough is False:
                 order += 1
-                w, gd = self.get_UnNormalized_Group_Delay(order)
+                w, gd = self.get_Normalized_Group_Delay(order)
                 for i in range(len(w)):
                     if w[i] >= wtn and gd[i] >= 1 - tol:
                         good_enough = True
