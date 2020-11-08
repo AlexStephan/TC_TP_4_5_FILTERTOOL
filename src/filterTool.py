@@ -764,6 +764,11 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_GroupDelay.legend()
         self.canvas_GroupDelay.draw()
 
+        w_att,att = filter.get_Norm_Attenuation()
+        self.axis_Attenuation.semilogx(np.divide(w_att,2*np.pi),att,label=name)
+        self.axis_Attenuation.legend()
+        self.canvas_Attenuation.draw()
+
         #Hs = filter.get_ssTransferFunction()
         #impulseResponse = ss.impulse(Hs)
         #stepResponse = ss.step(Hs)
