@@ -87,7 +87,7 @@ class Gauss(object):
         if val is False:
             return msg
         z, p, k = self.get_zpk()
-        if self.type is "Group Delay":
+        if self.type == "Group Delay":
             sys = signal.lti(z, p, k)
             self.w_tf, self.h = sys.freqresp()
         else:

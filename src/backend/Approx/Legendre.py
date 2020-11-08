@@ -403,7 +403,7 @@ class Legendre(object):
     def get_L_wo(self):
         sys = self.get_L_System()
         w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
-        for i in range(0, len(mag)):
+        for i in range(len(mag)):
             if mag[i] <= -3:
                 wo = w[i]
                 return wo
