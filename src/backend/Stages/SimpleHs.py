@@ -26,7 +26,7 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import I
 
-w_domain = np.logspace(1,9,1000)*(2*np.pi)
+w_domain = np.logspace(0,9,1000)*(2*np.pi)
 
 class SimpleHs(object):
     def __init__(self, zeros, poles, *args, **kwargs):
@@ -112,7 +112,7 @@ class SimpleHs(object):
         self.bode = ss.bode(self.Hs,w_domain)
 
     def getHs(self):
-        return self.bode[0]/(2*np.pi),self.bode[1],self.bode[2]
+        return self.bode[0],self.bode[1],self.bode[2]
 
     #def isVisible(self):
     #    return self.visible

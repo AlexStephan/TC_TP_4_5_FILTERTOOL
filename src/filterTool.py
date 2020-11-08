@@ -202,6 +202,7 @@ class FilterTool(QWidget,Ui_Form):
         self.comboBox_YourStages.currentIndexChanged.connect(self.__indexChanged_SelectYourStage)
         self.pushButton_StageUpdateGain.clicked.connect(self.__updateStageGain)
         self.pushButton_DeleteStage.clicked.connect(self.__deleteCurrentStage)
+        self.checkBox_SelectedStageVisible.clicked.connect(self.__changeStageVisibility)
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -276,6 +277,12 @@ class FilterTool(QWidget,Ui_Form):
             self.__refreshStagesGraphs()
         else:
             self.__error_message("This shouldn't be happening. It seems Alex forgot to disable this button...")
+
+    def __changeStageVisibility(self):
+        i = self.comboBox_YourStages.currentIndex()
+        if i != 0:
+            self.sos[i-1][1] = self.checkBox_SelectedStageVisible.isChecked()
+            self.__refreshStagesGraphs()
 
     def __deleteCurrentStage(self):
         if self.comboBox_YourStages.currentIndex() != 0:
