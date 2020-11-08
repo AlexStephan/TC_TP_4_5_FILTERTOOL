@@ -27,6 +27,7 @@ from sympy.parsing.sympy_parser import parse_expr
 from sympy import I
 
 w_domain = np.logspace(0,9,1000)*(2*np.pi)
+w_domain_blank = [0]*len(w_domain)
 
 class SimpleHs(object):
     def __init__(self, zeros, poles, *args, **kwargs):
@@ -95,6 +96,12 @@ class SimpleHs(object):
             return self.K,self.order,self.w0/(2*np.pi),self.Q,self.Gain
         else:
             return None,None,None,None,None
+
+    def getK(self):
+        if self.validate() == True:
+            return self.K
+        else:
+            return None
 
     def updateGain(self,gain):
         self.Gain = gain

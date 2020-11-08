@@ -30,7 +30,7 @@ from sympy.parsing.sympy_parser import parse_expr
 from sympy import I
 
 # My Own Modules
-from src.backend.Stages.SimpleHs import SimpleHs
+from src.backend.Stages.SimpleHs import SimpleHs, w_domain, w_domain_blank
 from src.backend.Filter.Filter import FilterData
 
 from src.backend.Filter.LowPass import LowPass
@@ -47,6 +47,7 @@ from src.backend.Approx.Gauss import Gauss
 DEBUG = True
 
 t_domain = np.linspace(0,0.001,10000)
+test = [1]*5
 
 class filterType(Enum):
     LP=0
@@ -203,6 +204,8 @@ class FilterTool(QWidget,Ui_Form):
         self.pushButton_StageUpdateGain.clicked.connect(self.__updateStageGain)
         self.pushButton_DeleteStage.clicked.connect(self.__deleteCurrentStage)
         self.checkBox_SelectedStageVisible.clicked.connect(self.__changeStageVisibility)
+        self.checkBox_VisibleStagesSubtotalVisible.clicked.connect(self.__refreshStagesGraphs)
+        self.checkBox_CratedStagesSubtotalVisible.clicked.connect(self.__refreshStagesGraphs)
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -522,13 +525,35 @@ class FilterTool(QWidget,Ui_Form):
                     self.ComplexPolesUsed.append(False)
 
     def __refreshStagesGraphs(self):
+        subtotal_created_k = 1
+        subtotal_created_gain = w_domain_blank
+        subtotal_created_phase = w_domain_blank
+        subtotal_visible_k = 1
+        subtotal_visible_gain = w_domain_blank
+        subtotal_visible_phase = w_domain_blank
         self.__cleanStagesGraphs()
         if self.checkBox_SelectedFilterVisible.isChecked() and self.comboBox_SelectYourFilter.currentIndex() > 0:
             i = self.comboBox_SelectYourFilter.currentIndex() - 1
             self.__addGraphicsForStages(self.myFilters[i][0]+" - Desired Filter",self.myFilters[i][2])
         for i in self.sos:
+            Hs = i[0].getHs()
+            K = i[0].getK()
+            subtotal_created_k *= K
+            subtotal_created_gain = np.add(subtotal_created_gain,Hs[1])
+            subtotal_created_phase = np.add(subtotal_created_phase,Hs[2])
             if i[1]:
-                self.__addGraphicsForStages(i[3],i[0].getHs())
+                subtotal_visible_k *= K
+                subtotal_visible_gain = np.add(subtotal_visible_gain,Hs[1])
+                subtotal_visible_phase = np.add(subtotal_visible_phase,Hs[2])
+                self.__addGraphicsForStages(i[3],Hs)
+
+        if self.checkBox_CratedStagesSubtotalVisible.isChecked():
+            self.__addGraphicsForStages("SUBTOTAL (Created Stages)",
+                                        [w_domain,subtotal_created_gain,subtotal_created_phase])
+
+        if self.checkBox_VisibleStagesSubtotalVisible.isChecked():
+            self.__addGraphicsForStages("SUBTOTAL (Visible Stages)",
+                                        [w_domain,subtotal_visible_gain,subtotal_visible_phase])
 
     def __cleanStagesGraphs(self):
         self.axis_StagesGain.clear()
@@ -1168,10 +1193,19 @@ class FilterTool(QWidget,Ui_Form):
         #        temp = self.gridLayout_TEST.itemAt(x + 3*y)
         #        self.gridLayout_TEST.removeItem(temp)
         #        del temp
-        l = [1,2]
-        a,b = l
-        print(str(a))
-        print(str(b))
+        #l = [1,2]
+        #a,b = l
+        #print(str(a))
+        #print(str(b))
+        #w = [1]*26
+        #print(w)
+
+        a = test
+        b = test
+        a = np.add(a,b)
+        print(a)
+        print(b)
+        print(test)
 
     def __test2(self):
         #print("Test2")
