@@ -54,7 +54,7 @@ class Gauss(object):
         w, gd = self.get_UnNormalized_Group_Delay(self.order)
         k = 1
         for i in range(0, len(p)):
-            p[i] *= gd[0] / 100
+            p[i] *= gd[0]
             k *= p[i]
         return z, p, k
 
