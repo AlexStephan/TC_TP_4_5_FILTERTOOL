@@ -29,6 +29,9 @@ import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import I
 
+# ?
+import math
+
 # My Own Modules
 from src.backend.Stages.SimpleHs import SimpleHs, w_domain, w_domain_blank
 from src.backend.Filter.Filter import FilterData
@@ -48,6 +51,7 @@ DEBUG = True
 
 t_domain = np.linspace(0,0.001,10000)
 test = [1]*5
+SIG_FIGURE = 6
 
 class filterType(Enum):
     LP=0
@@ -509,8 +513,40 @@ class FilterTool(QWidget,Ui_Form):
 
     def __getAndOrderPolesAndZeros(self,i):
         z, p, Gk = self.myFilters[i][1].get_zpGk()
-        self.label_SelectedFilterK.setText(str(Gk))
+        newZ = []
+        newP = []
         for i in z:
+            re = np.real(i)
+            im = np.imag(i)
+            if re != 0:
+                newRe = round(re, SIG_FIGURE - int(math.floor(math.log10(abs(re)))) - 1)
+            else:
+                newRe = 0
+            if im != 0:
+                newIm = round(im, SIG_FIGURE - int(math.floor(math.log10(abs(im)))) - 1)
+            else:
+                newIm = 0
+            newZ.append(newRe + 1j * newIm)
+        for i in p:
+            re = np.real(i)
+            im = np.imag(i)
+            if re != 0:
+                newRe = round(re, SIG_FIGURE - int(math.floor(math.log10(abs(re)))) - 1)
+            else:
+                newRe = 0
+            if im != 0:
+                newIm = round(im, SIG_FIGURE - int(math.floor(math.log10(abs(im)))) - 1)
+            else:
+                newIm = 0
+            newP.append(newRe + 1j * newIm)
+
+        if DEBUG:
+            print(z)
+            print(newZ)
+            print(p)
+            print(newP)
+        self.label_SelectedFilterK.setText(str(Gk))
+        for i in newZ:
             if np.imag(i) == 0:
                 self.RealZeros.append(i)
                 self.RealZerosUsed.append(False)
@@ -521,7 +557,7 @@ class FilterTool(QWidget,Ui_Form):
                     self.ComplexZeros.append(i)
                     self.ComplexZerosUsed.append(False)
 
-        for i in p:
+        for i in newP:
             if np.imag(i) == 0:
                 self.RealPoles.append(i)
                 self.RealPolesUsed.append(False)
