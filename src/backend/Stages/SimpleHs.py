@@ -52,7 +52,8 @@ class SimpleHs(object):
         #print(np.roots(self.denominator))
 
         self.K = 1
-        self.visible = True
+        self.Gain = 0
+        #self.visible = True
         self.order = self.__order(self.denominator)
         if self.order == 2:
             if self.denominator[2] != 0:
@@ -91,11 +92,12 @@ class SimpleHs(object):
 
     def getData(self):
         if self.validate() == True:
-            return self.K,self.visible,self.order,self.w0/(2*np.pi),self.Q
+            return self.K,self.order,self.w0/(2*np.pi),self.Q,self.Gain
         else:
             return None,None,None,None,None
 
     def updateGain(self,gain):
+        self.Gain = gain
         self.K = np.power(10,gain/20)
         self.__calculateHs()
 
@@ -112,8 +114,8 @@ class SimpleHs(object):
     def getHs(self):
         return self.bode[0]/(2*np.pi),self.bode[1],self.bode[2]
 
-    def isVisible(self):
-        return self.visible
+    #def isVisible(self):
+    #    return self.visible
 
-    def setVisible(self, visible):
-        self.visible = visible
+    #def setVisible(self, visible):
+    #    self.visible = visible

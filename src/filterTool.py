@@ -200,6 +200,8 @@ class FilterTool(QWidget,Ui_Form):
         self.comboBox_SelectYourFilter.currentIndexChanged.connect(self.__indexChanged_SelectYourFilter)
         self.__indexChanged_SelectYourFilter()
         self.comboBox_YourStages.currentIndexChanged.connect(self.__indexChanged_SelectYourStage)
+        self.pushButton_StageUpdateGain.clicked.connect(self.__updateStageGain)
+        self.pushButton_DeleteStage.clicked.connect(self.__deleteCurrentStage)
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -246,18 +248,105 @@ class FilterTool(QWidget,Ui_Form):
             self.label_SelectedStagefo.setText("")
             self.label_SelectedStageQ.setText("")
             self.pushButton_StageUpdateGain.setDisabled(True)
+            self.pushButton_DeleteStage.setDisabled(True)
         else:
             i = self.comboBox_YourStages.currentIndex() - 1
+            sos = self.sos[i][0]
+            K,order,f0,Q,gain = sos.getData()
+            visible = self.sos[i][1]
 
             self.doubleSpinBox_StageGain.setDisabled(False)
-            #self.doubleSpinBox_StageGain.setValue(0)
+            self.doubleSpinBox_StageGain.setValue(gain)
             self.checkBox_SelectedStageVisible.setDisabled(False)
-            #self.checkBox_SelectedStageVisible.setChecked(False)
-            #self.label_StageK.setText("")
-            #self.label_SelectedStageOrder.setText("")
-            #self.label_SelectedStagefo.setText("")
-            #self.label_SelectedStageQ.setText("")
+            self.checkBox_SelectedStageVisible.setChecked(visible)
+            self.label_StageK.setText(str(K))
+            self.label_SelectedStageOrder.setText(str(order))
+            self.label_SelectedStagefo.setText(str(f0))
+            self.label_SelectedStageQ.setText(str(Q))
             self.pushButton_StageUpdateGain.setDisabled(False)
+            self.pushButton_DeleteStage.setDisabled(False)
+
+    def __updateStageGain(self):
+        i = self.comboBox_YourStages.currentIndex()
+        if i != 0:
+            sos = self.sos[i-1][0]
+            sos.updateGain(self.doubleSpinBox_StageGain.value())
+            self.__indexChanged_SelectYourStage()
+            self.__refreshStagesGraphs()
+        else:
+            self.__error_message("This shouldn't be happening. It seems Alex forgot to disable this button...")
+
+    def __deleteCurrentStage(self):
+        if self.comboBox_YourStages.currentIndex() != 0:
+            i = self.comboBox_YourStages.currentIndex() -1
+            self.comboBox_YourStages.removeItem(i+1)
+            data = self.sos[i][2]
+            self.sos.pop(i)
+
+            #[self.polosIndex,
+            # self.polosAreComplex,
+            # self.cerosIndex,
+            # self.cerosAreComples,
+            # self.cerosRequired]
+
+            polosIndex,polosAreComplex,cerosIndex,cerosAreComplex,cerosRequired = data
+
+            #######################################################################
+
+            if  polosAreComplex:
+                #polosArray = self.ComplexPoles
+                polosUsedArray = self.ComplexPolesUsed
+                polosWidgetArray = self.ComplexPolesWidgets
+                polesWidgetConstant = 5
+                polesComboBoxes = [self.comboBox_SelectComplexPoles]
+                #polosName = "C"
+            else:
+                #polosArray = self.RealPoles
+                polosUsedArray = self.RealPolesUsed
+                polosWidgetArray = self.RealPolesWidgets
+                polesWidgetConstant = 3
+                polesComboBoxes = [self.comboBox_SelectRealPole,
+                                   self.comboBox_Select1stRealPole,
+                                   self.comboBox_Select2ndRealPole]
+                #polosName = "R"
+            if cerosAreComplex:
+                #cerosArray = self.ComplexZeros
+                cerosUsedArray = self.ComplexZerosUsed
+                cerosWidgetArray = self.ComplexZerosWidgets
+                cerosWidgetConstant = 3
+                cerosComboBoxes = [self.comboBox_SelectComplexZeros]
+                #cerosName = "C"
+            else:
+                #cerosArray = self.RealZeros
+                cerosUsedArray = self.RealZerosUsed
+                cerosWidgetArray = self.RealZerosWidgets
+                cerosWidgetConstant = 2
+                cerosComboBoxes = [self.comboBox_SelectRealZero,
+                                   self.comboBox_Select1stRealZero,
+                                   self.comboBox_Select2ndRealZero]
+                #cerosName = "R"
+
+            for i in polosIndex:
+                for combo in polesComboBoxes:
+                    t = combo.itemText(i)
+                    t=t.replace('USED - ','')
+                    combo.setItemText(i,t)
+                polosUsedArray[i-1] = False
+                polosWidgetArray[polesWidgetConstant*i-1].setChecked(False)
+            if cerosRequired:
+                for i in cerosIndex:
+                    for combo in cerosComboBoxes:
+                        t = combo.itemText(i)
+                        t=t.replace('USED - ', '')
+                        combo.setItemText(i, t)
+                    cerosUsedArray[i - 1] = False
+                    cerosWidgetArray[cerosWidgetConstant * i - 1].setChecked(False)
+
+            ###############################################################
+
+            self.__refreshStagesGraphs()
+            self.comboBox_YourStages.setCurrentIndex(0)
+            self.__indexChanged_SelectYourStage()
 
     def __cleanThisComboBox(self,comboBox):
         n = comboBox.count()
@@ -1071,6 +1160,10 @@ class FilterTool(QWidget,Ui_Form):
         #        temp = self.gridLayout_TEST.itemAt(x + 3*y)
         #        self.gridLayout_TEST.removeItem(temp)
         #        del temp
+        l = [1,2]
+        a,b = l
+        print(str(a))
+        print(str(b))
 
     def __test2(self):
         #print("Test2")

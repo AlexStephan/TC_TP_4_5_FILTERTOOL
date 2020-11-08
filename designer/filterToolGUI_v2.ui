@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget_main">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_FilterMaker">
       <attribute name="title">
@@ -2978,6 +2978,19 @@
           </widget>
          </item>
          <item>
+          <widget class="QPushButton" name="pushButton_DeleteStage">
+           <property name="maximumSize">
+            <size>
+             <width>200</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>DELETE STAGE</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QScrollArea" name="scrollArea_SelectedStageHs">
            <property name="maximumSize">
             <size>
@@ -2994,7 +3007,7 @@
               <x>0</x>
               <y>0</y>
               <width>196</width>
-              <height>419</height>
+              <height>402</height>
              </rect>
             </property>
            </widget>
