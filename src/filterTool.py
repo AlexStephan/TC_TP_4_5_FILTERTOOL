@@ -217,11 +217,12 @@ class FilterTool(QWidget,Ui_Form):
     def __indexChanged_SelectYourFilter(self):
         #TODO ARREGLAR POLOS REALES TOMADOS COMO COMPLEJOS ( Y CONJUGADOS TOMADOS DIFERENTES )!!!
         #TODO AGREGAR BARRA DESPLAZADORA
+        self.comboBox_YourStages.setCurrentIndex(0)
+        self.__cleanThisComboBox(self.comboBox_YourStages)
+        self.__indexChanged_SelectYourStage()
         self.__cleanStagesWidgets()
         self.__cancelNewStage()
         self.sos = []
-        self.__cleanThisComboBox(self.comboBox_YourStages)
-        self.__indexChanged_SelectYourStage()
         if self.comboBox_SelectYourFilter.currentIndex() == 0:
             self.checkBox_SelectedFilterVisible.setDisabled(True)
             self.checkBox_SelectedFilterVisible.setChecked(False)
