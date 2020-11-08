@@ -266,7 +266,7 @@ class Butterworth(object):
         self.calc_Impulse_Response()
         self.calc_Step_Response()
         self.calc_Attenuation()
-        calc_Norm_Attenuation()
+        self.calc_Norm_Attenuation()
 
     def calc_Attenuation(self):
         w, h = self.get_TransFuncWithoutGain()
