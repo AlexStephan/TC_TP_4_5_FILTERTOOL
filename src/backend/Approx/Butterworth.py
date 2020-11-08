@@ -261,6 +261,8 @@ class Butterworth(object):
         self.calc_TransFunc()
         self.calc_MagAndPhase()
         self.calc_Group_Delay()
+        self.calc_Impulse_Response()
+        self.calc_Step_Response()
 
     def calc_Attenuation(self):
         A = self.mag
@@ -349,3 +351,5 @@ class Butterworth(object):
 
     def get_Step_Response(self):
         return self.tstep, self.stepresp
+
+    def get_Qs(self):
