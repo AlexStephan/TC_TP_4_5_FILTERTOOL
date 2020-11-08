@@ -1202,12 +1202,14 @@ class FilterTool(QWidget,Ui_Form):
         #w = [1]*26
         #print(w)
 
-        a = test
-        b = test
-        a = np.add(a,b)
-        print(a)
-        print(b)
-        print(test)
+        #a = test
+        #b = test
+        #a = np.add(a,b)
+        #print(a)
+        #print(b)
+        #print(test)
+
+        plt.text(r'\mu')
 
     def __test2(self):
         #print("Test2")
