@@ -22,6 +22,10 @@ class Butterworth(object):
         self.A = None
         self.wgd = None
         self.GroupDelay = None
+        self.timp = None
+        self.impresp = None
+        self.tstep = None
+        self.stepresp = None
         self.calculate()
 
 
@@ -273,8 +277,22 @@ class Butterworth(object):
         w = w.tolist()
         self.wgd = w
 
+    def calc_Impulse_Response(self):
+        t, out = signal.impulse(self.get_lti())
+        self.timp = t
+        self.impresp = out
+
+    def calc_Step_Response(self):
+        t, out = signal.step(self.get_lti())
+        self.tstep = t
+        self.steprespresp = out
+
     def get_Gain(self):
         return self.filter.reqData[FilterData.gain]
+
+    def get_lti(self):
+        z, p, k = self.get_zpGk()
+        return signal.lti(z, p, k)
 
     #####################
     #       ALEX        #
@@ -325,3 +343,9 @@ class Butterworth(object):
 
     def get_Order(self):
         return self.order
+
+    def get_Impulse_Response(self):
+        return self.timp, self.impresp
+
+    def get_Step_Response(self):
+        return self.tstep, self.stepresp
