@@ -725,6 +725,8 @@ class FilterTool(QWidget,Ui_Form):
         self.horizontalLayout_StagesPhase.addWidget(self.toolbar_StagesPhase)
         self.axis_StagesPhase = self.figure_StagesPhase.add_subplot()
 
+    #
+
     def __refreshFilterMakerGraphs(self):
         self.__cleanFilterMakerGraphs()
         for i in self.myFilters:
@@ -764,14 +766,24 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_GroupDelay.legend()
         self.canvas_GroupDelay.draw()
 
-        w_att,att = filter.get_Norm_Attenuation()
-        self.axis_Attenuation.semilogx(np.divide(w_att,2*np.pi),att,label=name)
-        self.axis_Attenuation.legend()
-        self.canvas_Attenuation.draw()
+        #w_att,att = filter.get_Norm_Attenuation()
+        #self.axis_Attenuation.semilogx(np.divide(w_att,2*np.pi),att,label=name)
+        #self.axis_Attenuation.legend()
+        #self.canvas_Attenuation.draw()
 
         #Hs = filter.get_ssTransferFunction()
         #impulseResponse = ss.impulse(Hs)
         #stepResponse = ss.step(Hs)
+
+        impulse = filter.get_Impulse_Response()
+        self.axis_ImpulseResponse.plot(impulse[0],impulse[1],label=name)
+        self.axis_ImpulseResponse.legend()
+        self.canvas_ImpulseResponse.draw()
+
+        step = filter.get_Step_Response()
+        self.axis_StepResponse.plot(step[0],step[1],label=name)
+        self.axis_StepResponse.legend()
+        self.canvas_StepResponse.draw()
 
         #self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
         #self.axis_ImpulseResponse.legend()
