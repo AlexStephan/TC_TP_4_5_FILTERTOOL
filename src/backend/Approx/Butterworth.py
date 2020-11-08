@@ -269,7 +269,7 @@ class Butterworth(object):
         w, mag, pha = self.get_MagAndPhaseWithoutGain()
         A = []
         for i in range(len(mag)):
-            A[i] = 1 / mag[i]
+            A.append(1 / mag[i])
         self.A = A
 
     def calc_Group_Delay(self):
