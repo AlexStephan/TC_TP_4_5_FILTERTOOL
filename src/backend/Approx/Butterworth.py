@@ -266,10 +266,10 @@ class Butterworth(object):
         self.calc_Attenuation()
 
     def calc_Attenuation(self):
-        w, mag, pha = self.get_MagAndPhaseWithoutGain()
+        w, h = self.get_TransFuncWithoutGain()
         A = []
-        for i in range(len(mag)):
-            A.append(1 / mag[i])
+        for i in range(len(h)):
+            A.append(20 * log10(abs(1 / h[i])))
         self.A = A
 
     def calc_Group_Delay(self):
@@ -339,7 +339,7 @@ class Butterworth(object):
     def get_Norm_Attenuation(self):
         num, den = signal.normalize(self.num, self.den)
         sys = signal.lti(num, den)
-        w, mag, pha = signal.bode(sys)
+        w, h = signal.freqresp(sys)
         return w, self.A
 
     def get_Group_Delay(self):
