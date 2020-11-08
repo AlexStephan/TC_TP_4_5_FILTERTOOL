@@ -263,6 +263,7 @@ class Butterworth(object):
         self.calc_Group_Delay()
         self.calc_Impulse_Response()
         self.calc_Step_Response()
+        self.calc_Attenuation()
 
     def calc_Attenuation(self):
         A = self.mag
@@ -287,7 +288,7 @@ class Butterworth(object):
     def calc_Step_Response(self):
         t, out = signal.step(self.get_lti())
         self.tstep = t
-        self.steprespresp = out
+        self.stepresp = out
 
     def get_Gain(self):
         return self.filter.reqData[FilterData.gain]
