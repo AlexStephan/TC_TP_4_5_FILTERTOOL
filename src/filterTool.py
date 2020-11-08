@@ -195,12 +195,11 @@ class FilterTool(QWidget,Ui_Form):
         self.pushButton_EraseFilter.clicked.connect(self.__clicked_EraseFilter)
 
         self.checkBox_SelectedFilterVisible.clicked.connect(self.__refreshStagesGraphs)
-
         #####################################################################
 
         self.comboBox_SelectYourFilter.currentIndexChanged.connect(self.__indexChanged_SelectYourFilter)
         self.__indexChanged_SelectYourFilter()
-
+        self.comboBox_YourStages.currentIndexChanged.connect(self.__indexChanged_SelectYourStage)
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -214,9 +213,13 @@ class FilterTool(QWidget,Ui_Form):
             self.checkBox_VisibleFilter.setChecked(self.myFilters[i][3])
 
     def __indexChanged_SelectYourFilter(self):
+        #TODO ARREGLAR POLOS REALES TOMADOS COMO COMPLEJOS ( Y CONJUGADOS TOMADOS DIFERENTES )!!!
+        #TODO AGREGAR BARRA DESPLAZADORA
         self.__cleanStagesWidgets()
         self.__cancelNewStage()
         self.sos = []
+        self.__cleanThisComboBox(self.comboBox_YourStages)
+        self.__indexChanged_SelectYourStage()
         if self.comboBox_SelectYourFilter.currentIndex() == 0:
             self.checkBox_SelectedFilterVisible.setDisabled(True)
             self.checkBox_SelectedFilterVisible.setChecked(False)
@@ -231,6 +234,30 @@ class FilterTool(QWidget,Ui_Form):
             self.__refreshStagesGraphs()
             self.__updateStagesAvailable()
             #DO THINGS
+
+    def __indexChanged_SelectYourStage(self):
+        if self.comboBox_YourStages.currentIndex() == 0:
+            self.doubleSpinBox_StageGain.setDisabled(True)
+            self.doubleSpinBox_StageGain.setValue(0)
+            self.checkBox_SelectedStageVisible.setDisabled(True)
+            self.checkBox_SelectedStageVisible.setChecked(False)
+            self.label_StageK.setText("")
+            self.label_SelectedStageOrder.setText("")
+            self.label_SelectedStagefo.setText("")
+            self.label_SelectedStageQ.setText("")
+            self.pushButton_StageUpdateGain.setDisabled(True)
+        else:
+            i = self.comboBox_YourStages.currentIndex() - 1
+
+            self.doubleSpinBox_StageGain.setDisabled(False)
+            #self.doubleSpinBox_StageGain.setValue(0)
+            self.checkBox_SelectedStageVisible.setDisabled(False)
+            #self.checkBox_SelectedStageVisible.setChecked(False)
+            #self.label_StageK.setText("")
+            #self.label_SelectedStageOrder.setText("")
+            #self.label_SelectedStagefo.setText("")
+            #self.label_SelectedStageQ.setText("")
+            self.pushButton_StageUpdateGain.setDisabled(False)
 
     def __cleanThisComboBox(self,comboBox):
         n = comboBox.count()
@@ -402,9 +429,9 @@ class FilterTool(QWidget,Ui_Form):
         if self.checkBox_SelectedFilterVisible.isChecked() and self.comboBox_SelectYourFilter.currentIndex() > 0:
             i = self.comboBox_SelectYourFilter.currentIndex() - 1
             self.__addGraphicsForStages(self.myFilters[i][0]+" - Desired Filter",self.myFilters[i][2])
-        for i in range(len(self.sos)):
-            if self.sos[i][1]:
-                self.__addGraphicsForStages('STAGE {0}'.format(i+1),self.sos[i][0].getHs())
+        for i in self.sos:
+            if i[1]:
+                self.__addGraphicsForStages(i[3],i[0].getHs())
 
     def __cleanStagesGraphs(self):
         self.axis_StagesGain.clear()
@@ -763,6 +790,7 @@ class FilterTool(QWidget,Ui_Form):
             polosWidgetArray = self.ComplexPolesWidgets
             polesWidgetConstant = 5
             polesComboBoxes = [self.comboBox_SelectComplexPoles]
+            polosName = "C"
         else:
             polosArray = self.RealPoles
             polosUsedArray = self.RealPolesUsed
@@ -771,12 +799,14 @@ class FilterTool(QWidget,Ui_Form):
             polesComboBoxes = [self.comboBox_SelectRealPole,
                                self.comboBox_Select1stRealPole,
                                self.comboBox_Select2ndRealPole]
+            polosName = "R"
         if self.cerosAreComples:
             cerosArray = self.ComplexZeros
             cerosUsedArray = self.ComplexZerosUsed
             cerosWidgetArray = self.ComplexZerosWidgets
             cerosWidgetConstant = 3
             cerosComboBoxes = [self.comboBox_SelectComplexZeros]
+            cerosName = "C"
         else:
             cerosArray = self.RealZeros
             cerosUsedArray = self.RealZerosUsed
@@ -785,6 +815,7 @@ class FilterTool(QWidget,Ui_Form):
             cerosComboBoxes = [self.comboBox_SelectRealZero,
                                self.comboBox_Select1stRealZero,
                                self.comboBox_Select2ndRealZero]
+            cerosName = "R"
 
         sosPolos = []
         for i in self.polosIndex:
@@ -808,14 +839,20 @@ class FilterTool(QWidget,Ui_Form):
                 if self.cerosAreComples:
                     sosCeros.append(np.conjugate(cerosArray[i-1]))
 
+        if self.cerosRequired:
+            name = polosName + 'P:' + str(self.polosIndex) + ' ' + cerosName + 'Z:' + str(self.cerosIndex)
+        else:
+            name = polosName + 'P:' + str(self.polosIndex)
+
         newSos = SimpleHs(sosCeros,sosPolos)
         self.sos.append([newSos,True,
                          [self.polosIndex,
                           self.polosAreComplex,
                           self.cerosIndex,
                           self.cerosAreComples,
-                          self.cerosRequired]])
+                          self.cerosRequired],name])
         self.__refreshStagesGraphs()
+        self.comboBox_YourStages.addItem(name)
 
     #####################################################################33
 
