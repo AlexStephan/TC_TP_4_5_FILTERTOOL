@@ -20,6 +20,7 @@ class Butterworth(object):
         self.mag = None
         self.pha = None
         self.w_att = None
+        self.w_anorm = None
         self.A = None
         self.wgd = None
         self.GroupDelay = None
@@ -272,6 +273,15 @@ class Butterworth(object):
         for i in range(len(h)):
             A.append(20 * log10(abs(1 / h[i])))
         self.w_att = w
+        self.A = A
+
+    def get_Norm_Attenuation(self):
+        w, h = self.get_TransFuncWithoutGain()
+        wn = np.divide(w, 2 * np.pi * self.filter.reqData[FilterData.fpMin])
+        A = []
+        for i in range(len(h)):
+            A.append(20 * log10(abs(1 / h[i])))
+        self.w_anorm = wn
         self.A = A
 
     def calc_Group_Delay(self):
