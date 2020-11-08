@@ -353,3 +353,9 @@ class Butterworth(object):
         return self.tstep, self.stepresp
 
     def get_Qs(self):
+        z, p, k = self.get_zpk()
+        q_arr = []
+        for pole in p:
+            q = abs(abs(pole) / (2 * pole.real))
+            q_arr.append(q)
+        return q_arr
