@@ -550,10 +550,12 @@ class FilterTool(QWidget,Ui_Form):
         if self.checkBox_CratedStagesSubtotalVisible.isChecked():
             self.__addGraphicsForStages("SUBTOTAL (Created Stages)",
                                         [w_domain,subtotal_created_gain,subtotal_created_phase])
+        self.label_CratedStagesSubtotalK.setText(str(subtotal_created_k))
 
         if self.checkBox_VisibleStagesSubtotalVisible.isChecked():
             self.__addGraphicsForStages("SUBTOTAL (Visible Stages)",
                                         [w_domain,subtotal_visible_gain,subtotal_visible_phase])
+        self.label_VisibleStagesSubtotalK.setText(str(subtotal_visible_k))
 
     def __cleanStagesGraphs(self):
         self.axis_StagesGain.clear()
