@@ -19,6 +19,7 @@ class Butterworth(object):
         self.w_bode = None
         self.mag = None
         self.pha = None
+        self.w_att = None
         self.A = None
         self.wgd = None
         self.GroupDelay = None
@@ -270,6 +271,7 @@ class Butterworth(object):
         A = []
         for i in range(len(h)):
             A.append(20 * log10(abs(1 / h[i])))
+        self.w_att = w
         self.A = A
 
     def calc_Group_Delay(self):
@@ -334,7 +336,7 @@ class Butterworth(object):
         return self.w_bode, self.mag, self.pha
 
     def get_Attenuation(self):
-        return self.w_bode, self.A
+        return self.w_att, self.A
 
     def get_Norm_Attenuation(self):
         num, den = signal.normalize(self.num, self.den)
