@@ -51,7 +51,7 @@ class Legendre(object):
 
         if self.type == "Low Pass":
             self.wan = faMin / fpMin
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
@@ -61,7 +61,7 @@ class Legendre(object):
                 self.order = order
         elif self.type == "High Pass":
             self.wan = fpMin / faMin
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
@@ -70,22 +70,22 @@ class Legendre(object):
             else:
                 self.order = order
         elif self.type == "Band Pass":
-            self.wan = (faMax - faMin) / (fpMax - fpMin)
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            self.wan = np.minimum(fpMin / faMin, faMax / fpMax)
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
-            if Nmin is not None and Nmin > order and Nmin >= 2:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax is not None and order > Nmax >= 2:
+            elif Nmax is not None and order > Nmax:
                 self.order = Nmax
             elif order >= 2:
                 self.order = order
         elif self.type == "Band Reject":
-            self.wan = (fpMax - fpMin) / (faMax - faMin)
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            self.wan = np.minimum(faMin / fpMin, fpMax / faMax)
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
-            if Nmin is not None and Nmin > order and Nmin >= 2:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax is not None and order > Nmax >= 2:
+            elif Nmax is not None and order > Nmax:
                 self.order = Nmax
             elif order >= 2:
                 self.order = order
@@ -106,12 +106,12 @@ class Legendre(object):
         if self.type == "Low Pass":
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
-            fod = (10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)) / (2 * np.pi)
+            fod = (10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)) #/ (2 * np.pi)
             self.fo = fod * fpMin
         elif self.type == "High Pass":
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
-            fod = (10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)) / (2 * np.pi)
+            fod = (10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)) #/ (2 * np.pi)
             self.fo = fpMin / fod
         elif self.type == "Band Pass":
             Bw = 2 * np.pi * (fpMax - fpMin)
@@ -393,7 +393,7 @@ class Legendre(object):
                 p.append(r[i])
         k = np.polyval(self.get_L_Filter_Poly(), 0)
         for pole in p:
-            k *= pole
+            k *= abs(pole)
         return z, p, k
 
     def get_L_System(self):
@@ -402,7 +402,7 @@ class Legendre(object):
 
     def get_L_wo(self):
         sys = self.get_L_System()
-        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=100000))
         for i in range(len(mag)):
             if mag[i] <= -3:
                 wo = w[i]
@@ -410,8 +410,8 @@ class Legendre(object):
 
     def get_L_wa(self):
         sys = self.get_L_System()
-        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 1, num=100000))
-        for i in range(0, len(mag)):
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=100000))
+        for i in range(len(mag)):
             if mag[i] <= -self.filter.reqData[FilterData.Aa]:
                 wa = w[i]
                 return wa
