@@ -242,6 +242,8 @@ class FilterTool(QWidget,Ui_Form):
             self.__updateStagesAvailable()
             #DO THINGS
 
+    #
+
     def __indexChanged_SelectYourStage(self):
         if self.comboBox_YourStages.currentIndex() == 0:
             self.doubleSpinBox_StageGain.setDisabled(True)
@@ -254,11 +256,15 @@ class FilterTool(QWidget,Ui_Form):
             self.label_SelectedStageQ.setText("")
             self.pushButton_StageUpdateGain.setDisabled(True)
             self.pushButton_DeleteStage.setDisabled(True)
+            self.label_NUMERATOR.setText("")
+            self.label_DENOMINATOR.setText("")
         else:
             i = self.comboBox_YourStages.currentIndex() - 1
             sos = self.sos[i][0]
             K,order,f0,Q,gain = sos.getData()
             visible = self.sos[i][1]
+            num = sos.getNumerator()
+            den = sos.getDenominator()
 
             self.doubleSpinBox_StageGain.setDisabled(False)
             self.doubleSpinBox_StageGain.setValue(gain)
@@ -270,6 +276,8 @@ class FilterTool(QWidget,Ui_Form):
             self.label_SelectedStageQ.setText(str(Q))
             self.pushButton_StageUpdateGain.setDisabled(False)
             self.pushButton_DeleteStage.setDisabled(False)
+            self.label_NUMERATOR.setText(num)
+            self.label_DENOMINATOR.setText(den)
 
     def __updateStageGain(self):
         i = self.comboBox_YourStages.currentIndex()

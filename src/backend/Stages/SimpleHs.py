@@ -126,3 +126,24 @@ class SimpleHs(object):
 
     #def setVisible(self, visible):
     #    self.visible = visible
+
+    def getNumerator(self):
+        if self.validate():
+            num = ""
+            scaled_num = []
+            for i in self.numerator:
+                scaled_num.append(i * self.K)
+            for i in range(len(scaled_num)):
+                num += '{:+g}'.format(scaled_num[i]) + " s^" + str(len(scaled_num)-1-i) + ' '
+            return num
+        else:
+            return ""
+
+    def getDenominator(self):
+        if self.validate():
+            den = ""
+            for i in range(len(self.denominator)):
+                den += '{:+g}'.format(self.denominator[i]) + " s^" + str(len(self.denominator)-1-i) + ' '
+            return den
+        else:
+            return ""
