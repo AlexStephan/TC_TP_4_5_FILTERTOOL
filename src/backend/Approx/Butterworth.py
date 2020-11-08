@@ -266,6 +266,7 @@ class Butterworth(object):
         self.calc_Impulse_Response()
         self.calc_Step_Response()
         self.calc_Attenuation()
+        calc_Norm_Attenuation()
 
     def calc_Attenuation(self):
         w, h = self.get_TransFuncWithoutGain()
@@ -275,7 +276,7 @@ class Butterworth(object):
         self.w_att = w
         self.A = A
 
-    def get_Norm_Attenuation(self):
+    def calc_Norm_Attenuation(self):
         w, h = self.get_TransFuncWithoutGain()
         wn = np.divide(w, 2 * np.pi * self.filter.reqData[FilterData.fpMin])
         A = []
@@ -349,10 +350,7 @@ class Butterworth(object):
         return self.w_att, self.A
 
     def get_Norm_Attenuation(self):
-        num, den = signal.normalize(self.num, self.den)
-        sys = signal.lti(num, den)
-        w, h = signal.freqresp(sys)
-        return w, self.A
+        return self.w_anorm, self.A
 
     def get_Group_Delay(self):
         return self.wgd, self.GroupDelay
