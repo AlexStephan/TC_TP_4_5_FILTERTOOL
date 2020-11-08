@@ -199,7 +199,7 @@ class Gauss(object):
         return signal.lti(z, p, k)
 
     def get_Normalized_Group_Delay(self, n):
-        w, mag, pha = signal.bode(get_Gauss_Exp_System(n), w=np.logspace(-3, 6, num=10000), n=10000)
+        w, mag, pha = signal.bode(self.get_Gauss_Exp_System(n), w=np.logspace(-3, 6, num=10000), n=10000)
         gd = - np.diff(pha) / np.diff(w)
         wn = np.multiply(w, gd[0])
         gdn = np.divide(gd, gd[0])
