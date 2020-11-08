@@ -263,7 +263,7 @@ class Butterworth(object):
         self.calc_Group_Delay()
         self.calc_Impulse_Response()
         self.calc_Step_Response()
-        self.calc_Attenuation()
+        #self.calc_Attenuation()
 
     def calc_Attenuation(self):
         A = self.mag
