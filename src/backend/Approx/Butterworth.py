@@ -266,9 +266,10 @@ class Butterworth(object):
         #self.calc_Attenuation()
 
     def calc_Attenuation(self):
-        A = self.mag
-        for i in range(0, len(A)):
-            A[i] = 1 / A[i]
+        w, mag, pha = self.get_MagAndPhaseWithoutGain()
+        A = []
+        for i in range(len(mag)):
+            A[i] = 1 / mag[i]
         self.A = A
 
     def calc_Group_Delay(self):
