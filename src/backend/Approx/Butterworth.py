@@ -61,21 +61,21 @@ class Butterworth(object):
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin,2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
-            if Nmin is not None and Nmin > order:
+            if Nmin is not None and Nmin > order and Nmin >= 2:
                 self.order = Nmin
-            elif Nmax is not None and Nmax < order:
+            elif Nmax is not None and order > Nmax >= 2:
                 self.order = Nmax
-            else:
+            elif order >= 2:
                 self.order = order
         elif self.type == "Band Reject":
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
-            if Nmin is not None and Nmin > order:
+            if Nmin is not None and Nmin > order and Nmin >= 2:
                 self.order = Nmin
-            elif Nmax is not None and Nmax < order:
+            elif Nmax is not None and order > Nmax >= 2:
                 self.order = Nmax
-            else:
+            elif order >= 2:
                 self.order = order
         else:
             message = "Error: Enter Filter Type."

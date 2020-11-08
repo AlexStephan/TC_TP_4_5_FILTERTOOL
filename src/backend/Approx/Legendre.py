@@ -73,21 +73,21 @@ class Legendre(object):
             self.wan = (faMax - faMin) / (fpMax - fpMin)
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
-            if Nmin is not None and Nmin > order:
+            if Nmin is not None and Nmin > order and Nmin >= 2:
                 self.order = Nmin
-            elif Nmax is not None and Nmax < order:
+            elif Nmax is not None and order > Nmax >= 2:
                 self.order = Nmax
-            else:
+            elif order >= 2:
                 self.order = order
         elif self.type == "Band Reject":
             self.wan = (fpMax - fpMin) / (faMax - faMin)
             while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
                 order = order + 1
-            if Nmin is not None and Nmin > order:
+            if Nmin is not None and Nmin > order and Nmin >= 2:
                 self.order = Nmin
-            elif Nmax is not None and Nmax < order:
+            elif Nmax is not None and order > Nmax >= 2:
                 self.order = Nmax
-            else:
+            elif order >= 2:
                 self.order = order
         else:
             message = "Error: Enter Filter Type."
