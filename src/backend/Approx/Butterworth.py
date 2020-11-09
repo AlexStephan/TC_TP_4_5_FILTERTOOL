@@ -211,7 +211,7 @@ class Butterworth(object):
         else:
             message = "Error: Enter Filter Type."
             return message
-
+    '''
     def calc_zpk(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -238,16 +238,16 @@ class Butterworth(object):
         if val is False:
             return msg
         if self.type == "Low Pass":
-            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.z, self.p, self.k = signal.butter(self.order, 1,
                                                    btype='lowpass', analog=True, output='zpk')
         elif self.type == "High Pass":
-            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.z, self.p, self.k = signal.butter(self.order, 1,
                                                    btype='lowpass', analog=True, output='zpk')
         elif self.type == "Band Pass":
-            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fc,
+            self.z, self.p, self.k = signal.butter(self.order, 1,
                                                    btype='lowpass', analog=True, output='zpk')
         elif self.type == "Band Reject":
-            self.z, self.p, self.k = signal.butter(self.order,  2 * np.pi * self.fc,
+            self.z, self.p, self.k = signal.butter(self.order,  1,
                                                    btype='lowpass', analog=True, output='zpk')
         else:
             message = "Error: Enter Filter Type."
@@ -267,7 +267,7 @@ class Butterworth(object):
             z, p, k = self.get_zpk()
             self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
 
-    '''
+
     def calc_sos(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -484,7 +484,7 @@ class Butterworth(object):
             self.calc_fo()
             self.calc_NumDen()
             self.calc_zpk()
-        #self.calc_Denormalization_zpk()
+        self.calc_Denormalization_zpk()
         self.calc_TransFunc()
         self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
