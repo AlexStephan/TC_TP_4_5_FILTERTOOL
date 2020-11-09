@@ -146,7 +146,7 @@ class Butterworth(object):
         fpMax = self.filter.reqData[FilterData.fpMax]
 
         faMin = self.filter.reqData[FilterData.faMin]
-        faMax = self.filter.reqData[FilterData.fpMax]
+        faMax = self.filter.reqData[FilterData.faMax]
 
         if self.type == "Low Pass":
             self.wan = faMin / fpMin
@@ -328,8 +328,20 @@ class Butterworth(object):
         self.calc_Norm_Attenuation()
 
     def calc_Attenuation(self):
-        w, h = self.get_TransFuncWithoutGain()
-        A = []
+        w, h = self.get_Norm_TransFunc()
+        if self.type == "Low Pass":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                        np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)))
+        elif self.type == "High Pass":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
+        elif self.type == "Band Pass":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
+        elif self.type == "Band Reject":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
+        An = []
         for i in range(len(h)):
             A.append(20 * log10(abs(1 / h[i])))
         self.w_att = w
