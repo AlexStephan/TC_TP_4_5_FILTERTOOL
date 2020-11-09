@@ -69,7 +69,7 @@ class FilterTool(QWidget,Ui_Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setupUi(self)
-        self.setWindowTitle("TP GRUPAL 1 - TEORÍA DE CIRCUITOS")
+        self.setWindowTitle("TP GRUPAL 4.5 - TEORÍA DE CIRCUITOS")
         self.setWindowIcon(QtGui.QIcon('py.png'))
 
         seed()
