@@ -339,7 +339,7 @@ class Butterworth(object):
         wn = np.divide(w, 2 * np.pi * self.fo)
         An = []
         for i in range(len(h)):
-            A.append(20 * log10(abs(1 / h[i])))
+            An.append(20 * log10(abs(1 / h[i])))
         self.w_anorm = wn
         self.A_norm = An
 
