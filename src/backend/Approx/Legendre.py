@@ -21,13 +21,14 @@ class Legendre(object):
         self.w_bode = None
         self.mag = None
         self.pha = None
+        self.w_att = None
         self.A = None
+        self.w_natt = None
+        self.A_n = None
         self.w_tf = None
         self.h = None
-        self.w_att = None
-        self.w_anorm = None
-        self.A = None
-        self.A_norm = None
+        self.w_tfn = None
+        self.h_n = None
         self.wgd = None
         self.GroupDelay = None
         self.timp = None
@@ -200,6 +201,12 @@ class Legendre(object):
             message = "Error: Enter Filter Type."
             return message
 
+    def calc_Norm_TransFunc(self):
+        z, p, k = self.get_L_zpk()
+        z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+        sys = signal.lti(z, p, k)
+        self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
+
     def calc_MagAndPhase(self):                                     # return angular frequency, Mag and Phase
         val, msg = self.filter.validate()
         if val is False:
@@ -229,6 +236,15 @@ class Legendre(object):
         self.w_att = w
         self.A = A
 
+    def calc_Norm_Attenuation(self):
+        w, h = self.get_Norm_TransFunc()
+        wn = np.divide(w, 2 * np.pi * self. fo)
+        An = []
+        for i in range(len(h)):
+            An.append(20 * log10(abs(1 / h[i])))
+        self.w_natt = w
+        self.A_n = An
+
     def calc_Group_Delay(self):
         w, mag, pha = self.get_MagAndPhaseWithoutGain()
         gd = np.divide(- np.diff(pha), np.diff(w))
@@ -251,6 +267,9 @@ class Legendre(object):
     def get_lti(self):
         z, p, k = self.get_zpGk()
         return signal.lti(z, p, k)
+
+    def get_Norm_TransFunc(self):
+        return self.w_tfn, self.h_n
 
     def calculate(self):
         self.calc_Order()
@@ -304,10 +323,7 @@ class Legendre(object):
         return self.w_bode, self.A
 
     def get_Norm_Attenuation(self):
-        z, p, k = self.get_L_zpk()
-        sys = signal.lti(z, p, k)
-        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
-        return w, self.A
+        return self.w_natt, self.A_n
 
     def get_Order(self):
         return self.order
