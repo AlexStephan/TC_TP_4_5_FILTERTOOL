@@ -48,7 +48,7 @@ class Legendre(object):
             Ap = 1e-9
 
         faMin = self.filter.reqData[FilterData.faMin]
-        faMax = self.filter.reqData[FilterData.fpMax]
+        faMax = self.filter.reqData[FilterData.faMax]
         Aa = self.filter.reqData[FilterData.Aa]
 
         Nmin = self.filter.reqData[FilterData.Nmin]
