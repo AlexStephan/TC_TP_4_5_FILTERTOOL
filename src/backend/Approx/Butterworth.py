@@ -516,7 +516,7 @@ class Butterworth(object):
             q_arr.append(q)
         return q_arr
 
-    '''
+
     def get_B_System(self):
         z, p, k = signal.butter(self.order, 1, btype='lowpass', analog=True, output='zpk')
         sys = signal.lti(z, p, k)
@@ -537,7 +537,7 @@ class Butterworth(object):
             if mag[i] <= -self.filter.reqData[FilterData.Aa]:
                 wa = w[i]
                 return wa
-    '''
+
     def get_very_useful_data(self): #colocar TAL CUAL en las otras aprox
         fpMin = self.filter.reqData[FilterData.fpMin]
         fpMax = self.filter.reqData[FilterData.fpMax]
