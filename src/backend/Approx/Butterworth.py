@@ -137,8 +137,8 @@ class Butterworth(object):
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            #self.fo = fo
-            self.fo = [wo1 / (2 * np.pi), wo2 / (2 * np.pi)]
+            self.fo = fo
+            #self.fo = [wo1 / (2 * np.pi), wo2 / (2 * np.pi)]
             self.Bw = Bw
 
         elif self.type == "Band Reject":
@@ -209,7 +209,7 @@ class Butterworth(object):
         else:
             message = "Error: Enter Filter Type."
             return message
-
+    '''
     def calc_zpk(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -229,6 +229,42 @@ class Butterworth(object):
         else:
             message = "Error: Enter Filter Type."
             return message
+    '''
+
+    def calc_zpk(self):
+        val, msg = self.filter.validate()
+        if val is False:
+            return msg
+        if self.type == "Low Pass":
+            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                                   btype='lowpass', analog=True, output='zpk')
+        elif self.type == "High Pass":
+            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                                   btype='lowpass', analog=True, output='zpk')
+        elif self.type == "Band Pass":
+            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                                   btype='lowpass', analog=True, output='zpk')
+        elif self.type == "Band Reject":
+            self.z, self.p, self.k = signal.butter(self.order,  2 * np.pi * self.fo,
+                                                   btype='lowpass', analog=True, output='zpk')
+        else:
+            message = "Error: Enter Filter Type."
+            return message
+
+    def calc_Denormalization_zpk(self):
+        if self.type == "Low Pass":
+            z, p, k = self.get_L_zpk()
+            self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+        elif self.type == "High Pass":
+            z, p, k = self.get_L_zpk()
+            self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+        elif self.type == "Band Pass":
+            z, p, k = self.get_L_zpk()
+            self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
+        elif self.type == "Band Reject":
+            z, p, k = self.get_L_zpk()
+            self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
+
 
     def calc_sos(self):
         val, msg = self.filter.validate()
@@ -446,6 +482,7 @@ class Butterworth(object):
             self.calc_fo()
             self.calc_NumDen()
             self.calc_zpk()
+        self.calc_Denormalization_zpk()
         self.calc_TransFunc()
         self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
