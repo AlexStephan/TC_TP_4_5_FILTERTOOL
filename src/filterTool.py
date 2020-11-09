@@ -794,9 +794,12 @@ class FilterTool(QWidget,Ui_Form):
             print("_____________________________")
             print(filter.get_very_useful_data())
             print("------------------------------")
+        make_rectangles = True
         fpm,fpM,Ap,fam,faM,Aa=filter.get_very_useful_data()
         if fam == None or fpm == None or Aa == None or Ap == None:
-            print("es retardo de grupo")
+            if DEBUG:
+                print("es retardo de grupo")
+                make_rectangles = False
         elif faM == None or fpM == None:
             #NO ES PASA BANDA NI RECHAZA BANDA
             #ES PASABAJOS O PASAALTOS
@@ -811,6 +814,7 @@ class FilterTool(QWidget,Ui_Form):
                 self.axis_Attenuation.semilogx(rectangle_pass[0],rectangle_pass[1],color='k')
                 self.axis_Attenuation.legend()
                 self.canvas_Attenuation.draw()
+
             else:
                 #ES PASABAJOS
                 rectangle_pass = [[fpm, fpm, fpm / 1000, fpm / 1000, fpm],
@@ -845,7 +849,16 @@ class FilterTool(QWidget,Ui_Form):
                 self.axis_Attenuation.legend()
                 self.canvas_Attenuation.draw()
 
-
+        if make_rectangles:
+            wan = filter.get_wan()
+            rectangle_pass = [[1, 1, 1 / 1000, 1 / 1000, 1],
+                              [Ap, Ap + 100, Ap + 100, Ap, Ap]]
+            rectangle_att = [[wan, wan, wan * 1000, wan * 1000, wan],
+                             [Aa, Aa - 100, Aa - 100, Aa, Aa]]
+            # colorAtt = tempAtt.get_facecolor()[0]
+            self.__drawNormRectangleAtt([rectangle_att, rectangle_pass])
+            self.axis_NormalizedAttenuation.legend()
+            self.canvas_NormalizedAttenuation.draw()
         #self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
         #self.axis_ImpulseResponse.legend()
         #self.canvas_ImpulseResponse.draw()
@@ -857,6 +870,10 @@ class FilterTool(QWidget,Ui_Form):
     def __drawRectangleAtt(self,rectangles):
         for rectangle in rectangles:
             self.axis_Attenuation.semilogx(rectangle[0], rectangle[1], color='k')
+
+    def __drawNormRectangleAtt(self,rectangles):
+        for rectangle in rectangles:
+            self.axis_NormalizedAttenuation.semilogx(rectangle[0], rectangle[1], color='k')
 
     def __cleanFilterMakerGraphs(self):
         self.axis_Magnitude.clear()
