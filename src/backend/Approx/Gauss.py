@@ -220,6 +220,12 @@ class Gauss(object):
             q_arr.append(q)
         return q_arr
 
+    def get_Impulse_Response(self):
+        return self.timp, self.impresp
+
+    def get_Step_Response(self):
+        return self.tstep, self.stepresp
+
     #########################
     #       Gauss Calc      #
     #########################
