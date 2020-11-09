@@ -73,21 +73,21 @@ class Butterworth(object):
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin,2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
-            if Nmin is not None and Nmin > order and Nmin >= 2:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax is not None and order > Nmax >= 2:
+            elif Nmax is not None and order > Nmax:
                 self.order = Nmax
-            elif order >= 2:
+            else:
                 self.order = order
         elif self.type == "Band Reject":
             order, wo = signal.buttord([2 * np.pi * fpMin, 2 * np.pi * fpMax],
                                             [2 * np.pi * faMin, 2 * np.pi * faMax],
                                             Ap, Aa, analog=True)
-            if Nmin is not None and Nmin > order and Nmin >= 2:
+            if Nmin is not None and Nmin > order:
                 self.order = Nmin
-            elif Nmax is not None and order > Nmax >= 2:
+            elif Nmax is not None and order > Nmax:
                 self.order = Nmax
-            elif order >= 2:
+            else:
                 self.order = order
         else:
             message = "Error: Enter Filter Type."
@@ -246,26 +246,22 @@ class Butterworth(object):
         if val is False:
             return msg
         if self.type == "Low Pass":
-            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
-                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)),
+            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "High Pass":
-            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
-                        np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
+            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
-            z, p, k = signal.butter(self.order,
-                                    10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
+            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
-            z, p, k = signal.butter(self.order,
-                                    10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
+            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
@@ -297,7 +293,7 @@ class Butterworth(object):
 
     def check_Q(self) -> bool:
         Qmax = self.filter.reqData[FilterData.Qmax]
-        if self.order > 1 and Qmax is not None:
+        if Qmax is not None:
             z, p, k = self.get_zpk()
             q_arr = []
             for pole in p:
@@ -341,6 +337,7 @@ class Butterworth(object):
 
     def calc_Norm_Attenuation(self):
         wn, h = self.get_Norm_TransFunc()
+        wn = np.divide(wn, 2 * np.pi * 10 ** (np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
