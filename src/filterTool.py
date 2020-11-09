@@ -252,13 +252,13 @@ class FilterTool(QWidget,Ui_Form):
 
     def __hideAllStages(self):
         for i in self.sos:
-            sos[1] = False
+            i[1] = False
         self.__indexChanged_SelectYourStage()
         self.__refreshStagesGraphs()
 
     def __showAllStages(self):
         for i in self.sos:
-            sos[1] = True
+            i[1] = True
         self.__indexChanged_SelectYourStage()
         self.__refreshStagesGraphs()
 
