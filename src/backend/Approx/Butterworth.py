@@ -340,8 +340,7 @@ class Butterworth(object):
         self.A = A
 
     def calc_Norm_Attenuation(self):
-        w, h = self.get_Norm_TransFunc()
-        wn = np.divide(w, 2 * np.pi * self.fo)
+        wn, h = self.get_Norm_TransFunc()
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
