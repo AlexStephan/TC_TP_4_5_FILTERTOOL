@@ -227,16 +227,16 @@ class Butterworth(object):
         z, p, k = self.get_zpk()
         if self.type == "Low Pass":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "High Pass":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -250,25 +250,25 @@ class Butterworth(object):
                         np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "High Pass":
             z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
                         np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
             z, p, k = signal.butter(self.order,
                                     10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
             z, p, k = signal.butter(self.order,
                                     10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -281,16 +281,16 @@ class Butterworth(object):
         z, p, k = self.get_zpk()
         if self.type == "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
         elif self.type == "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
