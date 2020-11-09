@@ -14,8 +14,8 @@ class Butterworth(object):
         self.num = None
         self.den = None
         self.sos = None
-        self.w_tfnorm = None
-        self.h_norm = None
+        self.w_tfn = None
+        self.h_n = None
         self.w_tf = None
         self.h = None
         self.w_bode = None
@@ -24,6 +24,7 @@ class Butterworth(object):
         self.w_att = None
         self.w_anorm = None
         self.A = None
+        self.A_norm = None
         self.wgd = None
         self.GroupDelay = None
         self.timp = None
@@ -240,10 +241,32 @@ class Butterworth(object):
             return message
 
     def calc_Norm_TransFunc(self):
-        z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
-                                               btype='lowpass', analog=True, output='zpk')
-        sys = signal.lti(z, p, k)
-        self.w_tfnorm, self.h_norm = sys.freqresp()
+        val, msg = self.filter.validate()
+        if val is False:
+            return msg
+        if self.type == "Low Pass":
+            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                    btype='lowpass', analog=True, output='zpk')
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp()
+        elif self.type == "High Pass":
+            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                    btype='lowpass', analog=True, output='zpk')
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp()
+        elif self.type == "Band Pass":
+            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                    btype='lowpass', analog=True, output='zpk')
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp()
+        elif self.type == "Band Reject":
+            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                    btype='lowpass', analog=True, output='zpk')
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp()
+        else:
+            message = "Error: Enter Filter Type."
+            return message
 
 
     def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
@@ -312,13 +335,16 @@ class Butterworth(object):
         self.A = A
 
     def calc_Norm_Attenuation(self):
-        w, h = self.get_TransFuncWithoutGain()
-        wn = np.divide(w, 2 * np.pi * self.filter.reqData[FilterData.fpMin])
-        A = []
+        w, h = self.get_Norm_TransFunc()
+        wn = np.divide(w, 2 * np.pi * self.fo)
+        An = []
         for i in range(len(h)):
             A.append(20 * log10(abs(1 / h[i])))
         self.w_anorm = wn
-        self.A = A
+        self.A_norm = An
+
+    def get_Norm_TransFunc(self):
+        return self.w_tfn, self.h_n
 
     def calc_Group_Delay(self):
         w, mag, pha = self.get_MagAndPhaseWithoutGain()
@@ -385,7 +411,7 @@ class Butterworth(object):
         return self.w_att, self.A
 
     def get_Norm_Attenuation(self):
-        return self.w_anorm, self.A
+        return self.w_anorm, self.A_norm
 
     def get_Group_Delay(self):
         return self.wgd, self.GroupDelay
@@ -406,9 +432,6 @@ class Butterworth(object):
             q = abs(abs(pole) / (2 * pole.real))
             q_arr.append(q)
         return q_arr
-
-    def get_Norm_TransFunc(self):
-        return self.w_tfnorm, self.h_norm
 
     #####################################
     # ALEX LO HIZO
