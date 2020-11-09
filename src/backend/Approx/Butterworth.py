@@ -134,7 +134,7 @@ class Butterworth(object):
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            self.fo = [fo - Bw / 2, fo + Bw / 2]
+            self.fo = [abs(fo - Bw / 2), abs(fo + Bw / 2)]
         elif self.type == "Band Reject":
             '''
             fop1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -154,7 +154,7 @@ class Butterworth(object):
             wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            self.fo = [fo - Bw / 2, fo + Bw / 2]
+            self.fo = [abs(fo - Bw / 2), abs(fo + Bw / 2)]
         else:
             message = "Error: Enter Filter Type."
             return message
