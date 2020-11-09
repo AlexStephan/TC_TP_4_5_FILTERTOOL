@@ -114,7 +114,7 @@ class Legendre(object):
         if self.type == "Low Pass":
             wo1 = self.get_L_wo()
             wo2 = wo1 * self.wan / self.get_L_wa()
-            fod = (10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)) #/ (2 * np.pi)
+            fod = (10 ** (np.log10(wo1) * (Denorm / 100) + np.log10(wo2) * (1 - Denorm / 100))) #/ (2 * np.pi)
             self.fo = fod * fpMin
         elif self.type == "High Pass":
             wo1 = self.get_L_wo()
