@@ -484,7 +484,7 @@ class Butterworth(object):
         return self.w_att, self.A
 
     def get_Norm_Attenuation(self):
-        return self.w_anorm, self.A_norm
+        return self.w_natt, self.A_n
 
     def get_Group_Delay(self):
         return self.wgd, self.GroupDelay
