@@ -246,22 +246,26 @@ class Butterworth(object):
         if val is False:
             return msg
         if self.type == "Low Pass":
-            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
+                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "High Pass":
-            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+            z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
+                        np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Pass":
-            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+            z, p, k = signal.butter(self.order,
+                                    10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Reject":
-            z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+            z, p, k = signal.butter(self.order,
+                                    10 ** (np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
