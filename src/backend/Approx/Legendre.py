@@ -59,7 +59,7 @@ class Legendre(object):
 
         if self.type == "Low Pass":
             self.wan = faMin / fpMin
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
@@ -69,7 +69,7 @@ class Legendre(object):
                 self.order = order
         elif self.type == "High Pass":
             self.wan = fpMin / faMin
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
@@ -79,7 +79,7 @@ class Legendre(object):
                 self.order = order
         elif self.type == "Band Pass":
             self.wan = np.minimum(fpMin / faMin, faMax / fpMax)
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
@@ -89,7 +89,7 @@ class Legendre(object):
                 self.order = order
         elif self.type == "Band Reject":
             self.wan = np.minimum(faMin / fpMin, fpMax / faMax)
-            while self.get_L_Poly_Value(order, self.wan) < (10 ** (Aa / 10) - 1) / self.epsilon2:
+            while self.get_L_Poly_Value(order, self.wan) < log10((10 ** (Aa / 10) - 1) / self.epsilon2):
                 order = order + 1
             if Nmin is not None and Nmin > order:
                 self.order = Nmin
@@ -113,7 +113,7 @@ class Legendre(object):
 
         if self.type == "Low Pass":
             wo1 = self.get_L_wo()
-            wo2 = wo1 * self.get_L_wa() / self.wan
+            wo2 = wo1 * self.wan / self.get_L_wa()
             fod = (10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * (Denorm / 100))) #/ (2 * np.pi)
             self.fo = fod * fpMin
         elif self.type == "High Pass":
