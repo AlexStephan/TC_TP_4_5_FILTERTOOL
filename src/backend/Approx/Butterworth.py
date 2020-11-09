@@ -211,7 +211,7 @@ class Butterworth(object):
         else:
             message = "Error: Enter Filter Type."
             return message
-    '''
+
     def calc_zpk(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -255,19 +255,19 @@ class Butterworth(object):
 
     def calc_Denormalization_zpk(self):
         if self.type == "Low Pass":
-            z, p, k = self.get_L_zpk()
+            z, p, k = self.get_zpk()
             self.z, self.p, self.k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
         elif self.type == "High Pass":
-            z, p, k = self.get_L_zpk()
+            z, p, k = self.get_zpk()
             self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=2 * np.pi * self.fo)
         elif self.type == "Band Pass":
-            z, p, k = self.get_L_zpk()
+            z, p, k = self.get_zpk()
             self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
         elif self.type == "Band Reject":
-            z, p, k = self.get_L_zpk()
+            z, p, k = self.get_zpk()
             self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
 
-
+    '''
     def calc_sos(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -354,11 +354,11 @@ class Butterworth(object):
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo[1])
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fc)
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo[1])
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fc)
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
 
@@ -484,7 +484,7 @@ class Butterworth(object):
             self.calc_fo()
             self.calc_NumDen()
             self.calc_zpk()
-        self.calc_Denormalization_zpk()
+        #self.calc_Denormalization_zpk()
         self.calc_TransFunc()
         self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
