@@ -329,27 +329,26 @@ class Butterworth(object):
 
     def calc_Attenuation(self):
         w, h = self.get_Norm_TransFunc()
-        if self.type == "Low Pass":
-            wn = np.divide(w, 2 * np.pi * 10 ** (
-                        np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)))
-        elif self.type == "High Pass":
-            wn = np.divide(w, 2 * np.pi * 10 ** (
-                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
-        elif self.type == "Band Pass":
-            wn = np.divide(w, 2 * np.pi * 10 ** (
-                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
-        elif self.type == "Band Reject":
-            wn = np.divide(w, 2 * np.pi * 10 ** (
-                        np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
-        An = []
+        A = []
         for i in range(len(h)):
             A.append(20 * log10(abs(1 / h[i])))
         self.w_att = w
         self.A = A
 
     def calc_Norm_Attenuation(self):
-        wn, h = self.get_Norm_TransFunc()
-        wn = np.divide(wn, 2 * np.pi * 10 ** (np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
+        w, h = self.get_Norm_TransFunc()
+        if self.type == "Low Pass":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)))
+        elif self.type == "High Pass":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
+        elif self.type == "Band Pass":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
+        elif self.type == "Band Reject":
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
