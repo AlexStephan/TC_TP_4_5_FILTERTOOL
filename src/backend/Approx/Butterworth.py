@@ -9,6 +9,7 @@ class Butterworth(object):
         self.order = None
         self.wan = None
         self.fo = None
+        self.Bw = None
         self.f1 = None
         self.f2 = None
         self.z = None
@@ -118,7 +119,7 @@ class Butterworth(object):
             self.f2 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             self.fo = 10 ** (np.log10(self.f1) * (1 - Denorm / 100) + np.log10(self.f2) * Denorm / 100)
         elif self.type == "Band Pass":
-
+            '''
             fop1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
             foa1 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             fop2 = fpMax / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -136,10 +137,12 @@ class Butterworth(object):
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            self.fo = [abs(fo - Bw / 2), abs(fo + Bw / 2)]
-            '''
-        elif self.type == "Band Reject":
+            #self.fo = fo
+            self.fo = [wo1 / (2 * np.pi), wo2 / (2 * np.pi)]
+            self.Bw = Bw
 
+        elif self.type == "Band Reject":
+            '''
             fop1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
             foa1 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             fop2 = fpMax * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -157,8 +160,9 @@ class Butterworth(object):
             wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            self.fo = [abs(fo - Bw / 2), abs(fo + Bw / 2)]
-            '''
+            self.fo = fo
+            self.Bw = Bw
+
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -267,6 +271,7 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    '''
     def calc_Norm_TransFunc(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -318,7 +323,7 @@ class Butterworth(object):
             z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo[1])
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
-    '''
+
     def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
         val, msg = self.filter.validate()
         if val is False:
@@ -365,6 +370,7 @@ class Butterworth(object):
         self.w_att = w
         self.A = A
 
+    '''
     def calc_Norm_Attenuation(self):
         w, h = self.get_Norm_TransFunc()
         if self.type == "Low Pass":
@@ -400,7 +406,7 @@ class Butterworth(object):
             An.append(20 * log10(abs(1 / h[i])))
         self.w_natt = wn
         self.A_n = An
-    '''
+
     def get_Norm_TransFunc(self):
         return self.w_tfn, self.h_n
 
