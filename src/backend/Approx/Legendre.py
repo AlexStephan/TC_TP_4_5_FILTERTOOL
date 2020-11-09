@@ -460,7 +460,7 @@ class Legendre(object):
         sys = self.get_L_System()
         w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=100000))
         for i in range(len(mag)):
-            if mag[i] <= -3:
+            if mag[i] <= -self.filter.reqData[FilterData.Ap]:
                 wo = w[i]
                 return wo
 
