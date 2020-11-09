@@ -133,7 +133,7 @@ class Butterworth(object):
             wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
             wo1 = self.get_B_wo()
             wo2 = wo1 * self.wan / self.get_B_wa()
-            wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
+            wod = 10 ** (np.log10(wo1) * (1 - (Denorm + 50) / 100) + np.log10(wo2) * (Denorm + 50) / 100)
             wo1 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) + wod * Bw) / 2
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
@@ -156,7 +156,7 @@ class Butterworth(object):
             wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
             wo1 = self.get_B_wo()
             wo2 = wo1 * self.wan / self.get_B_wa()
-            wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
+            wod = 10 ** (np.log10(wo1) * (1 - (Denorm + 50) / 100) + np.log10(wo2) * (Denorm + 50) / 100)
             wo1 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) + Bw / wod) / 2
             wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
