@@ -250,8 +250,6 @@ class Butterworth(object):
             self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
 
 
-
-
     def calc_TransFunc(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -310,19 +308,23 @@ class Butterworth(object):
     def calc_Norm_TransFunc(self):
         z, p, k = signal.butter(self.order, 1, btype='lowpass', analog=True, output='zpk')
         if self.type == "Low Pass":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            #z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            z, p, k = self.get_zpk()
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "High Pass":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            #z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            z, p, k = self.get_zpk()
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fc)
+            #z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fc)
+            z, p, k = self.get_zpk()
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fc)
+            #z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fc)
+            z, p, k = self.get_zpk()
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
 
