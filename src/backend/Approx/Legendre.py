@@ -304,7 +304,7 @@ class Legendre(object):
     def get_Norm_Attenuation(self):
         z, p, k = self.get_L_zpk()
         sys = signal.lti(z, p, k)
-        w, mag, pha = signal.bode(sys)
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
         return w, self.A
 
     def get_Order(self):
