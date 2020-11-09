@@ -458,7 +458,7 @@ class Legendre(object):
 
     def get_L_wo(self):
         sys = self.get_L_System()
-        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=100000))
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=1000))
         for i in range(len(mag)):
             if mag[i] <= -self.filter.reqData[FilterData.Ap]:
                 wo = w[i]
@@ -466,7 +466,7 @@ class Legendre(object):
 
     def get_L_wa(self):
         sys = self.get_L_System()
-        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=100000))
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=1000))
         for i in range(len(mag)):
             if mag[i] <= -self.filter.reqData[FilterData.Aa]:
                 wa = w[i]
