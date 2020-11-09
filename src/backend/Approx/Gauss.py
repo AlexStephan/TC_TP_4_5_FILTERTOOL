@@ -21,6 +21,10 @@ class Gauss(object):
         self.A = None
         self.w_tf = None
         self.h = None
+        self.w_att = None
+        self.w_anorm = None
+        self.A = None
+        self.A_norm = None
         self.wgd = None
         self.GroupDelay = None
         self.timp = None
@@ -157,6 +161,9 @@ class Gauss(object):
     def get_Attenuation(self):
         return self.w_bode, self.A
 
+    def get_Norm_Attenuation(self):
+        return [], []
+
     def get_Group_Delay(self):
         return self.wgd, self.GroupDelay
 
@@ -189,6 +196,28 @@ class Gauss(object):
     def get_zpGk(self):
         Gk = self.k * 10 ** (self.get_Gain() / 20)
         return self.z, self.p, Gk
+
+    def get_very_useful_data(self):  # colocar TAL CUAL en las otras aprox
+        ft = self.filter.reqData[FilterData.ft]
+        GD = self.filter.reqData[FilterData.GD]
+        tolerance = self.filter.reqData[FilterData.tolerance]
+        gain = self.filter.reqData[FilterData.gain]
+        faMax = self.filter.reqData[FilterData.faMax]
+
+        # Nmin = self.filter.reqData[FilterData.Nmin]
+        # Nmax = self.filter.reqData[FilterData.Nmax]
+        return ft, GD, tolerance, gain, faMax, Aa
+
+    def get_wan(self):
+        return self.wan
+
+    def get_Qs(self):
+        z, p, k = self.get_zpk()
+        q_arr = []
+        for pole in p:
+            q = abs(abs(pole) / (2 * pole.real))
+            q_arr.append(q)
+        return q_arr
 
     #########################
     #       Gauss Calc      #

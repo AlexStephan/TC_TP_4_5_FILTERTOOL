@@ -24,6 +24,10 @@ class Legendre(object):
         self.A = None
         self.w_tf = None
         self.h = None
+        self.w_att = None
+        self.w_anorm = None
+        self.A = None
+        self.A_norm = None
         self.wgd = None
         self.GroupDelay = None
         self.timp = None
@@ -304,6 +308,30 @@ class Legendre(object):
 
     def get_Order(self):
         return self.order
+
+    def get_very_useful_data(self):  # colocar TAL CUAL en las otras aprox
+        fpMin = self.filter.reqData[FilterData.fpMin]
+        fpMax = self.filter.reqData[FilterData.fpMax]
+        Ap = self.filter.reqData[FilterData.Ap]
+
+        faMin = self.filter.reqData[FilterData.faMin]
+        faMax = self.filter.reqData[FilterData.faMax]
+        Aa = self.filter.reqData[FilterData.Aa]
+
+        # Nmin = self.filter.reqData[FilterData.Nmin]
+        # Nmax = self.filter.reqData[FilterData.Nmax]
+        return fpMin, fpMax, Ap, faMin, faMax, Aa
+
+    def get_wan(self):
+        return self.wan
+
+    def get_Qs(self):
+        z, p, k = self.get_zpk()
+        q_arr = []
+        for pole in p:
+            q = abs(abs(pole) / (2 * pole.real))
+            q_arr.append(q)
+        return q_arr
 
     #############################
     #       Legendre Calc       #

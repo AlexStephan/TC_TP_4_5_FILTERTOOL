@@ -7,6 +7,7 @@ class Butterworth(object):
         self.filter = filter
         self.type = self.filter.get_type()
         self.order = None
+        self.wan = None
         self.fo = None
         self.z = None
         self.p = None
@@ -31,9 +32,6 @@ class Butterworth(object):
         self.impresp = None
         self.tstep = None
         self.stepresp = None
-
-        #TODO CALCULAR WAN
-        self.wan = 1
         self.calculate()
 
 
