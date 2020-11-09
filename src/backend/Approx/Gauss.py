@@ -200,19 +200,22 @@ class Gauss(object):
         Gk = self.k * 10 ** (self.get_Gain() / 20)
         return self.z, self.p, Gk
 
-    def get_very_useful_data(self):  # colocar TAL CUAL en las otras aprox
+    def get_very_very_useful_data(self):  # colocar TAL CUAL en las otras aprox
         ft = self.filter.reqData[FilterData.ft]
         GD = self.filter.reqData[FilterData.GD]
         tolerance = self.filter.reqData[FilterData.tolerance]
         gain = self.filter.reqData[FilterData.gain]
-        faMax = self.filter.reqData[FilterData.faMax]
+        #faMax = self.filter.reqData[FilterData.faMax]
 
         # Nmin = self.filter.reqData[FilterData.Nmin]
         # Nmax = self.filter.reqData[FilterData.Nmax]
-        return ft, GD, tolerance, gain, faMax, Aa
+        return ft, GD, tolerance, gain #, faMax, Aa
+
+    def get_very_useful_data(self):
+        return None,None,None,None,None,None
 
     def get_wan(self):
-        return self.wan
+        return None #self.wan
 
     def get_Qs(self):
         z, p, k = self.get_zpk()

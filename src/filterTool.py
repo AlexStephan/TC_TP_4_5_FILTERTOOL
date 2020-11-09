@@ -819,11 +819,19 @@ class FilterTool(QWidget,Ui_Form):
             print(filter.get_very_useful_data())
             print("------------------------------")
         make_rectangles = True
-        fpm,fpM,Ap,fam,faM,Aa=filter.get_very_useful_data()
+        fpm, fpM, Ap, fam, faM, Aa = filter.get_very_useful_data()
         if fam == None or fpm == None or Aa == None or Ap == None:
             if DEBUG:
                 print("es retardo de grupo")
-                make_rectangles = False
+            make_rectangles = False
+            ft,GD,tolerance,gain = filter.get_very_very_useful_data()
+            #overline = [[1e-1,1e9],
+            #            [GD*1e-6,GD*1e-6]]
+            #rectangle = [[GD*1e-6,GD*1e-6,GD*(1-tolerance)*1e-6,GD*(1-tolerance)*1e-6,GD*1e-6],
+            #             [ft,1e9,1e9,ft,ft]]
+            #self.__drawRectangleGD([overline,rectangle])
+            self.axis_GroupDelay.legend()
+            self.canvas_GroupDelay.draw()
         elif faM == None or fpM == None:
             #NO ES PASA BANDA NI RECHAZA BANDA
             #ES PASABAJOS O PASAALTOS
@@ -907,6 +915,10 @@ class FilterTool(QWidget,Ui_Form):
     def __drawNormRectangleAtt(self,rectangles):
         for rectangle in rectangles:
             self.axis_NormalizedAttenuation.semilogx(rectangle[0], rectangle[1], color='k')
+
+    def __drawRectangleGD(self,rectangles):
+        for rectangle in rectangles:
+            self.axis_GroupDelay.semilogx(rectangle[0], rectangle[1], color='k')
 
     def __cleanFilterMakerGraphs(self):
         self.axis_Magnitude.clear()
