@@ -14,6 +14,8 @@ class Butterworth(object):
         self.num = None
         self.den = None
         self.sos = None
+        self.w_tfnorm = None
+        self.h_norm = None
         self.w_tf = None
         self.h = None
         self.w_bode = None
@@ -212,6 +214,12 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    def calc_Norm_TransFunc(self):
+        z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
+                                               btype='lowpass', analog=True, output='zpk')
+        sys = signal.lti(z, p, k)
+        self.w_tfnorm, self.h_norm = sys.freqresp()
+
 
     def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
         val, msg = self.filter.validate()
@@ -261,6 +269,7 @@ class Butterworth(object):
             self.calc_NumDen()
             self.calc_zpk()
         self.calc_TransFunc()
+        self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
         self.calc_Group_Delay()
         self.calc_Impulse_Response()
@@ -277,7 +286,7 @@ class Butterworth(object):
         self.A = A
 
     def calc_Norm_Attenuation(self):
-        w, h = self.get_TransFuncWithoutGain()
+        w, h = self.get_Norm_TransFunc()
         wn = np.divide(w, 2 * np.pi * self.filter.reqData[FilterData.fpMin])
         A = []
         for i in range(len(h)):
@@ -371,3 +380,6 @@ class Butterworth(object):
             q = abs(abs(pole) / (2 * pole.real))
             q_arr.append(q)
         return q_arr
+
+    def get_Norm_TransFunc(self):
+        return self.w_tfnorm, self.h_norm
