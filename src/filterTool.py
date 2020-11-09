@@ -210,6 +210,8 @@ class FilterTool(QWidget,Ui_Form):
         self.checkBox_SelectedStageVisible.clicked.connect(self.__changeStageVisibility)
         self.checkBox_VisibleStagesSubtotalVisible.clicked.connect(self.__refreshStagesGraphs)
         self.checkBox_CratedStagesSubtotalVisible.clicked.connect(self.__refreshStagesGraphs)
+        self.pushButton_showAllStages.clicked.connect(self.__showAllStages)
+        self.pushButton_hideAllStages.clicked.connect(self.__hideAllStages)
         #####################################################################
         self.pushButton_TEST.clicked.connect(self.__test)
         self.pushButton_TEST_2.clicked.connect(self.__test2)
@@ -245,6 +247,20 @@ class FilterTool(QWidget,Ui_Form):
             self.__refreshStagesGraphs()
             self.__updateStagesAvailable()
             #DO THINGS
+
+    #
+
+    def __hideAllStages(self):
+        for i in self.sos:
+            i[1] = False
+        self.__indexChanged_SelectYourStage()
+        self.__refreshStagesGraphs()
+
+    def __showAllStages(self):
+        for i in self.sos:
+            i[1] = True
+        self.__indexChanged_SelectYourStage()
+        self.__refreshStagesGraphs()
 
     #
 
