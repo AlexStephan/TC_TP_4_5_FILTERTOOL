@@ -152,7 +152,8 @@ class FilterTool(QWidget,Ui_Form):
 
             #w,mag,pha = newApprox.calculate()
             newTransFunc = newApprox.get_MagAndPhaseWithGain()
-            fullname = Name + " - " + name_filterType + " - " + name_approxType
+            orden = len(newApprox.get_Qs())
+            fullname = Name + " - " + name_filterType + " - " + name_approxType + " - ORDER: " + str(orden)
             self.myFilters.append([fullname,newApprox,newTransFunc,True])
             self.comboBox_YourFilters.addItem(fullname)
             self.comboBox_SelectYourFilter.addItem(fullname)
