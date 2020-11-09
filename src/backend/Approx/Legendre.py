@@ -222,9 +222,11 @@ class Legendre(object):
             return message
 
     def calc_Attenuation(self):
-        A = self.mag
-        for i in range(0, len(A)):
-            A[i] = 1 / A[i]
+        w, h = self.get_TransFuncWithoutGain()
+        A = []
+        for i in range(len(h)):
+            A.append(20 * log10(abs(1 / h[i])))
+        self.w_att = w
         self.A = A
 
     def calc_Group_Delay(self):
