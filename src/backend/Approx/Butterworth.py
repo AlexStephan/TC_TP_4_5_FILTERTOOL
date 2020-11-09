@@ -312,25 +312,6 @@ class Butterworth(object):
         else:
             return True
 
-    def calculate(self):
-        self.calc_Order()
-        self.calc_fo()
-        self.calc_NumDen()
-        self.calc_zpk()
-        while self.check_Q() is False:
-            self.calc_fo()
-            self.calc_NumDen()
-            self.calc_zpk()
-        self.calc_wan()
-        self.calc_TransFunc()
-        self.calc_Norm_TransFunc()
-        self.calc_MagAndPhase()
-        self.calc_Group_Delay()
-        self.calc_Impulse_Response()
-        self.calc_Step_Response()
-        self.calc_Attenuation()
-        self.calc_Norm_Attenuation()
-
     def calc_Attenuation(self):
         w, h = self.get_TransFuncWithoutGain()
         A = []
@@ -381,12 +362,31 @@ class Butterworth(object):
         self.tstep = t
         self.stepresp = out
 
-    def get_Gain(self):
-        return self.filter.reqData[FilterData.gain]
-
     def get_lti(self):
         z, p, k = self.get_zpGk()
         return signal.lti(z, p, k)
+
+    def get_Gain(self):
+        return self.filter.reqData[FilterData.gain]
+
+    def calculate(self):
+        self.calc_Order()
+        self.calc_fo()
+        self.calc_NumDen()
+        self.calc_zpk()
+        while self.check_Q() is False:
+            self.calc_fo()
+            self.calc_NumDen()
+            self.calc_zpk()
+        self.calc_wan()
+        self.calc_TransFunc()
+        self.calc_Norm_TransFunc()
+        self.calc_MagAndPhase()
+        self.calc_Group_Delay()
+        self.calc_Impulse_Response()
+        self.calc_Step_Response()
+        self.calc_Attenuation()
+        self.calc_Norm_Attenuation()
 
     #####################
     #       ALEX        #

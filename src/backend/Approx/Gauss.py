@@ -23,6 +23,10 @@ class Gauss(object):
         self.h = None
         self.wgd = None
         self.GroupDelay = None
+        self.timp = None
+        self.impresp = None
+        self.tstep = None
+        self.stepresp = None
         self.calculate()
 
     def calc_Order(self):
@@ -121,6 +125,20 @@ class Gauss(object):
         w = w.tolist()
         self.wgd = w
 
+    def calc_Impulse_Response(self):
+        t, out = signal.impulse(self.get_lti(), T=np.linspace(0, 10e-3, num=100000))
+        self.timp = t
+        self.impresp = out
+
+    def calc_Step_Response(self):
+        t, out = signal.step(self.get_lti(), T=np.linspace(0, 10e-3, num=100000))
+        self.tstep = t
+        self.stepresp = out
+
+    def get_lti(self):
+        z, p, k = self.get_zpGk()
+        return signal.lti(z, p, k)
+
     def calculate(self):
         self.calc_Order()
         self.denormalize()
@@ -129,6 +147,8 @@ class Gauss(object):
         self.calc_TransFunc()
         self.calc_MagAndPhase()
         self.calc_Group_Delay()
+        self.calc_Impulse_Response()
+        self.calc_Step_Response()
 
     #####################
     #       ALEX        #
