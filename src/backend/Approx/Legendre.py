@@ -242,7 +242,7 @@ class Legendre(object):
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
-        self.w_natt = w
+        self.w_natt = wn
         self.A_n = An
 
     def calc_Group_Delay(self):
