@@ -47,7 +47,7 @@ from src.backend.Approx.Legendre import Legendre
 from src.backend.Approx.Butterworth import Butterworth
 from src.backend.Approx.Gauss import Gauss
 
-DEBUG = True
+DEBUG = False
 
 t_domain = np.linspace(0,0.001,10000)
 test = [1]*5
@@ -605,10 +605,16 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_StagesGain.clear()
         self.axis_StagesGain.grid()
         self.canvas_StagesGain.draw()
+        self.axis_StagesGain.set_title("Gain Plot")
+        self.axis_StagesGain.set_xlabel("Frequency [Hz]")
+        self.axis_StagesGain.set_ylabel("Gain [dB]")
 
         self.axis_StagesPhase.clear()
         self.axis_StagesPhase.grid()
         self.canvas_StagesPhase.draw()
+        self.axis_StagesPhase.set_title("Phase Plot")
+        self.axis_StagesPhase.set_xlabel("Frequency [Hz]")
+        self.axis_StagesPhase.set_ylabel("Phase [deg]")
 
     def __addGraphicsForStages(self,name, transfunc):
         self.axis_StagesGain.semilogx(transfunc[0]/(2*np.pi),transfunc[1],label=name)
