@@ -8,6 +8,7 @@ class Butterworth(object):
         self.type = self.filter.get_type()
         self.order = None
         self.wan = None
+        self.d = None
         self.fo = None
         self.fc = None
         self.Bw = None
@@ -398,7 +399,7 @@ class Butterworth(object):
         elif self.type == "High Pass":
             wn = np.divide(w, 2 * np.pi * self. fo)
         elif self.type == "Band Pass":
-            wn = np.divide(w, 2 * np.pi * self. fc)
+            wn = np.divide(w, 2 * np.pi * 10 ** (np.log10(self.fo[0]) * (1 - (self.d + 50) / 100) + np.log10(self.fo[1]) * (self.d + 50) / 100))
         elif self.type == "Band Reject":
             wn = np.divide(w, 2 * np.pi * self. fc)
         An = []
