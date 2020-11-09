@@ -132,7 +132,9 @@ class Butterworth(object):
             wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
             wo1 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) + wod * Bw) / 2
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
-            self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
+            fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
+            Bw = abs(wo1 - wo2) / (2 * np.pi)
+            self.fo = [fo - Bw, fo + Bw]
         elif self.type == "Band Reject":
             '''
             fop1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -150,7 +152,9 @@ class Butterworth(object):
             wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
             wo1 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) + Bw / wod) / 2
             wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
-            self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
+            fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
+            Bw = abs(wo1 - wo2) / (2 * np.pi)
+            self.fo = [fo - Bw, fo + Bw]
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -389,6 +393,7 @@ class Butterworth(object):
 
     def calculate(self):
         self.calc_Order()
+        self.calc_wan()
         self.calc_fo()
         self.calc_NumDen()
         self.calc_zpk()
@@ -396,7 +401,6 @@ class Butterworth(object):
             self.calc_fo()
             self.calc_NumDen()
             self.calc_zpk()
-        self.calc_wan()
         self.calc_TransFunc()
         self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
