@@ -293,6 +293,7 @@ class Butterworth(object):
             self.calc_fo()
             self.calc_NumDen()
             self.calc_zpk()
+        self.calc_wan()
         self.calc_TransFunc()
         self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
