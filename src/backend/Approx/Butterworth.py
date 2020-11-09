@@ -185,32 +185,14 @@ class Butterworth(object):
         elif self.type == "High Pass":
             self.wan = fpMin / faMin
         elif self.type == "Band Pass":
-            self.wan = np.maximum(fpMin / faMin, faMax / fpMax)
+            self.wan = np.minimum(fpMin / faMin, faMax / fpMax)
         elif self.type == "Band Reject":
             self.wan = np.minimum(faMin / fpMin, fpMax / faMax)
         else:
             message = "Error: Enter Filter Type."
             return message
 
-    def calc_NumDen(self):
-        val, msg = self.filter.validate()
-        if val is False:
-            return msg
-        if self.type == "Low Pass":
-            self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
-                                               btype='lowpass', analog=True, output='ba')
-        elif self.type == "High Pass":
-            self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
-                                               btype='highpass', analog=True, output='ba')
-        elif self.type == "Band Pass":
-            self.num, self.den = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
-                                               btype='bandpass', analog=True, output='ba')
-        elif self.type == "Band Reject":
-            self.num, self.den = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
-                                               btype='bandstop', analog=True, output='ba')
-        else:
-            message = "Error: Enter Filter Type."
-            return message
+
     '''
     def calc_zpk(self):
         val, msg = self.filter.validate()
@@ -268,25 +250,7 @@ class Butterworth(object):
             self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
 
 
-    def calc_sos(self):
-        val, msg = self.filter.validate()
-        if val is False:
-            return msg
-        if self.type == "Low Pass":
-            self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
-                                     btype='lowpass', analog=True, output='sos')
-        elif self.type == "High Pass":
-            self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
-                                     btype='highpass', analog=True, output='sos')
-        elif self.type == "Band Pass":
-            self.sos = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
-                                     btype='bandpass', analog=True, output='sos')
-        elif self.type == "Band Stop":
-            self.sos = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
-                                     btype='bandstop', analog=True, output='sos')
-        else:
-            message = "Error: Enter Filter Type."
-            return message
+
 
     def calc_TransFunc(self):
         val, msg = self.filter.validate()
@@ -478,11 +442,9 @@ class Butterworth(object):
         self.calc_Order()
         self.calc_wan()
         self.calc_fo()
-        self.calc_NumDen()
         self.calc_zpk()
         while self.check_Q() is False:
             self.calc_fo()
-            self.calc_NumDen()
             self.calc_zpk()
         self.calc_Denormalization_zpk()
         self.calc_TransFunc()
@@ -592,3 +554,46 @@ class Butterworth(object):
 
     def get_wan(self):
         return self.wan
+
+    #########################
+    #       Optional        #
+    #########################
+    def calc_NumDen(self):
+        val, msg = self.filter.validate()
+        if val is False:
+            return msg
+        if self.type == "Low Pass":
+            self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
+                                               btype='lowpass', analog=True, output='ba')
+        elif self.type == "High Pass":
+            self.num, self.den = signal.butter(self.order, 2 * np.pi * self.fo,
+                                               btype='highpass', analog=True, output='ba')
+        elif self.type == "Band Pass":
+            self.num, self.den = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
+                                               btype='bandpass', analog=True, output='ba')
+        elif self.type == "Band Reject":
+            self.num, self.den = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
+                                               btype='bandstop', analog=True, output='ba')
+        else:
+            message = "Error: Enter Filter Type."
+            return message
+
+    def calc_sos(self):
+        val, msg = self.filter.validate()
+        if val is False:
+            return msg
+        if self.type == "Low Pass":
+            self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
+                                     btype='lowpass', analog=True, output='sos')
+        elif self.type == "High Pass":
+            self.sos = signal.butter(self.order, 2 * np.pi * self.fo,
+                                     btype='highpass', analog=True, output='sos')
+        elif self.type == "Band Pass":
+            self.sos = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
+                                     btype='bandpass', analog=True, output='sos')
+        elif self.type == "Band Stop":
+            self.sos = signal.butter(self.order, np.multiply(self.fo, 2*np.pi),
+                                     btype='bandstop', analog=True, output='sos')
+        else:
+            message = "Error: Enter Filter Type."
+            return message
