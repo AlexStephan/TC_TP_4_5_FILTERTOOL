@@ -383,3 +383,21 @@ class Butterworth(object):
 
     def get_Norm_TransFunc(self):
         return self.w_tfnorm, self.h_norm
+
+    #####################################
+    # ALEX LO HIZO
+    #####################################
+
+    def get_very_useful_data(self): #colocar TAL CUAL en las otras aprox
+        fpMin = self.filter.reqData[FilterData.fpMin]
+        fpMax = self.filter.reqData[FilterData.fpMax]
+        Ap = self.filter.reqData[FilterData.Ap]
+
+        faMin = self.filter.reqData[FilterData.faMin]
+        faMax = self.filter.reqData[FilterData.faMax]
+        Aa = self.filter.reqData[FilterData.Aa]
+
+        #Nmin = self.filter.reqData[FilterData.Nmin]
+        #Nmax = self.filter.reqData[FilterData.Nmax]
+        return fpMin,fpMax,Ap,faMin,faMax,Aa
+

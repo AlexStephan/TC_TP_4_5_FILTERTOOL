@@ -790,6 +790,17 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_StepResponse.legend()
         self.canvas_StepResponse.draw()
 
+        if DEBUG:
+            print("_____________________________")
+            print(filter.get_very_useful_data())
+            print("------------------------------")
+        fpm,fpM,Ap,fam,faM,Aa=filter.get_very_useful_data()
+        if fam == None or fpm == None or Aa == None or Ap == None:
+            print("es retardo de grupo")
+        elif faM == None or fpM == None:
+            #NO ES PASA BANDA NI RECHAZA BANDA
+            1+1
+
         #self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
         #self.axis_ImpulseResponse.legend()
         #self.canvas_ImpulseResponse.draw()
