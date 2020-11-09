@@ -825,11 +825,11 @@ class FilterTool(QWidget,Ui_Form):
                 print("es retardo de grupo")
             make_rectangles = False
             ft,GD,tolerance,gain = filter.get_very_very_useful_data()
-            #overline = [[1e-1,1e9],
-            #            [GD*1e-6,GD*1e-6]]
-            #rectangle = [[GD*1e-6,GD*1e-6,GD*(1-tolerance)*1e-6,GD*(1-tolerance)*1e-6,GD*1e-6],
-            #             [ft,1e9,1e9,ft,ft]]
-            #self.__drawRectangleGD([overline,rectangle])
+            overline = [[1e-1,1e9],
+                        [GD*1e-6,GD*1e-6]]
+            rectangle = [[ft,1e-1,1e-1,ft,ft],
+                         [0,0,GD*(100-tolerance)/100*1e-6,GD*(100-tolerance)/100*1e-6,0]]
+            self.__drawRectangleGD([overline,rectangle])
             self.axis_GroupDelay.legend()
             self.canvas_GroupDelay.draw()
         elif faM == None or fpM == None:
