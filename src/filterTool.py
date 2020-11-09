@@ -729,9 +729,11 @@ class FilterTool(QWidget,Ui_Form):
 
     def __refreshFilterMakerGraphs(self):
         self.__cleanFilterMakerGraphs()
+        self.auxGraphIndex = 1
         for i in self.myFilters:
             if i[3]:
                 self.__addGraphicsForFilterMaker(i[0],i[1],i[2])
+        self.auxGraphIndex = 0
 
     def __addGraphicsForFilterMaker(self,name,filter,transfunc):
         self.axis_Magnitude.semilogx(transfunc[0]/(2*np.pi),transfunc[1],label=name)
@@ -867,6 +869,15 @@ class FilterTool(QWidget,Ui_Form):
         #self.axis_StepResponse.legend()
         #self.canvas_StepResponse.draw()
 
+        q_y = filter.get_Qs()
+        q_x = np.multiply([1]*len(q_y),self.auxGraphIndex)
+
+        self.axis_Q.scatter(q_x,q_y,marker="o",label=name)
+        self.axis_Q.legend()
+        self.canvas_Q.draw()
+
+        self.auxGraphIndex += 1
+
     def __drawRectangleAtt(self,rectangles):
         for rectangle in rectangles:
             self.axis_Attenuation.semilogx(rectangle[0], rectangle[1], color='k')
@@ -879,38 +890,70 @@ class FilterTool(QWidget,Ui_Form):
         self.axis_Magnitude.clear()
         self.axis_Magnitude.grid()
         self.canvas_Magnitude.draw()
+        self.axis_Magnitude.set_title("Magnitude Plot")
+        self.axis_Magnitude.set_xlabel("Frequency [Hz]")
+        self.axis_Magnitude.set_ylabel("Magnitude [dB]")
 
         self.axis_Attenuation.clear()
         self.axis_Attenuation.grid()
         self.canvas_Attenuation.draw()
+        self.axis_Attenuation.set_title("Attenuation Plot")
+        self.axis_Attenuation.set_xlabel("Frequency [Hz]")
+        self.axis_Attenuation.set_ylabel("Attenuation [dB]")
 
         self.axis_NormalizedAttenuation.clear()
         self.axis_NormalizedAttenuation.grid()
         self.canvas_NormalizedAttenuation.draw()
+        self.axis_NormalizedAttenuation.set_title("Normalized Attenuation Plot")
+        self.axis_NormalizedAttenuation.set_xlabel("Normalized Frequency [dimensionless]")
+        self.axis_NormalizedAttenuation.set_ylabel("Attenuation [dB]")
 
         self.axis_Phase.clear()
         self.axis_Phase.grid()
         self.canvas_Phase.draw()
+        self.axis_Phase.set_title("Phase Plot")
+        self.axis_Phase.set_xlabel("Frequency [Hz]")
+        self.axis_Phase.set_ylabel("Phase [deg]")
 
         self.axis_GroupDelay.clear()
         self.axis_GroupDelay.grid()
         self.canvas_GroupDelay.draw()
+        self.axis_GroupDelay.set_title("Group Delay Plot")
+        self.axis_GroupDelay.set_xlabel("Frequency [Hz]")
+        self.axis_GroupDelay.set_ylabel("Group Delay [seg]")
 
         self.axis_ZerosAndPoles.clear()
         self.axis_ZerosAndPoles.grid()
         self.canvas_ZerosAndPoles.draw()
+        self.axis_ZerosAndPoles.set_title("Poles and Zeros Plot")
+        self.axis_ZerosAndPoles.set_xlabel("Real part [1/seg]")
+        self.axis_ZerosAndPoles.set_ylabel("Imaginary part [1/seg]")
 
         self.axis_ImpulseResponse.clear()
         self.axis_ImpulseResponse.grid()
         self.canvas_ImpulseResponse.draw()
+        self.axis_ImpulseResponse.set_title("Impulse Response Plot")
+        self.axis_ImpulseResponse.set_xlabel("Time [seg]")
+        self.axis_ImpulseResponse.set_ylabel("Voltage [V]")
 
         self.axis_StepResponse.clear()
         self.axis_StepResponse.grid()
         self.canvas_StepResponse.draw()
+        self.axis_StepResponse.set_title("Step Response Plot")
+        self.axis_StepResponse.set_xlabel("Time [seg]")
+        self.axis_StepResponse.set_ylabel("Voltage [V]")
 
         self.axis_Q.clear()
         self.axis_Q.grid()
         self.canvas_Q.draw()
+        self.axis_Q.set_title("Quality Factor Plot")
+        self.axis_Q.set_xlabel("Filter")
+        self.axis_Q.set_ylabel("Q factor")
+        ticks = 0
+        for i in self.myFilters:
+            if i[3]:
+                ticks += 1
+        self.axis_Q.set_xticks(ticks=range(1,ticks+1))
 
     ##################################################################################
     # CREACION DE STAGES
@@ -1318,6 +1361,8 @@ class FilterTool(QWidget,Ui_Form):
         ########################################################
         self.testvar1 = 0
         self.testvar2 = 0
+        ########################################################
+        self.auxGraphIndex = 0
 
     def __error_message(self, description):
         self.errorBox.setWindowTitle("Error")
