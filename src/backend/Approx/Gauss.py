@@ -108,8 +108,8 @@ class Gauss(object):
             return msg
         z, p, k = self.get_zpk()
         if self.type == "Group Delay":
-            sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys)
+            sys = signal.lti(z, p, k)
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-1, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
