@@ -116,6 +116,7 @@ class Butterworth(object):
             self.f2 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             self.fo = 10 ** (np.log10(self.f1) * (1 - Denorm / 100) + np.log10(self.f2) * Denorm / 100)
         elif self.type == "Band Pass":
+            '''
             fop1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
             foa1 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             fop2 = fpMax / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -123,7 +124,17 @@ class Butterworth(object):
             self.f1 = 10 ** (np.log10(fop1) * (1 - (Denorm + 50) / 100) + np.log10(foa1) * (Denorm + 50) / 100)
             self.f2 = 10 ** (np.log10(fop2) * (1 - (Denorm + 50) / 100) + np.log10(foa2) * (Denorm + 50) / 100)
             self.fo = [self.f1, self.f2]
+            '''
+            Bw = 2 * np.pi * (fpMax - fpMin)
+            wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
+            wo1 = self.get_B_wo()
+            wo2 = wo1 * self.wan / self.get_B_wa()
+            wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
+            wo1 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) + wod * Bw) / 2
+            wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
+            self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
         elif self.type == "Band Reject":
+            '''
             fop1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
             foa1 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
             fop2 = fpMax * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
@@ -131,6 +142,15 @@ class Butterworth(object):
             self.f1 = 10 ** (np.log10(fop1) * (1 - (Denorm + 50) / 100) + np.log10(foa1) * (Denorm + 50) / 100)
             self.f2 = 10 ** (np.log10(fop2) * (1 - (Denorm + 50) / 100) + np.log10(foa2) * (Denorm + 50) / 100)
             self.fo = [self.f1, self.f2]
+            '''
+            Bw = 2 * np.pi * (fpMax - fpMin)
+            wp = 2 * np.pi * np.sqrt(fpMin * fpMax)
+            wo1 = self.get_B_wo()
+            wo2 = wo1 * self.wan / self.get_B_wa()
+            wod = 10 ** (np.log10(wo1) * (1 - Denorm / 100) + np.log10(wo2) * Denorm / 100)
+            wo1 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) + Bw / wod) / 2
+            wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
+            self.fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -447,9 +467,26 @@ class Butterworth(object):
             q_arr.append(q)
         return q_arr
 
-    #####################################
-    # ALEX LO HIZO
-    #####################################
+    def get_B_System(self):
+        z, p, k = signal.butter(self.order, 1, btype='lowpass', analog=True, output='zpk')
+        sys = signal.lti(z, p, k)
+        return sys
+
+    def get_B_wo(self):
+        sys = self.get_B_System()
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=1000))
+        for i in range(len(mag)):
+            if mag[i] <= -self.filter.reqData[FilterData.Ap]:
+                wo = w[i]
+                return wo
+
+    def get_B_wa(self):
+        sys = self.get_B_System()
+        w, mag, pha = signal.bode(sys, w=np.logspace(-1, 3, num=1000))
+        for i in range(len(mag)):
+            if mag[i] <= -self.filter.reqData[FilterData.Aa]:
+                wa = w[i]
+                return wa
 
     def get_very_useful_data(self): #colocar TAL CUAL en las otras aprox
         fpMin = self.filter.reqData[FilterData.fpMin]
