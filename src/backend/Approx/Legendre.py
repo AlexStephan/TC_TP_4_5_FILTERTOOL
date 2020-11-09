@@ -467,7 +467,7 @@ class Legendre(object):
                 p.append(r[i])
         k = np.polyval(self.get_L_Filter_Poly(), 0)
         for pole in p:
-            k *= abs(pole)
+            k *= pole
         return z, p, k
 
     def get_L_System(self):
