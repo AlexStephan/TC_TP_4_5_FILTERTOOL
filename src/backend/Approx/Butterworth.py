@@ -23,9 +23,9 @@ class Butterworth(object):
         self.mag = None
         self.pha = None
         self.w_att = None
-        self.w_anorm = None
+        self.w_natt = None
         self.A = None
-        self.A_norm = None
+        self.A_n = None
         self.wgd = None
         self.GroupDelay = None
         self.timp = None
@@ -262,7 +262,7 @@ class Butterworth(object):
         else:
             message = "Error: Enter Filter Type."
             return message
-
+    '''
     def calc_Norm_TransFunc(self):
         val, msg = self.filter.validate()
         if val is False:
@@ -294,7 +294,14 @@ class Butterworth(object):
         else:
             message = "Error: Enter Filter Type."
             return message
+    '''
 
+
+    def calc_Norm_TransFunc(self):
+        z, p, k = signal.butter(self.order, 1, btype='lowpass', analog=True, output='zpk')
+        z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+        sys = signal.lti(z, p, k)
+        self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
 
     def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
         val, msg = self.filter.validate()
@@ -341,7 +348,7 @@ class Butterworth(object):
             A.append(20 * log10(abs(1 / h[i])))
         self.w_att = w
         self.A = A
-
+    '''
     def calc_Norm_Attenuation(self):
         w, h = self.get_Norm_TransFunc()
         if self.type == "Low Pass":
@@ -359,8 +366,17 @@ class Butterworth(object):
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
-        self.w_anorm = wn
-        self.A_norm = An
+        self.w_natt = wn
+        self.A_n = An
+    '''
+    def calc_Norm_Attenuation(self):
+        w, h = self.get_Norm_TransFunc()
+        wn = np.divide(w, 2 * np.pi * self. fo)
+        An = []
+        for i in range(len(h)):
+            An.append(20 * log10(abs(1 / h[i])))
+        self.w_natt = wn
+        self.A_n = An
 
     def get_Norm_TransFunc(self):
         return self.w_tfn, self.h_n
