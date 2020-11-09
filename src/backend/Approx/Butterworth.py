@@ -30,6 +30,9 @@ class Butterworth(object):
         self.impresp = None
         self.tstep = None
         self.stepresp = None
+
+        #TODO CALCULAR WAN
+        self.wan = 1
         self.calculate()
 
 
@@ -401,3 +404,5 @@ class Butterworth(object):
         #Nmax = self.filter.reqData[FilterData.Nmax]
         return fpMin,fpMax,Ap,faMin,faMax,Aa
 
+    def get_wan(self):
+        return self.wan

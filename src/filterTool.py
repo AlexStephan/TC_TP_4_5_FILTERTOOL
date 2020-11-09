@@ -799,7 +799,52 @@ class FilterTool(QWidget,Ui_Form):
             print("es retardo de grupo")
         elif faM == None or fpM == None:
             #NO ES PASA BANDA NI RECHAZA BANDA
-            1+1
+            #ES PASABAJOS O PASAALTOS
+            if fam < fpm:
+                #ES PASAALTOS
+                rectangle_att=[[fam,fam,fam/1000,fam/1000,fam],
+                               [Aa,Aa-100,Aa-100,Aa,Aa]]
+                rectangle_pass=[[fpm,fpm,fpm*1000,fpm*1000,fpm],
+                                [Ap,Ap+100,Ap+100,Ap,Ap]]
+                #colorAtt = tempAtt.get_facecolor()[0]
+                self.axis_Attenuation.semilogx(rectangle_att[0],rectangle_att[1],color='k')
+                self.axis_Attenuation.semilogx(rectangle_pass[0],rectangle_pass[1],color='k')
+                self.axis_Attenuation.legend()
+                self.canvas_Attenuation.draw()
+            else:
+                #ES PASABAJOS
+                rectangle_pass = [[fpm, fpm, fpm / 1000, fpm / 1000, fpm],
+                                  [Ap, Ap + 100, Ap + 100, Ap, Ap]]
+                rectangle_att = [[fam, fam, fam * 1000, fam * 1000, fam],
+                                 [Aa, Aa - 100, Aa - 100, Aa, Aa]]
+                #colorAtt = tempAtt.get_facecolor()[0]
+                self.__drawRectangleAtt([rectangle_att,rectangle_pass])
+                self.axis_Attenuation.legend()
+                self.canvas_Attenuation.draw()
+        else:
+            #PASA BANDA O RECHAZA BANDA
+            if fam<fpm:
+                #PASA BANDA
+                rectangle_att_izq = [[fam,fam,fam/1000,fam/1000,fam],
+                                     [Aa,Aa-100,Aa-100,Aa,Aa]]
+                rectangle_pass = [[fpm,fpm,fpM,fpM,fpm],
+                                  [Ap,Ap+100,Ap+100,Ap,Ap]]
+                rectangle_att_der = [[faM, faM, faM * 1000, faM * 1000, faM],
+                                     [Aa, Aa - 100, Aa - 100, Aa, Aa]]
+                self.__drawRectangleAtt([rectangle_att_izq,rectangle_pass,rectangle_att_der])
+                self.axis_Attenuation.legend()
+                self.canvas_Attenuation.draw()
+            else:
+                rectangle_pass_izq = [[fpm,fpm,fpm/1000,fpm/1000,fpm],
+                                      [Ap, Ap + 100, Ap + 100, Ap, Ap]]
+                rectangle_att = [[fam,fam,faM,faM,fam],
+                                 [Aa, Aa - 100, Aa - 100, Aa, Aa]]
+                rectangle_pass_der = [[fpM, fpM, fpM * 1000, fpM * 1000, fpM],
+                                      [Ap, Ap + 100, Ap + 100, Ap, Ap]]
+                self.__drawRectangleAtt([rectangle_pass_izq, rectangle_att, rectangle_pass_der])
+                self.axis_Attenuation.legend()
+                self.canvas_Attenuation.draw()
+
 
         #self.axis_ImpulseResponse.plot(impulseResponse[0],impulseResponse[1],label=name)
         #self.axis_ImpulseResponse.legend()
@@ -808,6 +853,10 @@ class FilterTool(QWidget,Ui_Form):
         #self.axis_StepResponse.plot(stepResponse[0],stepResponse[1],label=name)
         #self.axis_StepResponse.legend()
         #self.canvas_StepResponse.draw()
+
+    def __drawRectangleAtt(self,rectangles):
+        for rectangle in rectangles:
+            self.axis_Attenuation.semilogx(rectangle[0], rectangle[1], color='k')
 
     def __cleanFilterMakerGraphs(self):
         self.axis_Magnitude.clear()
