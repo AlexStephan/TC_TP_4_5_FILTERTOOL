@@ -279,11 +279,13 @@ class Legendre(object):
             self.calc_fo()
             self.calc_Denormalization_zpk()
         self.calc_TransFunc()
+        self.calc_Norm_TransFunc()
         self.calc_MagAndPhase()
         self.calc_Group_Delay()
         self.calc_Impulse_Response()
         self.calc_Step_Response()
         self.calc_Attenuation()
+        self.calc_Norm_Attenuation()
 
     #####################
     #       ALEX        #
@@ -320,7 +322,7 @@ class Legendre(object):
         return self.wgd, self.GroupDelay
 
     def get_Attenuation(self):
-        return self.w_bode, self.A
+        return self.w_att, self.A
 
     def get_Norm_Attenuation(self):
         return self.w_natt, self.A_n

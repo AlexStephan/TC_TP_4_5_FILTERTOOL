@@ -162,7 +162,7 @@ class Gauss(object):
     #####################
 
     def get_Attenuation(self):
-        return self.w_bode, self.A
+        return self.w_att, self.A
 
     def get_Norm_Attenuation(self):
         return [], []
