@@ -9,6 +9,7 @@ class Butterworth(object):
         self.order = None
         self.wan = None
         self.fo = None
+        self.fc = None
         self.Bw = None
         self.f1 = None
         self.f2 = None
@@ -137,8 +138,8 @@ class Butterworth(object):
             wo2 = (np.sqrt((wod * Bw) ** 2 + 4 * wp ** 2) - wod * Bw) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            self.fo = fo
-            #self.fo = [wo1 / (2 * np.pi), wo2 / (2 * np.pi)]
+            self.fc = fo
+            self.fo = [wo1 / (2 * np.pi), wo2 / (2 * np.pi)]
             self.Bw = Bw
 
         elif self.type == "Band Reject":
@@ -160,7 +161,8 @@ class Butterworth(object):
             wo2 = (np.sqrt((Bw / wod) ** 2 + 4 * wp ** 2) - Bw / wod) / 2
             fo = np.sqrt(wo1 * wo2) / (2 * np.pi)
             Bw = abs(wo1 - wo2) / (2 * np.pi)
-            self.fo = fo
+            self.fc = fo
+            self.fo = [wo1 / (2 * np.pi), wo2 / (2 * np.pi)]
             self.Bw = Bw
 
         else:
@@ -242,10 +244,10 @@ class Butterworth(object):
             self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
                                                    btype='lowpass', analog=True, output='zpk')
         elif self.type == "Band Pass":
-            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fo,
+            self.z, self.p, self.k = signal.butter(self.order, 2 * np.pi * self.fc,
                                                    btype='lowpass', analog=True, output='zpk')
         elif self.type == "Band Reject":
-            self.z, self.p, self.k = signal.butter(self.order,  2 * np.pi * self.fo,
+            self.z, self.p, self.k = signal.butter(self.order,  2 * np.pi * self.fc,
                                                    btype='lowpass', analog=True, output='zpk')
         else:
             message = "Error: Enter Filter Type."
@@ -260,10 +262,10 @@ class Butterworth(object):
             self.z, self.p, self.k = signal.lp2hp_zpk(z, p, k, wo=2 * np.pi * self.fo)
         elif self.type == "Band Pass":
             z, p, k = self.get_L_zpk()
-            self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
+            self.z, self.p, self.k = signal.lp2bp_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
         elif self.type == "Band Reject":
             z, p, k = self.get_L_zpk()
-            self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fo, bw=2 * np.pi * self.Bw)
+            self.z, self.p, self.k = signal.lp2bs_zpk(z, p, k, wo=2 * np.pi * self.fc, bw=2 * np.pi * self.Bw)
 
 
     def calc_sos(self):
