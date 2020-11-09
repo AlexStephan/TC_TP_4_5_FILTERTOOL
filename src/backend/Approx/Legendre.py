@@ -262,6 +262,7 @@ class Legendre(object):
         self.calc_Group_Delay()
         self.calc_Impulse_Response()
         self.calc_Step_Response()
+        self.calc_Attenuation()
 
     #####################
     #       ALEX        #
