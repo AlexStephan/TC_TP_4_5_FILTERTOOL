@@ -103,35 +103,36 @@ class Butterworth(object):
         Ap = self.filter.reqData[FilterData.Ap]
 
         faMin = self.filter.reqData[FilterData.faMin]
-        faMax = self.filter.reqData[FilterData.fpMax]
+        faMax = self.filter.reqData[FilterData.faMax]
         Aa = self.filter.reqData[FilterData.Aa]
 
         Denorm = self.filter.reqData[FilterData.Denorm]
+        self.d = Denorm
 
         if self.type == "Low Pass":
-            fo1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
-            fo2 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
-            self.fo = 10 ** (np.log10(fo1) * (1 - Denorm / 100) + np.log10(fo2) * Denorm / 100)
+            self.f1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
+            self.f2 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
+            self.fo = 10 ** (np.log10(self.f1) * (1 - Denorm / 100) + np.log10(self.f2) * Denorm / 100)
         elif self.type == "High Pass":
-            fo1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
-            fo2 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
-            self.fo = 10 ** (np.log10(fo1) * (1 - Denorm / 100) + np.log10(fo2) * Denorm / 100)
+            self.f1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
+            self.f2 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
+            self.fo = 10 ** (np.log10(self.f1) * (1 - Denorm / 100) + np.log10(self.f2) * Denorm / 100)
         elif self.type == "Band Pass":
-            fop1 = fpMin * (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa1 = faMin * (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fop2 = fpMax / (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa2 = faMax / (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
-            fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
-            self.fo = [fo1, fo2]
+            fop1 = fpMin * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
+            foa1 = faMin * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
+            fop2 = fpMax / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
+            foa2 = faMax / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
+            self.f1 = 10 ** (np.log10(fop1) * (1 - (Denorm + 50) / 100) + np.log10(foa1) * (Denorm + 50) / 100)
+            self.f2 = 10 ** (np.log10(fop2) * (1 - (Denorm + 50) / 100) + np.log10(foa2) * (Denorm + 50) / 100)
+            self.fo = [self.f1, self.f2]
         elif self.type == "Band Reject":
-            fop1 = fpMin / (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa1 = faMin / (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fop2 = fpMax * (10 ** (Ap / 10) - 1) ** (1 / self.order)
-            foa2 = faMax * (10 ** (Aa / 10) - 1) ** (1 / self.order)
-            fo1 = 10 ** (np.log10(fop1) * (1 - Denorm / 100) + np.log10(foa1) * Denorm / 100)
-            fo2 = 10 ** (np.log10(fop2) * (1 - Denorm / 100) + np.log10(foa2) * Denorm / 100)
-            self.fo = [fo1, fo2]
+            fop1 = fpMin / ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
+            foa1 = faMin / ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
+            fop2 = fpMax * ((10 ** (Ap / 10) - 1) ** (1 / (2 * self.order)))
+            foa2 = faMax * ((10 ** (Aa / 10) - 1) ** (1 / (2 * self.order)))
+            self.f1 = 10 ** (np.log10(fop1) * (1 - (Denorm + 50) / 100) + np.log10(foa1) * (Denorm + 50) / 100)
+            self.f2 = 10 ** (np.log10(fop2) * (1 - (Denorm + 50) / 100) + np.log10(foa2) * (Denorm + 50) / 100)
+            self.fo = [self.f1, self.f2]
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -226,16 +227,16 @@ class Butterworth(object):
         z, p, k = self.get_zpk()
         if self.type == "Low Pass":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp()
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "High Pass":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp()
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Pass":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp()
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Reject":
             sys = signal.lti(z, p, k)
-            self.w_tf, self.h = sys.freqresp()
+            self.w_tf, self.h = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -248,22 +249,22 @@ class Butterworth(object):
             z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp()
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "High Pass":
             z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp()
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Pass":
             z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp()
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Reject":
             z, p, k = signal.butter(self.order, 2 * np.pi * self.fo,
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
-            self.w_tfn, self.h_n = sys.freqresp()
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-3, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -276,16 +277,16 @@ class Butterworth(object):
         z, p, k = self.get_zpk()
         if self.type == "Low Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys)
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
         elif self.type == "High Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys)
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Pass":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys)
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
         elif self.type == "Band Reject":
             sys = signal.ZerosPolesGain(z, p, k)
-            self.w_bode, self.mag, self.pha = signal.bode(sys)
+            self.w_bode, self.mag, self.pha = signal.bode(sys, w=np.logspace(-3, 9, num=100000))
         else:
             message = "Error: Enter Filter Type."
             return message
@@ -356,12 +357,12 @@ class Butterworth(object):
         self.wgd = w
 
     def calc_Impulse_Response(self):
-        t, out = signal.impulse(self.get_lti())
+        t, out = signal.impulse(self.get_lti(), T=np.linspace(0, 1, num=100000))
         self.timp = t
         self.impresp = out
 
     def calc_Step_Response(self):
-        t, out = signal.step(self.get_lti())
+        t, out = signal.step(self.get_lti(), T=np.linspace(0, 1, num=100000))
         self.tstep = t
         self.stepresp = out
 
