@@ -135,6 +135,28 @@ class Butterworth(object):
             message = "Error: Enter Filter Type."
             return message
 
+    def calc_wan(self):
+        val, msg = self.filter.validate()
+        if val is False:
+            return msg
+
+        fpMin = self.filter.reqData[FilterData.fpMin]
+        fpMax = self.filter.reqData[FilterData.fpMax]
+
+        faMin = self.filter.reqData[FilterData.faMin]
+        faMax = self.filter.reqData[FilterData.fpMax]
+
+        if self.type == "Low Pass":
+            self.wan = faMin / fpMin
+        elif self.type == "High Pass":
+            self.wan = fpMin / faMin
+        elif self.type == "Band Pass":
+            self.wan = np.minimum(fpMin / faMin, faMax / fpMax)
+        elif self.type == "Band Reject":
+            self.wan = np.minimum(faMin / fpMin, fpMax / faMax)
+        else:
+            message = "Error: Enter Filter Type."
+            return message
 
     def calc_NumDen(self):
         val, msg = self.filter.validate()
@@ -289,7 +311,7 @@ class Butterworth(object):
         self.A = A
 
     def calc_Norm_Attenuation(self):
-        w, h = self.get_Norm_TransFunc()
+        w, h = self.get_TransFuncWithoutGain()
         wn = np.divide(w, 2 * np.pi * self.filter.reqData[FilterData.fpMin])
         A = []
         for i in range(len(h)):
