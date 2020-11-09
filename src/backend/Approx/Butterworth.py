@@ -259,13 +259,13 @@ class Butterworth(object):
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
             z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
-                    np.log10(self.f1) * ((self.d) / 100) + np.log10(self.f2) * (1 - (self.d) / 100)),
+                    np.log10(self.f1) * ((self.d + 50) / 100) + np.log10(self.f2) * (1 - (self.d + 50) / 100)),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Reject":
             z, p, k = signal.butter(self.order, 2 * np.pi * 10 ** (
-                    np.log10(self.f1) * (1 - (self.d) / 100) + np.log10(self.f2) * (self.d) / 100),
+                    np.log10(self.f1) * (1 - (self.d + 50) / 100) + np.log10(self.f2) * (self.d + 50) / 100),
                                     btype='lowpass', analog=True, output='zpk')
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
@@ -349,10 +349,10 @@ class Butterworth(object):
                     np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
         elif self.type == "Band Pass":
             wn = np.divide(w, 2 * np.pi * 10 ** (
-                    np.log10(self.f1) * (1 - (self.d) / 100) + np.log10(self.f2) * (self.d) / 100))
+                    np.log10(self.f1) * (1 - (self.d + 50) / 100) + np.log10(self.f2) * (self.d + 50) / 100))
         elif self.type == "Band Reject":
             wn = np.divide(w, 2 * np.pi * 10 ** (
-                    np.log10(self.f1) * ((self.d) / 100) + np.log10(self.f2) * (1 - (self.d) / 100)))
+                    np.log10(self.f1) * ((self.d + 50) / 100) + np.log10(self.f2) * (1 - (self.d + 50) / 100)))
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
