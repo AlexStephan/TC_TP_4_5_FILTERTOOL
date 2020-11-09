@@ -296,12 +296,24 @@ class Butterworth(object):
             return message
     '''
 
-
     def calc_Norm_TransFunc(self):
         z, p, k = signal.butter(self.order, 1, btype='lowpass', analog=True, output='zpk')
-        z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
-        sys = signal.lti(z, p, k)
-        self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
+        if self.type == "Low Pass":
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
+        elif self.type == "High Pass":
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
+        elif self.type == "Band Pass":
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo[1])
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
+        elif self.type == "Band Reject":
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo[1])
+            sys = signal.lti(z, p, k)
+            self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
 
     def calc_MagAndPhase(self):              # return angular frequency, Mag and Phase
         val, msg = self.filter.validate()
@@ -371,7 +383,14 @@ class Butterworth(object):
     '''
     def calc_Norm_Attenuation(self):
         w, h = self.get_Norm_TransFunc()
-        wn = np.divide(w, 2 * np.pi * self. fo)
+        if self.type == "Low Pass":
+            wn = np.divide(w, 2 * np.pi * self. fo)
+        elif self.type == "High Pass":
+            wn = np.divide(w, 2 * np.pi * self. fo)
+        elif self.type == "Band Pass":
+            wn = np.divide(w, 2 * np.pi * self. fo[1])
+        elif self.type == "Band Reject":
+            wn = np.divide(w, 2 * np.pi * self. fo[1])
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
