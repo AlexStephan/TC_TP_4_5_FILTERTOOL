@@ -436,9 +436,9 @@ class Butterworth(object):
         elif self.type == "High Pass":
             wn = np.divide(w, 2 * np.pi * self. fo)
         elif self.type == "Band Pass":
-            wn = np.divide(w, 2 * np.pi * self. fo[1])
+            wn = np.divide(w, 2 * np.pi * self. fc)
         elif self.type == "Band Reject":
-            wn = np.divide(w, 2 * np.pi * self. fo[1])
+            wn = np.divide(w, 2 * np.pi * self. fc)
         An = []
         for i in range(len(h)):
             An.append(20 * log10(abs(1 / h[i])))
