@@ -307,11 +307,13 @@ class Butterworth(object):
     def calc_Norm_TransFunc(self):
         z, p, k = signal.butter(self.order, 1, btype='lowpass', analog=True, output='zpk')
         if self.type == "Low Pass":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "High Pass":
-            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * self.fo)
+            z, p, k = signal.lp2lp_zpk(z, p, k, wo=2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)))
             sys = signal.lti(z, p, k)
             self.w_tfn, self.h_n = sys.freqresp(w=np.logspace(-1, 9, num=100000))
         elif self.type == "Band Pass":
@@ -393,9 +395,11 @@ class Butterworth(object):
     def calc_Norm_Attenuation(self):
         w, h = self.get_Norm_TransFunc()
         if self.type == "Low Pass":
-            wn = np.divide(w, 2 * np.pi * self. fo)
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (self.d / 100) + np.log10(self.f2) * (1 - self.d / 100)))
         elif self.type == "High Pass":
-            wn = np.divide(w, 2 * np.pi * self. fo)
+            wn = np.divide(w, 2 * np.pi * 10 ** (
+                    np.log10(self.f1) * (1 - self.d / 100) + np.log10(self.f2) * (self.d / 100)))
         elif self.type == "Band Pass":
             wn = np.divide(w, 2 * np.pi * self. fc)
         elif self.type == "Band Reject":
