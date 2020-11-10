@@ -255,12 +255,12 @@ class Legendre(object):
         self.wgd = w
 
     def calc_Impulse_Response(self):
-        t, out = signal.impulse(self.get_lti(), T=np.linspace(0, 1, num=100000))
+        t, out = signal.impulse(self.get_lti(), N=100000)
         self.timp = t
         self.impresp = out
 
     def calc_Step_Response(self):
-        t, out = signal.step(self.get_lti(), T=np.linspace(0, 1, num=100000))
+        t, out = signal.step(self.get_lti(), N=100000)
         self.tstep = t
         self.stepresp = out
 
@@ -467,7 +467,7 @@ class Legendre(object):
                 p.append(r[i])
         k = np.polyval(self.get_L_Filter_Poly(), 0)
         for pole in p:
-            k *= pole
+            k *= abs(pole)
         return z, p, k
 
     def get_L_System(self):

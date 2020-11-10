@@ -423,12 +423,12 @@ class Butterworth(object):
         self.wgd = w
 
     def calc_Impulse_Response(self):
-        t, out = signal.impulse2(self.get_lti(), T=np.linspace(0, 1, num=100000))
+        t, out = signal.impulse2(self.get_lti(), N=100000)
         self.timp = t
         self.impresp = out
 
     def calc_Step_Response(self):
-        t, out = signal.step2(self.get_lti(), T=np.linspace(0, 1, num=100000))
+        t, out = signal.step2(self.get_lti(), N=100000)
         self.tstep = t
         self.stepresp = out
 
